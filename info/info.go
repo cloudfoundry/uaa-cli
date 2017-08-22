@@ -35,8 +35,8 @@ type uaaPrompts struct {
 	Password []string `json:"password"`
 }
 
-func Info(client UaaClient) (UaaInfo, error) {
-	infoUrl := utils.BuildUrl(client.BaseUrl, "info")
+func Info(context UaaContext) (UaaInfo, error) {
+	infoUrl := utils.BuildUrl(context.BaseUrl, "info")
 
 	httpClient := &http.Client{}
 	req, _ := http.NewRequest("GET", infoUrl, nil)

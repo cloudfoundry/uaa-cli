@@ -5,10 +5,6 @@ import (
 	"github.com/jhamon/uaalib/utils"
 )
 
-type UaaClient struct {
-	BaseUrl string
-}
-
 type UaaHealthStatus string
 
 const (
@@ -16,8 +12,8 @@ const (
 	ERROR = UaaHealthStatus("health_error")
 )
 
-func Health(client UaaClient) UaaHealthStatus {
-		resp, _ := http.Get(utils.BuildUrl(client.BaseUrl, "healthz"))
+func Health(context UaaContext) UaaHealthStatus {
+		resp, _ := http.Get(utils.BuildUrl(context.BaseUrl, "healthz"))
 
 	if resp.StatusCode == 200 {
 		return OK
