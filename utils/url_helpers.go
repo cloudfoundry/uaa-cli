@@ -2,12 +2,9 @@ package utils
 
 import "net/url"
 
-func BuildUrl(baseUrl, path string) string {
-	newUrl, err := url.Parse(baseUrl)
-	if err != nil {
-		return ""
-	}
+func BuildUrl(baseUrl, path string) *url.URL {
+	newUrl, _ := url.Parse(baseUrl)
 
 	newUrl.Path = path
-	return newUrl.String()
+	return newUrl
 }

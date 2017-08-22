@@ -36,7 +36,7 @@ type uaaPrompts struct {
 }
 
 func Info(context UaaContext) (UaaInfo, error) {
-	infoUrl := utils.BuildUrl(context.BaseUrl, "info")
+	infoUrl := utils.BuildUrl(context.BaseUrl, "info").String()
 
 	httpClient := &http.Client{}
 	req, _ := http.NewRequest("GET", infoUrl, nil)

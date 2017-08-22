@@ -13,7 +13,7 @@ const (
 )
 
 func Health(context UaaContext) UaaHealthStatus {
-		resp, _ := http.Get(utils.BuildUrl(context.BaseUrl, "healthz"))
+		resp, _ := http.Get(utils.BuildUrl(context.BaseUrl, "healthz").String())
 
 	if resp.StatusCode == 200 {
 		return OK

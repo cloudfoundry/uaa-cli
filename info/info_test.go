@@ -16,7 +16,8 @@ var _ = Describe("Info", func() {
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
-		context = UaaContext{server.URL()}
+		context = UaaContext{}
+		context.BaseUrl = server.URL()
 		infoResponse = `{
 		  "app": {
 			"version": "4.5.0"

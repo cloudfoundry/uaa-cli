@@ -15,7 +15,8 @@ var _ = Describe("Health", func() {
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
-		context = info.UaaContext{server.URL()}
+		context = info.UaaContext{}
+		context.BaseUrl = server.URL()
 	})
 
 	AfterEach(func() {
