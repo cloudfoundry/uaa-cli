@@ -2,7 +2,7 @@ package info
 
 import (
 	"net/http"
-	"github.com/jhamon/uaa/utils"
+	"github.com/jhamon/uaalib/utils"
 
 	"io/ioutil"
 	"encoding/json"

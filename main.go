@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jhamon/uaa/info"
+	"github.com/jhamon/uaalib/info"
 )
 
 func main() {

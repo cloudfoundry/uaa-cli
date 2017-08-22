@@ -1,7 +1,7 @@
 package info_test
 
 import (
-	"github.com/jhamon/uaa/info"
+	"github.com/jhamon/uaalib/info"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
