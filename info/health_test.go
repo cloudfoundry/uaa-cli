@@ -1,10 +1,10 @@
 package info_test
 
 import (
+	"github.com/jhamon/uaa/info"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	"github.com/jhamon/uaa/info"
 )
 
 var _ = Describe("Health", func() {

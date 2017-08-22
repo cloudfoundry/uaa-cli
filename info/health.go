@@ -2,7 +2,7 @@ package info
 
 import (
 	"net/http"
-	"net/url"
+	"github.com/jhamon/uaa/utils"
 )
 
 type UaaClient struct {
@@ -12,24 +12,14 @@ type UaaClient struct {
 type UaaHealthStatus string
 
 const (
-	OK = UaaHealthStatus("ok")
+	OK    = UaaHealthStatus("ok")
 	ERROR = UaaHealthStatus("health_error")
 )
 
-func buildUrl(baseUrl, path string) string {
-	newUrl, err := url.Parse(baseUrl)
-	if (err != nil) {
-		return ""
-	}
-
-	newUrl.Path = path
-	return newUrl.String()
-}
-
 func Health(client UaaClient) UaaHealthStatus {
-	resp, _ := http.Get(buildUrl(client.BaseUrl, "healthz"))
+		resp, _ := http.Get(utils.BuildUrl(client.BaseUrl, "healthz"))
 
-	if (resp.StatusCode == 200) {
+	if resp.StatusCode == 200 {
 		return OK
 	} else {
 		return ERROR
