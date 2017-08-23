@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	. "github.com/jhamon/uaalib/info"
+	. "github.com/jhamon/guac/info"
 )
 
 var _ = Describe("Info", func() {
