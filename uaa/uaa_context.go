@@ -1,4 +1,4 @@
-package info
+package uaa
 
 type UaaContext struct {
 	BaseUrl string

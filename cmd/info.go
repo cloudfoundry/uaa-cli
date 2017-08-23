@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/jhamon/guac/info"
+	"github.com/jhamon/guac/uaa"
 	"encoding/json"
 	"os"
 )
@@ -34,9 +34,9 @@ var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "See version and link configuration for your UAA",
 	Run: func(cmd *cobra.Command, args []string) {
-		context := info.UaaContext{}
+		context := uaa.UaaContext{}
 		context.BaseUrl = "https://login.run.pivotal.io"
-		i, err := info.Info(context)
+		i, err := uaa.Info(context)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

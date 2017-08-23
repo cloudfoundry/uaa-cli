@@ -1,4 +1,4 @@
-package info_test
+package uaa_test
 
 import (
 	. "github.com/onsi/ginkgo"

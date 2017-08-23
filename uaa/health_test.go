@@ -1,7 +1,7 @@
-package info_test
+package uaa_test
 
 import (
-	"github.com/jhamon/guac/info"
+	. "github.com/jhamon/guac/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
@@ -10,12 +10,12 @@ import (
 var _ = Describe("Health", func() {
 	var (
 		server *ghttp.Server
-		context info.UaaContext
+		context UaaContext
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
-		context = info.UaaContext{}
+		context = UaaContext{}
 		context.BaseUrl = server.URL()
 	})
 
@@ -27,17 +27,17 @@ var _ = Describe("Health", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(200, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status := info.Health(context)
+		status := Health(context)
 
-		Expect(status).To(Equal(info.OK))
+		Expect(status).To(Equal(OK))
 	})
 
 	It("returns error status when non-200 response", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(400, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status := info.Health(context)
+		status := Health(context)
 
-		Expect(status).To(Equal(info.ERROR))
+		Expect(status).To(Equal(ERROR))
 	})
 })

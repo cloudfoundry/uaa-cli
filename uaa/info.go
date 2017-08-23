@@ -1,4 +1,4 @@
-package info
+package uaa
 
 import (
 	"net/http"

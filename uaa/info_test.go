@@ -1,10 +1,10 @@
-package info_test
+package uaa_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	. "github.com/jhamon/guac/info"
+	. "github.com/jhamon/guac/uaa"
 )
 
 var _ = Describe("Info", func() {

@@ -1,7 +1,7 @@
-package info_test
+package uaa_test
 
 import (
-	. "github.com/jhamon/guac/info"
+	. "github.com/jhamon/guac/uaa"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
