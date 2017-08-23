@@ -27,7 +27,7 @@ var _ = Describe("Health", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(200, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status := Health(context)
+		status, _ := Health(context)
 
 		Expect(status).To(Equal(OK))
 	})
@@ -36,7 +36,7 @@ var _ = Describe("Health", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(400, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status := Health(context)
+		status, _ := Health(context)
 
 		Expect(status).To(Equal(ERROR))
 	})

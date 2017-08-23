@@ -9,5 +9,5 @@ import (
 
 func TestInfo(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Info Suite")
+	RunSpecs(t, "UAA Suite")
 }

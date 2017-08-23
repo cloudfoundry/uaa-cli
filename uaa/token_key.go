@@ -21,7 +21,10 @@ type JWK struct {
 }
 
 func TokenKey(context UaaContext) (JWK, error) {
-	tokenKeyUrl := utils.BuildUrl(context.BaseUrl, "token_key")
+	tokenKeyUrl, err := utils.BuildUrl(context.BaseUrl, "token_key")
+	if err != nil {
+		return JWK{}, nil
+	}
 	url := tokenKeyUrl.String()
 
 	httpClient := &http.Client{}

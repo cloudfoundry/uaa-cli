@@ -12,12 +12,20 @@ const (
 	ERROR = UaaHealthStatus("health_error")
 )
 
-func Health(context UaaContext) UaaHealthStatus {
-		resp, _ := http.Get(utils.BuildUrl(context.BaseUrl, "healthz").String())
+func Health(context UaaContext) (UaaHealthStatus, error) {
+	url, err := utils.BuildUrl(context.BaseUrl, "healthz")
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := http.Get(url.String())
+	if err != nil {
+		return "", nil
+	}
 
 	if resp.StatusCode == 200 {
-		return OK
+		return OK, nil
 	} else {
-		return ERROR
+		return ERROR, nil
 	}
 }

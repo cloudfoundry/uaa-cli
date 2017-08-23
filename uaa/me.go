@@ -20,7 +20,10 @@ type Userinfo struct {
 }
 
 func Me(context UaaContext) (Userinfo, error) {
-	userinfoUrl := utils.BuildUrl(context.BaseUrl, "userinfo")
+	userinfoUrl, err := utils.BuildUrl(context.BaseUrl, "userinfo")
+	if err != nil {
+		return Userinfo{}, err
+	}
 	userinfoUrl.RawQuery = "scheme=openid"
 	url := userinfoUrl.String()
 

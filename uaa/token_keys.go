@@ -12,7 +12,10 @@ type Keys struct {
 }
 
 func TokenKeys(context UaaContext) ([]JWK, error) {
-	tokenKeysUrl := utils.BuildUrl(context.BaseUrl, "token_keys")
+	tokenKeysUrl, err := utils.BuildUrl(context.BaseUrl, "token_keys")
+	if err != nil {
+		return []JWK{}, err
+	}
 	url := tokenKeysUrl.String()
 
 	httpClient := &http.Client{}

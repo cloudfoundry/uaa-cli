@@ -36,15 +36,19 @@ type uaaPrompts struct {
 }
 
 func Info(context UaaContext) (UaaInfo, error) {
-	infoUrl := utils.BuildUrl(context.BaseUrl, "info").String()
+	infoUrl, err := utils.BuildUrl(context.BaseUrl, "info")
+	if err != nil {
+		return UaaInfo{}, err
+	}
+	infoUrlStr := infoUrl.String()
 
 	httpClient := &http.Client{}
-	req, _ := http.NewRequest("GET", infoUrl, nil)
+	req, _ := http.NewRequest("GET", infoUrlStr, nil)
 	req.Header.Add("Accept","application/json")
 
 	resp, err := httpClient.Do(req)
 	if (resp.StatusCode != 200 || err != nil) {
-		return UaaInfo{}, requestError(infoUrl)
+		return UaaInfo{}, requestError(infoUrlStr)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -55,7 +59,7 @@ func Info(context UaaContext) (UaaInfo, error) {
 	info := UaaInfo{}
 	err = json.Unmarshal(body,&info)
 	if err != nil {
-		return UaaInfo{}, parseError(infoUrl, body)
+		return UaaInfo{}, parseError(infoUrlStr, body)
 	}
 
 	return info, nil
