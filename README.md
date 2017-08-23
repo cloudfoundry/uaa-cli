@@ -20,7 +20,7 @@ echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.bash_profile
 ```
 go get github.com/jhamon/guac
 cd $GOPATH/src/github.com/jhamon/guac
-deps ensure
+dep ensure
 go build && ./guac
 ```
 
