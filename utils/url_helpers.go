@@ -1,6 +1,8 @@
 package utils
 
-import "net/url"
+import (
+	"net/url"
+)
 
 func BuildUrl(baseUrl, path string) (*url.URL, error) {
 	newUrl, err := url.Parse(baseUrl)
