@@ -1,12 +1,6 @@
 package uaa
 
 import (
-
-)
-import (
-	"net/http"
-	"github.com/jhamon/uaa-cli/utils"
-	"io/ioutil"
 	"encoding/json"
 )
 
@@ -21,30 +15,15 @@ type JWK struct {
 }
 
 func TokenKey(context UaaContext) (JWK, error) {
-	tokenKeyUrl, err := utils.BuildUrl(context.BaseUrl, "token_key")
+	body, err := AuthenticatedGetter{}.Get(context, "token_key", "")
 	if err != nil {
-		return JWK{}, nil
-	}
-	url := tokenKeyUrl.String()
-
-	httpClient := &http.Client{}
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Accept","application/json")
-
-	resp, err := httpClient.Do(req)
-	if (resp.StatusCode != 200 || err != nil) {
-		return JWK{}, requestError(url)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return JWK{}, unknownError()
+		return JWK{}, err
 	}
 
 	key := JWK{}
 	err = json.Unmarshal(body,&key)
 	if err != nil {
-		return JWK{}, parseError(url, body)
+		return JWK{}, parseError("/token_key", body)
 	}
 
 	return key, nil

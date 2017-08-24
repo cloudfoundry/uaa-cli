@@ -1,10 +1,6 @@
 package uaa
 
 import (
-	"net/http"
-	"github.com/jhamon/uaa-cli/utils"
-
-	"io/ioutil"
 	"encoding/json"
 	"errors"
 )
@@ -36,33 +32,17 @@ type uaaPrompts struct {
 }
 
 func Info(context UaaContext) (UaaInfo, error) {
-	infoUrl, err := utils.BuildUrl(context.BaseUrl, "info")
+	infoBytes, err := UnauthenticatedGetter{}.Get(context, "info", "")
 	if err != nil {
 		return UaaInfo{}, err
 	}
-	infoUrlStr := infoUrl.String()
-
-	httpClient := &http.Client{}
-	req, _ := http.NewRequest("GET", infoUrlStr, nil)
-	req.Header.Add("Accept","application/json")
-
-	resp, err := httpClient.Do(req)
-	if (resp.StatusCode != 200 || err != nil) {
-		return UaaInfo{}, requestError(infoUrlStr)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return UaaInfo{}, unknownError()
-	}
 
 	info := UaaInfo{}
-	err = json.Unmarshal(body,&info)
+	err = json.Unmarshal(infoBytes,&info)
 	if err != nil {
-		return UaaInfo{}, parseError(infoUrlStr, body)
+		return UaaInfo{}, parseError("/info", infoBytes)
 	}
-
-	return info, nil
+	return info, err
 }
 
 func requestError(url string) error {
