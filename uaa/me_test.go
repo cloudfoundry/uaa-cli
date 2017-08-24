@@ -41,10 +41,10 @@ var _ = Describe("Me", func() {
 			ghttp.RespondWith(200, userinfoJson),
 			ghttp.VerifyRequest("GET", "/userinfo", "scheme=openid"),
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
-			ghttp.VerifyHeaderKV("Authorization", "bearer context-token"),
+			ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 		))
 
-		context.AccessToken = "context-token"
+		context.AccessToken = "access_token"
 		userinfo, _ := Me(context)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -65,6 +65,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
+		context.AccessToken = "access_token"
 		_, err := Me(context)
 
 		Expect(err).NotTo(BeNil())
@@ -78,6 +79,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
+		context.AccessToken = "access_token"
 		_, err := Me(context)
 
 		Expect(err).NotTo(BeNil())

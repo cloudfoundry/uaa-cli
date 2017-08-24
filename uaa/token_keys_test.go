@@ -58,6 +58,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
+			context.AccessToken = "access_token"
 			keys, _ := TokenKeys(context)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -78,6 +79,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
+			context.AccessToken = "access_token"
 			_, err := TokenKeys(context)
 
 			Expect(err).NotTo(BeNil())
@@ -108,6 +110,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
+			context.AccessToken = "access_token"
 			keys, _ := TokenKeys(context)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(2))
