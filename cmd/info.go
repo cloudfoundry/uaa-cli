@@ -24,7 +24,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/jhamon/guac/uaa"
+	"github.com/jhamon/uaa-cli/uaa"
 	"encoding/json"
 	"os"
 )

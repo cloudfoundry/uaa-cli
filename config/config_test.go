@@ -5,7 +5,7 @@ package config_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/jhamon/guac/config"
+	"github.com/jhamon/uaa-cli/config"
 )
 
 var _ = Describe("Config", func() {

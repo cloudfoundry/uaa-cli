@@ -33,9 +33,9 @@ var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "guac",
+	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
-	Long: `guac is the golang-based successor to the uaac command line tool
+	Long: `uaa is the golang-based successor to the uaac command line tool
 for administrating Cloud Foundry UAAs.
 
 This tool may be used to:
@@ -63,7 +63,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.guac.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.uaa.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -83,9 +83,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".guac" (without extension).
+		// Search config in home directory with name ".uaa" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".guac")
+		viper.SetConfigName(".uaa")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

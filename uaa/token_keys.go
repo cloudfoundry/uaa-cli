@@ -3,7 +3,7 @@ package uaa
 import (
 	"io/ioutil"
 	"net/http"
-	"github.com/jhamon/guac/utils"
+	"github.com/jhamon/uaa-cli/utils"
 	"encoding/json"
 )
 

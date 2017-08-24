@@ -5,7 +5,7 @@ import (
 )
 import (
 	"net/http"
-	"github.com/jhamon/guac/utils"
+	"github.com/jhamon/uaa-cli/utils"
 	"io/ioutil"
 	"encoding/json"
 )

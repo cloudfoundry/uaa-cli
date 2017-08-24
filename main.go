@@ -20,7 +20,7 @@
 
 package main
 
-import "github.com/jhamon/guac/cmd"
+import "github.com/jhamon/uaa-cli/cmd"
 
 func main() {
 	cmd.Execute()

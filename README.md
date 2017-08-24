@@ -1,4 +1,4 @@
-# guac
+# uaa-cli
 
 Experimental UAA cli. Not really ready for public consumption.
 
@@ -18,15 +18,15 @@ echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.bash_profile
 ## Trying out the latest code
 
 ```
-go get github.com/jhamon/guac
-cd $GOPATH/src/github.com/jhamon/guac
+go get github.com/jhamon/uaa-cli
+cd $GOPATH/src/github.com/jhamon/uaa-cli
 dep ensure
-go build && ./guac
+go build && ./uaa-cli
 ```
 
 ## Running the tests
 
 ```
-cd $GOPATH/src/github.com/jhamon/guac
+cd $GOPATH/src/github.com/jhamon/uaa-cli
 ginkgo -r
 ```

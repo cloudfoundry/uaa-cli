@@ -1,4 +1,4 @@
 *.xml
 .idea/
 vendor/
-guac
+uaa-cli

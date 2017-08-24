@@ -2,7 +2,7 @@ package uaa
 
 import (
 	"net/http"
-	"github.com/jhamon/guac/utils"
+	"github.com/jhamon/uaa-cli/utils"
 )
 
 type UaaHealthStatus string
