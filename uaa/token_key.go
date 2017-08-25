@@ -15,7 +15,7 @@ type JWK struct {
 }
 
 func TokenKey(context UaaContext) (JWK, error) {
-	body, err := AuthenticatedGetter{}.Get(context, "token_key", "")
+	body, err := AuthenticatedGetter{}.GetBytes(context, "token_key", "")
 	if err != nil {
 		return JWK{}, err
 	}

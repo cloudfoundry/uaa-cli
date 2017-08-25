@@ -17,7 +17,7 @@ type Userinfo struct {
 }
 
 func Me(context UaaContext) (Userinfo, error) {
-	body, err := AuthenticatedGetter{}.Get(context, "/userinfo", "scheme=openid")
+	body, err := AuthenticatedGetter{}.GetBytes(context, "/userinfo", "scheme=openid")
 	if err != nil {
 		return Userinfo{}, err
 	}

@@ -9,7 +9,7 @@ type Keys struct {
 }
 
 func TokenKeys(context UaaContext) ([]JWK, error) {
-	body, err := AuthenticatedGetter{}.Get(context, "/token_keys", "")
+	body, err := AuthenticatedGetter{}.GetBytes(context, "/token_keys", "")
 	if err != nil {
 		key, err := TokenKey(context)
 		return []JWK{key}, err

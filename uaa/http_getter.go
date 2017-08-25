@@ -3,32 +3,26 @@ package uaa
 import (
 	"io/ioutil"
 	"net/http"
-	"github.com/jhamon/uaa-cli/utils"
 	"errors"
 )
 
 type Getter interface {
-	Get(context UaaContext, path string, query string) ([]byte, int, error)
+	GetBytes(context UaaContext, path string, query string) ([]byte, error)
 }
 
 type UnauthenticatedGetter struct {}
 type AuthenticatedGetter struct {}
 
-func (ug UnauthenticatedGetter) Get(context UaaContext, path string, query string) ([]byte, error) {
-	targetUrl, err := utils.BuildUrl(context.BaseUrl, path)
+func getAndRead(factory HttpRequestFactory, context UaaContext, path string, query string) ([]byte, error) {
+	httpClient := &http.Client{}
+	req, err := factory.Get(context, path, query)
 	if err != nil {
 		return []byte{}, err
 	}
-	targetUrl.RawQuery = query
-	target := targetUrl.String()
-
-	httpClient := &http.Client{}
-	req, _ := http.NewRequest("GET", target, nil)
-	req.Header.Add("Accept","application/json")
 
 	resp, err := httpClient.Do(req)
 	if (resp.StatusCode != http.StatusOK || err != nil) {
-		return []byte{}, requestError(target)
+		return []byte{}, requestError(req.URL.String())
 	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
@@ -39,34 +33,12 @@ func (ug UnauthenticatedGetter) Get(context UaaContext, path string, query strin
 	return bytes, nil
 }
 
-func (ag AuthenticatedGetter) Get(context UaaContext, path string, query string) ([]byte, error) {
-	targetUrl, err := utils.BuildUrl(context.BaseUrl, path)
-	if err != nil {
-		return []byte{}, err
-	}
-	targetUrl.RawQuery = query
-	target := targetUrl.String()
+func (ug UnauthenticatedGetter) GetBytes(context UaaContext, path string, query string) ([]byte, error) {
+	return getAndRead(UnauthenticatedRequestFactory{}, context, path, query)
+}
 
-	if context.AccessToken == "" {
-		return []byte{}, errors.New("An access token is required to call " + target)
-	}
-
-	httpClient := &http.Client{}
-	req, _ := http.NewRequest("GET", target, nil)
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Authorization", "bearer " + context.AccessToken)
-
-	resp, err := httpClient.Do(req)
-	if (resp.StatusCode != http.StatusOK || err != nil) {
-		return []byte{}, requestError(target)
-	}
-
-	bytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return []byte{}, unknownError()
-	}
-
-	return bytes, nil
+func (ag AuthenticatedGetter) GetBytes(context UaaContext, path string, query string) ([]byte, error) {
+	return getAndRead(AuthenticatedRequestFactory{}, context, path, query)
 }
 
 func requestError(url string) error {
