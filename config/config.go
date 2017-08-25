@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"github.com/jhamon/uaa-cli/uaa"
 )
 
 type Config struct {
-	TargetUrl string
+	Context uaa.UaaContext
 }
 
 func ConfigDir() string {

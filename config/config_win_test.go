@@ -5,7 +5,6 @@ package config_test
 import (
 	"syscall"
 
-	"github.com/cloudfoundry-incubator/credhub-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
