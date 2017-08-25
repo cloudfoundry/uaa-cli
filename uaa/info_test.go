@@ -5,45 +5,47 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	. "github.com/jhamon/uaa-cli/uaa"
+	"net/http"
 )
 
 var _ = Describe("Info", func() {
 	var (
 		server *ghttp.Server
 		context UaaContext
-		infoResponse string
+
 	)
+
+	const InfoResponseJson string = `{
+	  "app": {
+		"version": "4.5.0"
+	  },
+	  "links": {
+		"uaa": "https://uaa.run.pivotal.io",
+		"passwd": "https://account.run.pivotal.io/forgot-password",
+		"login": "https://login.run.pivotal.io",
+		"register": "https://account.run.pivotal.io/sign-up"
+	  },
+	  "zone_name": "uaa",
+	  "entityID": "login.run.pivotal.io",
+	  "commit_id": "df80f63",
+	  "idpDefinitions": {},
+	  "prompts": {
+		"username": [
+		  "text",
+		  "Email"
+		],
+		"password": [
+		  "password",
+		  "Password"
+		]
+	  },
+	  "timestamp": "2017-07-21T22:45:01+0000"
+	}`
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		context = UaaContext{}
 		context.BaseUrl = server.URL()
-		infoResponse = `{
-		  "app": {
-			"version": "4.5.0"
-		  },
-		  "links": {
-			"uaa": "https://uaa.run.pivotal.io",
-			"passwd": "https://account.run.pivotal.io/forgot-password",
-			"login": "https://login.run.pivotal.io",
-			"register": "https://account.run.pivotal.io/sign-up"
-		  },
-		  "zone_name": "uaa",
-		  "entityID": "login.run.pivotal.io",
-		  "commit_id": "df80f63",
-		  "idpDefinitions": {},
-		  "prompts": {
-			"username": [
-			  "text",
-			  "Email"
-			],
-			"password": [
-			  "password",
-			  "Password"
-			]
-		  },
-		  "timestamp": "2017-07-21T22:45:01+0000"
-		}`
 	})
 
 	AfterEach(func() {
@@ -52,12 +54,12 @@ var _ = Describe("Info", func() {
 
 	It("calls the /info endpoint", func() {
 		server.RouteToHandler("GET", "/info", ghttp.CombineHandlers(
-			ghttp.RespondWith(200, infoResponse),
+			ghttp.RespondWith(200, InfoResponseJson),
 			ghttp.VerifyRequest("GET", "/info"),
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		infoResponse, _ := Info(context)
+		infoResponse, _ := Info(context, &http.Client{})
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(infoResponse.App.Version).To(Equal("4.5.0"))
@@ -80,7 +82,7 @@ var _ = Describe("Info", func() {
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		_, err := Info(context)
+		_, err := Info(context, &http.Client{})
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
@@ -93,7 +95,7 @@ var _ = Describe("Info", func() {
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		_, err := Info(context)
+		_, err := Info(context, &http.Client{})
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))

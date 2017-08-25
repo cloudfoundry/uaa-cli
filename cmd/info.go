@@ -27,6 +27,7 @@ import (
 	"github.com/jhamon/uaa-cli/uaa"
 	"encoding/json"
 	"os"
+	"net/http"
 )
 
 // infoCmd represents the info command
@@ -36,7 +37,7 @@ var infoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		context := uaa.UaaContext{}
 		context.BaseUrl = "https://login.run.pivotal.io"
-		i, err := uaa.Info(context)
+		i, err := uaa.Info(context, &http.Client{})
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

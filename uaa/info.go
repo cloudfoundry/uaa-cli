@@ -2,6 +2,8 @@ package uaa
 
 import (
 	"encoding/json"
+	"net/http"
+	"io/ioutil"
 )
 
 type UaaInfo struct {
@@ -30,16 +32,31 @@ type uaaPrompts struct {
 	Password []string `json:"password"`
 }
 
-func Info(context UaaContext) (UaaInfo, error) {
-	infoBytes, err := UnauthenticatedGetter{}.Get(context, "info", "")
+func Info(context UaaContext, client *http.Client) (UaaInfo, error) {
+	req, err := UnauthenticatedRequestFactory{}.Get(context, "info", "")
+	if err != nil {
+		return UaaInfo{}, err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return UaaInfo{}, requestError(req.URL.String())
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return UaaInfo{}, requestError(req.URL.String())
+	}
+
+	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return UaaInfo{}, err
 	}
 
 	info := UaaInfo{}
-	err = json.Unmarshal(infoBytes,&info)
+	err = json.Unmarshal(bytes,&info)
 	if err != nil {
-		return UaaInfo{}, parseError("/info", infoBytes)
+		return UaaInfo{}, parseError(req.URL.String(), bytes)
 	}
+
 	return info, err
 }
