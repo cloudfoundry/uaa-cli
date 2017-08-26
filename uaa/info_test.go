@@ -28,7 +28,9 @@ var _ = Describe("Info", func() {
 	  "zone_name": "uaa",
 	  "entityID": "login.run.pivotal.io",
 	  "commit_id": "df80f63",
-	  "idpDefinitions": {},
+	  "idpDefinitions": {
+	   "SAML" : "http://localhost:8080/uaa/saml/discovery?returnIDParam=idp&entityID=cloudfoundry-saml-login&idp=SAML&isPassive=true"
+	  },
 	  "prompts": {
 		"username": [
 		  "text",
@@ -71,8 +73,9 @@ var _ = Describe("Info", func() {
 		Expect(infoResponse.ZoneName).To(Equal("uaa"))
 		Expect(infoResponse.EntityId).To(Equal("login.run.pivotal.io"))
 		Expect(infoResponse.CommitId).To(Equal("df80f63"))
-		Expect(infoResponse.Prompts.Username).To(Equal([]string{"text", "Email"}))
-		Expect(infoResponse.Prompts.Password).To(Equal([]string{"password", "Password"}))
+		Expect(infoResponse.IdpDefinitions["SAML"]).To(Equal("http://localhost:8080/uaa/saml/discovery?returnIDParam=idp&entityID=cloudfoundry-saml-login&idp=SAML&isPassive=true"))
+		Expect(infoResponse.Prompts["username"]).To(Equal([]string{"text", "Email"}))
+		Expect(infoResponse.Prompts["password"]).To(Equal([]string{"password", "Password"}))
 		Expect(infoResponse.Timestamp).To(Equal("2017-07-21T22:45:01+0000"))
 	})
 

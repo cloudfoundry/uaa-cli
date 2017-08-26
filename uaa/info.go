@@ -8,11 +8,12 @@ import (
 type UaaInfo struct {
 	App uaaApp `json:"app"`
 	Links uaaLinks `json:"links"`
-	Prompts uaaPrompts `json:"prompts"`
+	Prompts map[string][]string `json:"prompts"`
 	ZoneName string `json:"zone_name"`
 	EntityId string `json:"entityID"`
 	CommitId string `json:"commit_id"`
 	Timestamp string `json:"timestamp"`
+	IdpDefinitions map[string]string `json:"idpDefinitions"`
 }
 
 type uaaApp struct {
@@ -24,11 +25,6 @@ type uaaLinks struct {
 	Uaa string `json:"uaa"`
 	Registration string `json:"register"`
 	Login string `json:"login"`
-}
-
-type uaaPrompts struct {
-	Username []string `json:"username"`
-	Password []string `json:"password"`
 }
 
 func Info(client *http.Client, context UaaContext) (UaaInfo, error) {

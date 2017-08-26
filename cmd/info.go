@@ -31,13 +31,23 @@ import (
 	"encoding/json"
 )
 
-// infoCmd represents the info command
+func EnsureTarget() {
+	c := config.ReadConfig()
+
+	if c.Context.BaseUrl == "" {
+		fmt.Println("You must set a target in order to use this command.")
+		os.Exit(1)
+	}
+}
+
 var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "See version and link configuration for your UAA",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		EnsureTarget()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		c := config.ReadConfig()
-		i, err := uaa.Info(&http.Client{}, c.Context)
+		i, err := uaa.Info(&http.Client{}, config.ReadConfig().Context)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -54,14 +64,4 @@ var infoCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(infoCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// infoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// infoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
