@@ -48,6 +48,8 @@ var _ = Describe("Target", func() {
 				config.WriteConfig(c)
 			})
 
+			ItSupportsTheTraceFlag("target", "/info", InfoResponseJson)
+
 			It("shows the currently set target and UAA version", func() {
 				server.RouteToHandler("GET", "/info",
 					RespondWith(http.StatusOK, InfoResponseJson),
@@ -68,7 +70,7 @@ var _ = Describe("Target", func() {
 
 				session := runCommand("target")
 
-				Eventually(session).Should(Exit(0))
+				Eventually(session).Should(Exit(1))
 				Eventually(session.Out).Should(Say("Target: " + server.URL()))
 				Eventually(session.Out).Should(Say("Status: ERROR"))
 				Eventually(session.Out).Should(Say("UAA Version: unknown"))

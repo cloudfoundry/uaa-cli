@@ -37,7 +37,7 @@ func printTarget(target string, status string, version string) {
 }
 
 func showTarget() {
-	c := config.ReadConfig()
+	c := GetConfig()
 	target := c.Context.BaseUrl
 	if target == "" {
 		printTarget(target, "", "")
@@ -50,13 +50,14 @@ func showTarget() {
 	info, err := uaa.Info(client, c)
 	if err != nil {
 		printTarget(target, "ERROR", "unknown")
+		os.Exit(1)
 	}
 
 	printTarget(target, "OK", info.App.Version)
 }
 
 func updateTarget(newTarget string) {
-	savedConfig := config.ReadConfig()
+	savedConfig := GetConfig()
 	context := uaa.UaaContext{
 		BaseUrl: newTarget,
 	}
@@ -74,7 +75,7 @@ func updateTarget(newTarget string) {
 
 var targetCmd = &cobra.Command{
 	Use:   "target UAA_URL",
-	Short: "Set the location of your UAA",
+	Short: "Set the url of the UAA you'd like to target",
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			showTarget()

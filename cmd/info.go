@@ -27,12 +27,11 @@ import (
 	"github.com/jhamon/uaa-cli/uaa"
 	"os"
 	"net/http"
-	"github.com/jhamon/uaa-cli/config"
 	"encoding/json"
 )
 
 func EnsureTarget() {
-	c := config.ReadConfig()
+	c := GetConfig()
 
 	if c.Context.BaseUrl == "" {
 		fmt.Println("You must set a target in order to use this command.")
@@ -42,12 +41,12 @@ func EnsureTarget() {
 
 var infoCmd = &cobra.Command{
 	Use:   "info",
-	Short: "See version and link configuration for your UAA",
+	Short: "See version and global configurations for the targeted UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Info(&http.Client{}, config.ReadConfig())
+		i, err := uaa.Info(&http.Client{}, GetConfig())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
+	. "github.com/onsi/gomega/gbytes"
 
 	"testing"
 	"io/ioutil"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"io"
 	"runtime"
+	"net/http"
 )
 
 func TestCmd(t *testing.T) {
@@ -99,5 +101,34 @@ func ItBehavesLikeHelp(command string, alias string, validate func(*Session)) {
 		session := runCommand(alias, "-h")
 		Eventually(session).Should(Exit(1))
 		validate(session)
+	})
+}
+
+func ItSupportsTheTraceFlag(command string, endpoint string, responseJson string) {
+	It("shows extra output about the request on success", func() {
+		server.RouteToHandler("GET", endpoint,
+			RespondWith(http.StatusOK, responseJson),
+		)
+
+		session := runCommand(command, "--trace")
+
+		Eventually(session).Should(Exit(0))
+		Expect(session.Out).To(Say("GET " + server.URL() + "/info"))
+		Expect(session.Out).To(Say("Accept: application/json"))
+		Expect(session.Out).To(Say("200 OK"))
+	})
+
+	It("shows extra output about the request on error", func() {
+		server.RouteToHandler("GET", endpoint,
+			RespondWith(http.StatusBadRequest, "garbage response"),
+		)
+
+		session := runCommand(command, "--trace")
+
+		Eventually(session).Should(Exit(1))
+		Expect(session.Out).To(Say("GET " + server.URL() + "/info"))
+		Expect(session.Out).To(Say("Accept: application/json"))
+		Expect(session.Out).To(Say("400 Bad Request"))
+		Expect(session.Out).To(Say("garbage response"))
 	})
 }
