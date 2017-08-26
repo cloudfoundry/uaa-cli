@@ -25,9 +25,10 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/jhamon/uaa-cli/uaa"
-	"encoding/json"
 	"os"
 	"net/http"
+	"github.com/jhamon/uaa-cli/config"
+	"encoding/json"
 )
 
 // infoCmd represents the info command
@@ -35,15 +36,14 @@ var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "See version and link configuration for your UAA",
 	Run: func(cmd *cobra.Command, args []string) {
-		context := uaa.UaaContext{}
-		context.BaseUrl = "https://login.run.pivotal.io"
-		i, err := uaa.Info(context, &http.Client{})
+		c := config.ReadConfig()
+		i, err := uaa.Info(&http.Client{}, c.Context)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		j, err := json.Marshal(&i)
+		j, err := json.MarshalIndent(&i, "", "  ")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
