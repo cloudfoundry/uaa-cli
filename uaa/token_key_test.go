@@ -6,17 +6,20 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
+	"net/http"
 )
 
 var _ = Describe("TokenKey", func() {
 	var (
 		server *ghttp.Server
+		client *http.Client
 		context UaaContext
 		tokenKeyJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
+		client = &http.Client{}
 		context = UaaContext{}
 		context.BaseUrl = server.URL()
 		tokenKeyJson = `{
@@ -42,7 +45,7 @@ var _ = Describe("TokenKey", func() {
 		))
 
 		context.AccessToken = "access_token"
-		key, _ := TokenKey(context)
+		key, _ := TokenKey(client, context)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(key.Kty).To(Equal("RSA"))
@@ -62,7 +65,7 @@ var _ = Describe("TokenKey", func() {
 		))
 
 		context.AccessToken = "access_token"
-		_, err := TokenKey(context)
+		_, err := TokenKey(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
@@ -76,7 +79,7 @@ var _ = Describe("TokenKey", func() {
 		))
 
 		context.AccessToken = "access_token"
-		_, err := TokenKey(context)
+		_, err := TokenKey(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))

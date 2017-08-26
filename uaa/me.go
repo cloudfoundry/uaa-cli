@@ -2,6 +2,7 @@ package uaa
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 type Userinfo struct {
@@ -16,8 +17,8 @@ type Userinfo struct {
 	Name string
 }
 
-func Me(context UaaContext) (Userinfo, error) {
-	body, err := AuthenticatedGetter{}.GetBytes(context, "/userinfo", "scheme=openid")
+func Me(client *http.Client, context UaaContext) (Userinfo, error) {
+	body, err := AuthenticatedGetter{}.GetBytes(client, context, "/userinfo", "scheme=openid")
 	if err != nil {
 		return Userinfo{}, err
 	}

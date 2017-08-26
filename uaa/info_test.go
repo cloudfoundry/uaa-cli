@@ -12,7 +12,7 @@ var _ = Describe("Info", func() {
 	var (
 		server *ghttp.Server
 		context UaaContext
-
+		client *http.Client
 	)
 
 	const InfoResponseJson string = `{
@@ -44,6 +44,7 @@ var _ = Describe("Info", func() {
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
+		client = &http.Client{}
 		context = UaaContext{}
 		context.BaseUrl = server.URL()
 	})
@@ -59,7 +60,7 @@ var _ = Describe("Info", func() {
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		infoResponse, _ := Info(context, &http.Client{})
+		infoResponse, _ := Info(client, context)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(infoResponse.App.Version).To(Equal("4.5.0"))
@@ -82,7 +83,7 @@ var _ = Describe("Info", func() {
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		_, err := Info(context, &http.Client{})
+		_, err := Info(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
@@ -95,7 +96,7 @@ var _ = Describe("Info", func() {
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
 
-		_, err := Info(context, &http.Client{})
+		_, err := Info(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))

@@ -31,8 +31,8 @@ type uaaPrompts struct {
 	Password []string `json:"password"`
 }
 
-func Info(context UaaContext, client *http.Client) (UaaInfo, error) {
-	bytes, err := UnauthenticatedGetter{}.GetBytes(context, "info", "")
+func Info(client *http.Client, context UaaContext) (UaaInfo, error) {
+	bytes, err := UnauthenticatedGetter{}.GetBytes(client, context, "info", "")
 	if err != nil {
 		return UaaInfo{}, err
 	}

@@ -6,17 +6,20 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
+	"net/http"
 )
 
 var _ = Describe("HttpGetter", func() {
 	var (
 		server *ghttp.Server
+		client *http.Client
 		context UaaContext
 		responseJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
+		client = &http.Client{}
 		context = UaaContext{}
 		context.BaseUrl = server.URL()
 		responseJson = `{"foo": "bar"}`
@@ -34,7 +37,7 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			UnauthenticatedGetter{}.GetBytes(context, "/testPath", "someQueryParam=true")
+			UnauthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 		})
@@ -46,7 +49,7 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			_, err := UnauthenticatedGetter{}.GetBytes(context, "/testPath", "someQueryParam=true")
+			_, err := UnauthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(err).NotTo(BeNil())
@@ -64,7 +67,7 @@ var _ = Describe("HttpGetter", func() {
 			))
 
 			context.AccessToken = "access_token"
-			AuthenticatedGetter{}.GetBytes(context, "/testPath", "someQueryParam=true")
+			AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 		})
@@ -77,7 +80,7 @@ var _ = Describe("HttpGetter", func() {
 			))
 
 			context.AccessToken = "access_token"
-			_, err := AuthenticatedGetter{}.GetBytes(context, "/testPath", "someQueryParam=true")
+			_, err := AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(err).NotTo(BeNil())
@@ -91,7 +94,7 @@ var _ = Describe("HttpGetter", func() {
 			))
 
 			context.AccessToken = ""
-			_, err := AuthenticatedGetter{}.GetBytes(context, "/testPath", "someQueryParam=true")
+			_, err := AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(0))
 			Expect(err).NotTo(BeNil())

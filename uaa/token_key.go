@@ -2,6 +2,7 @@ package uaa
 
 import (
 	"encoding/json"
+	"net/http"
 )
 
 type JWK struct {
@@ -14,8 +15,8 @@ type JWK struct {
 	N string
 }
 
-func TokenKey(context UaaContext) (JWK, error) {
-	body, err := AuthenticatedGetter{}.GetBytes(context, "token_key", "")
+func TokenKey(client *http.Client, context UaaContext) (JWK, error) {
+	body, err := AuthenticatedGetter{}.GetBytes(client, context, "token_key", "")
 	if err != nil {
 		return JWK{}, err
 	}

@@ -6,17 +6,20 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
+	"net/http"
 )
 
 var _ = Describe("Me", func() {
 	var (
 		server *ghttp.Server
+		client *http.Client
 		context UaaContext
 		userinfoJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
+		client = &http.Client{}
 		context = UaaContext{}
 		context.BaseUrl = server.URL()
 		userinfoJson = `{
@@ -45,7 +48,7 @@ var _ = Describe("Me", func() {
 		))
 
 		context.AccessToken = "access_token"
-		userinfo, _ := Me(context)
+		userinfo, _ := Me(client, context)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(userinfo.UserId).To(Equal("d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87"))
@@ -66,7 +69,7 @@ var _ = Describe("Me", func() {
 		))
 
 		context.AccessToken = "access_token"
-		_, err := Me(context)
+		_, err := Me(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
@@ -80,7 +83,7 @@ var _ = Describe("Me", func() {
 		))
 
 		context.AccessToken = "access_token"
-		_, err := Me(context)
+		_, err := Me(client, context)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))
