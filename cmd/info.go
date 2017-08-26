@@ -47,7 +47,7 @@ var infoCmd = &cobra.Command{
 		EnsureTarget()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Info(&http.Client{}, config.ReadConfig().Context)
+		i, err := uaa.Info(&http.Client{}, config.ReadConfig())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

@@ -27,8 +27,8 @@ type uaaLinks struct {
 	Login string `json:"login"`
 }
 
-func Info(client *http.Client, context UaaContext) (UaaInfo, error) {
-	bytes, err := UnauthenticatedGetter{}.GetBytes(client, context, "info", "")
+func Info(client *http.Client, config Config) (UaaInfo, error) {
+	bytes, err := UnauthenticatedGetter{}.GetBytes(client, config, "info", "")
 	if err != nil {
 		return UaaInfo{}, err
 	}

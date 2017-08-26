@@ -42,7 +42,7 @@ var _ = Describe("Target", func() {
 	Describe("when no new url is provided", func() {
 		Describe("and a target was previously set", func() {
 			BeforeEach(func() {
-				c := config.Config{}
+				c := uaa.Config{}
 				c.Context = uaa.UaaContext{}
 				c.Context.BaseUrl = server.URL()
 				config.WriteConfig(c)
@@ -94,7 +94,7 @@ var _ = Describe("Target", func() {
 					RespondWith(http.StatusOK, InfoResponseJson),
 				)
 
-				c := config.Config{}
+				c := uaa.Config{}
 				c.Context = uaa.UaaContext{}
 				config.WriteConfig(c)
 			})
@@ -122,7 +122,7 @@ var _ = Describe("Target", func() {
 					RespondWith(http.StatusNotFound, ""),
 				)
 
-				c := config.Config{}
+				c := uaa.Config{}
 				c.Context = uaa.UaaContext{}
 				c.Context.BaseUrl = "http://someuaa.com"
 				config.WriteConfig(c)

@@ -10,10 +10,10 @@ import (
 )
 
 var _ = Describe("Config", func() {
-	var cfg config.Config
+	var cfg uaa.Config
 
 	BeforeEach(func() {
-		cfg = config.Config{}
+		cfg = uaa.Config{}
 		cfg.Context = uaa.UaaContext{
 			BaseUrl: "https://login.example.com",
 		}

@@ -5,12 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	"github.com/jhamon/uaa-cli/uaa"
+	. "github.com/jhamon/uaa-cli/uaa"
 )
-
-type Config struct {
-	Context uaa.UaaContext
-}
 
 func ConfigDir() string {
 	return path.Join(userHomeDir(), ".uaa")

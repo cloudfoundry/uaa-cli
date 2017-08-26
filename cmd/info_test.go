@@ -14,7 +14,7 @@ import (
 var _ = Describe("Info", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := config.Config{}
+			c := uaa.Config{}
 			c.Context = uaa.UaaContext{}
 			c.Context.BaseUrl = server.URL()
 			config.WriteConfig(c)
@@ -46,7 +46,7 @@ var _ = Describe("Info", func() {
 
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
-			c := config.Config{}
+			c := uaa.Config{}
 			c.Context = uaa.UaaContext{}
 			c.Context.BaseUrl = ""
 			config.WriteConfig(c)

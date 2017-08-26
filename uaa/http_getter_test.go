@@ -13,15 +13,15 @@ var _ = Describe("HttpGetter", func() {
 	var (
 		server *ghttp.Server
 		client *http.Client
-		context UaaContext
+		config Config
 		responseJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		context = UaaContext{}
-		context.BaseUrl = server.URL()
+		config = Config{}
+		config.Context.BaseUrl = server.URL()
 		responseJson = `{"foo": "bar"}`
 	})
 
@@ -37,7 +37,7 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			UnauthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
+			UnauthenticatedGetter{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 		})
@@ -49,7 +49,7 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			_, err := UnauthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
+			_, err := UnauthenticatedGetter{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(err).NotTo(BeNil())
@@ -66,8 +66,8 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			context.AccessToken = "access_token"
-			AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
+			config.Context.AccessToken = "access_token"
+			AuthenticatedGetter{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 		})
@@ -79,8 +79,8 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			context.AccessToken = "access_token"
-			_, err := AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
+			config.Context.AccessToken = "access_token"
+			_, err := AuthenticatedGetter{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(err).NotTo(BeNil())
@@ -93,8 +93,8 @@ var _ = Describe("HttpGetter", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			context.AccessToken = ""
-			_, err := AuthenticatedGetter{}.GetBytes(client, context, "/testPath", "someQueryParam=true")
+			config.Context.AccessToken = ""
+			_, err := AuthenticatedGetter{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(0))
 			Expect(err).NotTo(BeNil())

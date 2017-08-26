@@ -13,15 +13,15 @@ var _ = Describe("TokenKeys", func() {
 	var (
 		server *ghttp.Server
 		client *http.Client
-		context UaaContext
+		config Config
 		tokenKeysJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		context = UaaContext{}
-		context.BaseUrl = server.URL()
+		config = Config{}
+		config.Context.BaseUrl = server.URL()
 	})
 
 	AfterEach(func() {
@@ -61,8 +61,8 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			context.AccessToken = "access_token"
-			keys, _ := TokenKeys(client, context)
+			config.Context.AccessToken = "access_token"
+			keys, _ := TokenKeys(client, config)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(keys[0].Kty).To(Equal("RSA"))
@@ -82,8 +82,8 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			context.AccessToken = "access_token"
-			_, err := TokenKeys(client, context)
+			config.Context.AccessToken = "access_token"
+			_, err := TokenKeys(client, config)
 
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))
@@ -113,8 +113,8 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			context.AccessToken = "access_token"
-			keys, _ := TokenKeys(client, context)
+			config.Context.AccessToken = "access_token"
+			keys, _ := TokenKeys(client, config)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(2))
 			Expect(keys).To(HaveLen(1))

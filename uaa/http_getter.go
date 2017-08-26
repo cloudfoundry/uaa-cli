@@ -13,9 +13,9 @@ type Getter interface {
 type UnauthenticatedGetter struct {}
 type AuthenticatedGetter struct {}
 
-func getAndRead(factory HttpRequestFactory, client *http.Client, context UaaContext, path string, query string) ([]byte, error) {
+func getAndRead(factory HttpRequestFactory, client *http.Client, config Config, path string, query string) ([]byte, error) {
 	httpClient := &http.Client{}
-	req, err := factory.Get(context, path, query)
+	req, err := factory.Get(config.Context, path, query)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -33,12 +33,12 @@ func getAndRead(factory HttpRequestFactory, client *http.Client, context UaaCont
 	return bytes, nil
 }
 
-func (ug UnauthenticatedGetter) GetBytes(client *http.Client, context UaaContext, path string, query string) ([]byte, error) {
-	return getAndRead(UnauthenticatedRequestFactory{}, client, context, path, query)
+func (ug UnauthenticatedGetter) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
+	return getAndRead(UnauthenticatedRequestFactory{}, client, config, path, query)
 }
 
-func (ag AuthenticatedGetter) GetBytes(client *http.Client, context UaaContext, path string, query string) ([]byte, error) {
-	return getAndRead(AuthenticatedRequestFactory{}, client, context, path, query)
+func (ag AuthenticatedGetter) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
+	return getAndRead(AuthenticatedRequestFactory{}, client, config, path, query)
 }
 
 func requestError(url string) error {

@@ -47,7 +47,7 @@ func showTarget() {
 	client := &http.Client{
 		Timeout: 1 * time.Second,
 	}
-	info, err := uaa.Info(client, c.Context)
+	info, err := uaa.Info(client, c)
 	if err != nil {
 		printTarget(target, "ERROR", "unknown")
 	}
@@ -56,18 +56,18 @@ func showTarget() {
 }
 
 func updateTarget(newTarget string) {
+	savedConfig := config.ReadConfig()
 	context := uaa.UaaContext{
 		BaseUrl: newTarget,
 	}
 
-	_, err := uaa.Info(&http.Client{}, context)
+	savedConfig.Context = context
+	_, err := uaa.Info(&http.Client{}, savedConfig)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("The target %s is not responding and could not be set.", newTarget))
 		os.Exit(1)
 	}
 
-	savedConfig := config.ReadConfig()
-	savedConfig.Context = context
 	config.WriteConfig(savedConfig)
 	fmt.Println("Target set to " + newTarget)
 }

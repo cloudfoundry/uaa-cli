@@ -13,15 +13,15 @@ var _ = Describe("Me", func() {
 	var (
 		server *ghttp.Server
 		client *http.Client
-		context UaaContext
+		config Config
 		userinfoJson string
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		context = UaaContext{}
-		context.BaseUrl = server.URL()
+		config = Config{}
+		config.Context.BaseUrl = server.URL()
 		userinfoJson = `{
 		  "user_id": "d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87",
 		  "sub": "d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87",
@@ -47,8 +47,8 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 		))
 
-		context.AccessToken = "access_token"
-		userinfo, _ := Me(client, context)
+		config.Context.AccessToken = "access_token"
+		userinfo, _ := Me(client, config)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(userinfo.UserId).To(Equal("d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87"))
@@ -68,8 +68,8 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		context.AccessToken = "access_token"
-		_, err := Me(client, context)
+		config.Context.AccessToken = "access_token"
+		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
@@ -82,8 +82,8 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		context.AccessToken = "access_token"
-		_, err := Me(client, context)
+		config.Context.AccessToken = "access_token"
+		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))
