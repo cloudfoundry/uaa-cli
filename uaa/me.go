@@ -18,7 +18,7 @@ type Userinfo struct {
 }
 
 func Me(client *http.Client, config Config) (Userinfo, error) {
-	body, err := AuthenticatedGetter{}.GetBytes(client, config, "/userinfo", "scheme=openid")
+	body, err := AuthenticatedRequester{}.GetBytes(client, config, "/userinfo", "scheme=openid")
 	if err != nil {
 		return Userinfo{}, err
 	}
