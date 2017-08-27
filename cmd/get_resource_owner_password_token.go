@@ -24,19 +24,28 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/jhamon/uaa-cli/uaa"
-	"github.com/jhamon/uaa-cli/config"
-	"os"
 	"errors"
+	"os"
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/uaa"
 )
 
-var clientSecret string
+var (
+	password string
+	username string
+	clientSecret2 string
+)
 
-var getClientCredentialsTokenCmd = &cobra.Command{
-	Use:   "get-client-credentials-token CLIENT_ID",
-	Short: "get an access token using client credentials grant flow",
+var getPasswordToken = &cobra.Command{
+	Use:   "get-password-token",
+	Short: "A brief description of your command",
 	Run: func(cmd *cobra.Command, args []string) {
-		ccClient := uaa.ClientCredentialsClient{ ClientId: args[0], ClientSecret: clientSecret }
+		ccClient := uaa.ResourceOwnerPasswordClient{
+			ClientId: args[0],
+			ClientSecret: clientSecret2,
+			Username: username,
+			Password: password,
+		}
 		c := GetSavedConfig()
 		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.OPAQUE)
 		if err != nil {
@@ -57,14 +66,22 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("Missing argument `client_id` must be specified.\n")
 		}
-		if clientSecret == "" {
+		if clientSecret2 == "" {
 			return errors.New("Missing argument `client_secret` must be specified.\n")
+		}
+		if password == "" {
+			return errors.New("Missing argument `password` must be specified.\n")
+		}
+		if username == "" {
+			return errors.New("Missing argument `username` must be specified.\n")
 		}
 		return nil
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(getClientCredentialsTokenCmd)
-	getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
+	RootCmd.AddCommand(getPasswordToken)
+	getPasswordToken.Flags().StringVarP(&clientSecret2, "client_secret", "s", "", "client secret")
+	getPasswordToken.Flags().StringVarP(&username, "username", "u", "", "username")
+	getPasswordToken.Flags().StringVarP(&password, "password", "p", "", "user password")
 }

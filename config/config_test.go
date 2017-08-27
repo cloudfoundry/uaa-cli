@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
-	"fmt"
 )
 
 var _ = Describe("Config", func() {
@@ -45,11 +44,6 @@ var _ = Describe("Config", func() {
 		cfg2 := config.ReadConfig()
 		Expect(cfg2.ActiveTargetName).To(Equal("url:"))
 		Expect(cfg2.GetActiveContext().AccessToken).To(Equal("foo-token"))
-	})
-
-	It("does not panic", func() {
-		cfg := uaa.NewConfigWithServerURL("http://localhost.com")
-		fmt.Println(" " + cfg.GetActiveContext().AccessToken)
 	})
 
 	It("places the config file in .uaa in the home directory", func() {

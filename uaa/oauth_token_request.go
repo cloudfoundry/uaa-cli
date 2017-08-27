@@ -5,22 +5,12 @@ import (
 	"encoding/json"
 )
 
-type GrantType string
-
 type ClientCredentialsClient struct {
 	ClientId string
 	ClientSecret string
 }
 
-func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
-	body := map[string]string{
-		"client_id": cc.ClientId,
-		"client_secret": cc.ClientSecret,
-		"grant_type": "client_credentials",
-		"token_format": string(format),
-		"response_type": "token",
-	}
-
+func postToOAuthToken(httpClient *http.Client, config Config, body map[string]string) (TokenResponse, error) {
 	bytes, err := UnauthenticatedRequester{}.PostBytes(httpClient, config, "/oauth/token", "", body)
 	if err != nil {
 		return TokenResponse{}, err
@@ -33,6 +23,39 @@ func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config C
 	}
 
 	return tokenResponse, nil
+}
+
+func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
+	body := map[string]string{
+		"grant_type": "client_credentials",
+		"client_id": cc.ClientId,
+		"client_secret": cc.ClientSecret,
+		"token_format": string(format),
+		"response_type": "token",
+	}
+
+	return postToOAuthToken(httpClient, config, body)
+}
+
+type ResourceOwnerPasswordClient struct {
+	ClientId string
+	ClientSecret string
+	Username string
+	Password string
+}
+
+func (rop ResourceOwnerPasswordClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
+	body := map[string]string{
+		"grant_type": "password",
+		"client_id": rop.ClientId,
+		"client_secret": rop.ClientSecret,
+		"username": rop.Username,
+		"password": rop.Password,
+		"token_format": string(format),
+		"response_type": "token",
+	}
+
+	return postToOAuthToken(httpClient, config, body)
 }
 
 type TokenFormat string
