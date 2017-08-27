@@ -30,7 +30,7 @@ import (
 )
 
 func EnsureTarget() {
-	c := GetConfig()
+	c := GetSavedConfig()
 
 	if c.Context.BaseUrl == "" {
 		fmt.Println("You must set a target in order to use this command.")
@@ -45,7 +45,7 @@ var infoCmd = &cobra.Command{
 		EnsureTarget()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Info(GetHttpClient(), GetConfig())
+		i, err := uaa.Info(GetHttpClient(), GetSavedConfig())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

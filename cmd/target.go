@@ -28,43 +28,49 @@ import (
 	"os"
 )
 
-func printTarget(target string, status string, version string) {
+var skipSSLValidation bool
+
+func printTarget(target string, status string, version string, skipSSLValidation bool) {
 	fmt.Println("Target: " + target)
 	fmt.Println("Status: " + status)
 	fmt.Println("UAA Version: " + version)
+	fmt.Printf("SkipSSLValidation: %v\n", skipSSLValidation)
 }
 
 func showTarget() {
-	c := GetConfig()
+	c := GetSavedConfig()
 	target := c.Context.BaseUrl
 	if target == "" {
-		printTarget(target, "", "")
+		printTarget(target, "", "", c.SkipSSLValidation)
 		return
 	}
 
 	info, err := uaa.Info(GetHttpClient(), c)
 	if err != nil {
-		printTarget(target, "ERROR", "unknown")
+		printTarget(target, "ERROR", "unknown", c.SkipSSLValidation)
 		os.Exit(1)
 	}
 
-	printTarget(target, "OK", info.App.Version)
+	printTarget(target, "OK", info.App.Version, c.SkipSSLValidation)
 }
 
 func updateTarget(newTarget string) {
-	savedConfig := GetConfig()
+	c := GetSavedConfig()
+	c.SkipSSLValidation = skipSSLValidation
+
 	context := uaa.UaaContext{
 		BaseUrl: newTarget,
 	}
 
-	savedConfig.Context = context
-	_, err := uaa.Info(GetHttpClient(), savedConfig)
+	c.Context = context
+	_, err := uaa.Info(GetHttpClientWithConfig(c), c)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("The target %s is not responding and could not be set.", newTarget))
+		fmt.Println(fmt.Sprintf("The target %s could not be set.", newTarget))
+		if !c.Trace { fmt.Println("Retry with --trace for more information.") }
 		os.Exit(1)
 	}
 
-	config.WriteConfig(savedConfig)
+	config.WriteConfig(c)
 	fmt.Println("Target set to " + newTarget)
 }
 
@@ -82,4 +88,5 @@ var targetCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(targetCmd)
+	targetCmd.Flags().BoolVarP(&skipSSLValidation, "skip-ssl-validation", "k", false, "Disable security validation on requests to this target")
 }

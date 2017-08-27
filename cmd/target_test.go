@@ -61,6 +61,7 @@ var _ = Describe("Target", func() {
 				Eventually(session.Out).Should(Say("Target: " + server.URL()))
 				Eventually(session.Out).Should(Say("Status: OK"))
 				Eventually(session.Out).Should(Say("UAA Version: 4.5.0"))
+				Eventually(session.Out).Should(Say("SkipSSLValidation: false"))
 			})
 
 			It("shows <unknown version> when UAA can't be reached", func() {
@@ -116,6 +117,14 @@ var _ = Describe("Target", func() {
 				Eventually(session).Should(Exit(0))
 				Eventually(session.Out).Should(Say("Target set to " + server.URL()))
 			})
+
+			It("respects the --skip-ssl-validation flag", func() {
+				runCommand("target", server.URL())
+				Expect(config.ReadConfig().SkipSSLValidation).To(BeFalse())
+
+				runCommand("target", server.URL(), "--skip-ssl-validation")
+				Expect(config.ReadConfig().SkipSSLValidation).To(BeTrue())
+			})
 		})
 
 		Describe("when the UAA cannot be reached", func() {
@@ -140,7 +149,7 @@ var _ = Describe("Target", func() {
 				session := runCommand("target", server.URL())
 
 				Eventually(session).Should(Exit(1))
-				Eventually(session.Out).Should(Say("The target " + server.URL() + " is not responding and could not be set."))
+				Eventually(session.Out).Should(Say("The target " + server.URL() + " could not be set."))
 			})
 		})
 	})

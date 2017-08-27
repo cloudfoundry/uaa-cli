@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"fmt"
 )
 
 type Requester interface {
@@ -20,13 +21,21 @@ func doAndRead(req *http.Request, client *http.Client, config Config, path strin
 	}
 	resp, err := client.Do(req)
 	if (err != nil) {
+		if config.Trace {
+			fmt.Printf("%v\n\n", err)
+		}
+
 		return []byte{}, requestError(req.URL.String())
 	}
+
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		if config.Trace {
+			fmt.Printf("%v\n\n", err)
+		}
+
 		return []byte{}, unknownError()
-	}
-	if config.Trace {
+	} else if config.Trace {
 		logResponse(resp, bytes)
 	}
 

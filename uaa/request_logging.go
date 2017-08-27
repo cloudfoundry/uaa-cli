@@ -15,7 +15,9 @@ func logResponse(response *http.Response, bytes []byte) {
 func logRequest(request *http.Request) {
 	fmt.Printf("> %v %v\n", request.Method, request.URL.String())
 	logHeaders(">", request.Header)
-	fmt.Printf("> %v\n", request.Body)
+	if request.Body != nil {
+		fmt.Printf("> %v\n", request.Body)
+	}
 	fmt.Println()
 }
 
