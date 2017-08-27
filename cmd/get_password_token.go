@@ -28,6 +28,7 @@ import (
 	"os"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/jhamon/uaa-cli/help"
 )
 
 var (
@@ -38,7 +39,8 @@ var (
 
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token",
-	Short: "A brief description of your command",
+	Short: "obtain a token as a password grant client",
+	Long: help.PasswordGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
 		ccClient := uaa.ResourceOwnerPasswordClient{
 			ClientId: args[0],
