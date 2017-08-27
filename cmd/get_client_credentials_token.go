@@ -54,10 +54,10 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		EnsureTarget()
 
 		if len(args) < 1 {
-			return errors.New("Missing argument `client_id` must be specified.")
+			return errors.New("Missing argument `client_id` must be specified.\n")
 		}
 		if clientSecret == "" {
-			return errors.New("Missing argument `client_secret` must be specified.")
+			return errors.New("Missing argument `client_secret` must be specified.\n")
 		}
 		return nil
 	},
@@ -65,14 +65,5 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(getClientCredentialsTokenCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getClientCredentialsTokenCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	 getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
+	getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 }
