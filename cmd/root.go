@@ -44,17 +44,20 @@ var trace bool
 var RootCmd = &cobra.Command{
 	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
-	Long: `uaa is the golang-based successor to the uaac command line tool
-for administrating Cloud Foundry UAAs.
+	Long: `    __  _____   ___
+   / / / / _ | / _ |
+  / /_/ / __ |/ __ |  Universal Authentication and Authorization
+  \____/_/ |_/_/ |_|
+
+This command-line interface has been designed to help app developers
+and platform operators troubleshoot and administer their deployed
+UAAs.
 
 This tool may be used to:
 
   * Discover UAA status, token signing keys, and other metadata
   * Create, test, and validate OAuth2 client configurations
   * Manage UAA resources such as users, groups, and memberships`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
