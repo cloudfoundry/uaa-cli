@@ -46,7 +46,9 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		c.Context.AccessToken = token.AccessToken
+		activeContext := c.GetActiveContext()
+		activeContext.AccessToken = token.AccessToken
+		c.AddContext(activeContext)
 		config.WriteConfig(c)
 		fmt.Println("Access token successfully fetched and added to context.")
 	},

@@ -19,7 +19,7 @@ func GetHttpClientWithConfig(config uaa.Config) *http.Client {
 		Timeout: 5 * time.Second,
 	}
 
-	if config.SkipSSLValidation {
+	if config.GetActiveTarget().SkipSSLValidation {
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}

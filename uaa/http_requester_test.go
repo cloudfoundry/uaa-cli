@@ -20,8 +20,7 @@ var _ = Describe("HttpGetter", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		config = Config{}
-		config.Context.BaseUrl = server.URL()
+		config = NewConfigWithServerURL(server.URL())
 		responseJson = `{"foo": "bar"}`
 	})
 
@@ -109,7 +108,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				config.Context.AccessToken = "access_token"
+				config.AddContext(UaaContext{AccessToken: "access_token"})
 				AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -122,7 +121,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 				))
 
-				config.Context.AccessToken = "access_token"
+				config.AddContext(UaaContext{AccessToken: "access_token"})
 				_, err := AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -131,7 +130,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.Context.AccessToken = ""
+				config.AddContext(UaaContext{AccessToken: ""})
 				_, err := AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
@@ -160,7 +159,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				body := map[string]string{"hello": "world", }
-				config.Context.AccessToken = "access_token"
+				config.AddContext(UaaContext{AccessToken: "access_token"})
 
 				returnedBytes, _ := AuthenticatedRequester{}.PostBytes(client, config, "/oauth/token", "", body)
 				parsedResponse := string(returnedBytes)
@@ -175,7 +174,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyRequest("POST", "/oauth/token", ""),
 				))
 
-				config.Context.AccessToken = "access_token"
+				config.AddContext(UaaContext{AccessToken: "access_token"})
 				_, err := AuthenticatedRequester{}.PostBytes(client, config, "/oauth/token", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -184,7 +183,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.Context.AccessToken = ""
+				config.AddContext(UaaContext{AccessToken: ""})
 				_, err := AuthenticatedRequester{}.PostBytes(client, config, "/oauth/token", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))

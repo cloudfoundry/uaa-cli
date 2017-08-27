@@ -20,8 +20,7 @@ var _ = Describe("Me", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		config = Config{}
-		config.Context.BaseUrl = server.URL()
+		config = NewConfigWithServerURL(server.URL())
 		userinfoJson = `{
 		  "user_id": "d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87",
 		  "sub": "d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87",
@@ -47,7 +46,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 		))
 
-		config.Context.AccessToken = "access_token"
+		config.AddContext(UaaContext{AccessToken: "access_token"})
 		userinfo, _ := Me(client, config)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -68,7 +67,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		config.Context.AccessToken = "access_token"
+		config.AddContext(UaaContext{AccessToken: "access_token"})
 		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())
@@ -82,7 +81,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		config.Context.AccessToken = "access_token"
+		config.AddContext(UaaContext{AccessToken: "access_token"})
 		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())

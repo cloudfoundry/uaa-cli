@@ -12,8 +12,8 @@ const (
 	ERROR = UaaHealthStatus("health_error")
 )
 
-func Health(context UaaContext) (UaaHealthStatus, error) {
-	url, err := utils.BuildUrl(context.BaseUrl, "healthz")
+func Health(target Target) (UaaHealthStatus, error) {
+	url, err := utils.BuildUrl(target.BaseUrl, "healthz")
 	if err != nil {
 		return "", err
 	}

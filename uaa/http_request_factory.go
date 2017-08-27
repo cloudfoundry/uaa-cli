@@ -10,22 +10,21 @@ import (
 )
 
 type HttpRequestFactory interface {
-	Get(UaaContext, string, string) (*http.Request, error)
-	Post(UaaContext, string, string, *url.Values) (*http.Request, error)
+	Get(Target, string, string) (*http.Request, error)
+	Post(Target, string, string, *url.Values) (*http.Request, error)
 }
 
 type UnauthenticatedRequestFactory struct {}
 type AuthenticatedRequestFactory struct {}
 
-func (urf UnauthenticatedRequestFactory) Get(context UaaContext, path string, query string) (*http.Request, error) {
-	targetUrl, err := utils.BuildUrl(context.BaseUrl, path)
+func (urf UnauthenticatedRequestFactory) Get(target Target, path string, query string) (*http.Request, error) {
+	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
 	if err != nil {
 		return nil, err
 	}
 	targetUrl.RawQuery = query
-	target := targetUrl.String()
 
-	req, err := http.NewRequest("GET", target, nil)
+	req, err := http.NewRequest("GET", targetUrl.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,16 +33,15 @@ func (urf UnauthenticatedRequestFactory) Get(context UaaContext, path string, qu
 	return req, nil
 }
 
-func (urf UnauthenticatedRequestFactory) Post(context UaaContext, path string, query string, data *url.Values) (*http.Request, error) {
-	targetUrl, err := utils.BuildUrl(context.BaseUrl, path)
+func (urf UnauthenticatedRequestFactory) Post(target Target, path string, query string, data *url.Values) (*http.Request, error) {
+	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
 	if err != nil {
 		return nil, err
 	}
 	targetUrl.RawQuery = query
-	target := targetUrl.String()
 
 	bodyBytes := []byte(data.Encode())
-	req, err := http.NewRequest("POST", target, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequest("POST", targetUrl.String(), bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, err
 	}
@@ -54,28 +52,30 @@ func (urf UnauthenticatedRequestFactory) Post(context UaaContext, path string, q
 	return req, nil
 }
 
-func (arf AuthenticatedRequestFactory) Get(context UaaContext, path string, query string) (*http.Request, error) {
-	req, err := UnauthenticatedRequestFactory{}.Get(context, path, query)
+func (arf AuthenticatedRequestFactory) Get(target Target, path string, query string) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.Get(target, path, query)
+
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "bearer " + context.AccessToken)
-	if context.AccessToken == "" {
+	req.Header.Add("Authorization", "bearer " + target.GetActiveContext().AccessToken)
+	if target.GetActiveContext().AccessToken == "" {
 		return nil, errors.New("An access token is required to call " + req.URL.String())
 	}
 
 	return req, nil
 }
 
-func (arf AuthenticatedRequestFactory) Post(context UaaContext, path string, query string, data *url.Values) (*http.Request, error) {
-	req, err := UnauthenticatedRequestFactory{}.Post(context, path, query, data)
+func (arf AuthenticatedRequestFactory) Post(target Target, path string, query string, data *url.Values) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.Post(target, path, query, data)
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "bearer " + context.AccessToken)
-	if context.AccessToken == "" {
+	accessToken := target.GetActiveContext().AccessToken
+	req.Header.Add("Authorization", "bearer " + accessToken)
+	if accessToken == "" {
 		return nil, errors.New("An access token is required to call " + req.URL.String())
 	}
 

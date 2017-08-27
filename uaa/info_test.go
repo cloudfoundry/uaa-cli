@@ -47,8 +47,7 @@ var _ = Describe("Info", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		config = Config{ Context: UaaContext{} }
-		config.Context.BaseUrl = server.URL()
+		config = NewConfigWithServerURL(server.URL())
 	})
 
 	AfterEach(func() {

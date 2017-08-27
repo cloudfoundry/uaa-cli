@@ -28,8 +28,7 @@ var _ = Describe("OauthTokenRequest", func() {
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		client = &http.Client{}
-		config = Config{}
-		config.Context.BaseUrl = server.URL()
+		config = NewConfigWithServerURL(server.URL())
 	})
 
 	Describe("ClientCredentialsClient", func() {

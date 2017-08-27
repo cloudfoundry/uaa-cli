@@ -32,7 +32,7 @@ import (
 func EnsureTarget() {
 	c := GetSavedConfig()
 
-	if c.Context.BaseUrl == "" {
+	if c.ActiveTargetName == "" {
 		fmt.Println("You must set a target in order to use this command.")
 		os.Exit(1)
 	}

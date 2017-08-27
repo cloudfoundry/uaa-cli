@@ -10,13 +10,12 @@ import (
 var _ = Describe("Health", func() {
 	var (
 		server *ghttp.Server
-		context UaaContext
+		config Config
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
-		context = UaaContext{}
-		context.BaseUrl = server.URL()
+		config = NewConfigWithServerURL(server.URL())
 	})
 
 	AfterEach(func() {
@@ -27,7 +26,7 @@ var _ = Describe("Health", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(200, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status, _ := Health(context)
+		status, _ := Health(config.GetActiveTarget())
 
 		Expect(status).To(Equal(OK))
 	})
@@ -36,7 +35,7 @@ var _ = Describe("Health", func() {
 		server.RouteToHandler("GET", "/healthz", ghttp.RespondWith(400, "ok"))
 		server.AppendHandlers(ghttp.VerifyRequest("GET", "/healthz"))
 
-		status, _ := Health(context)
+		status, _ := Health(config.GetActiveTarget())
 
 		Expect(status).To(Equal(ERROR))
 	})

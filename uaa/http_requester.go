@@ -46,7 +46,7 @@ func doAndRead(req *http.Request, client *http.Client, config Config, path strin
 }
 
 func (ug UnauthenticatedRequester) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
-	req, err := UnauthenticatedRequestFactory{}.Get(config.Context, path, query)
+	req, err := UnauthenticatedRequestFactory{}.Get(config.GetActiveTarget(), path, query)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -54,7 +54,7 @@ func (ug UnauthenticatedRequester) GetBytes(client *http.Client, config Config, 
 }
 
 func (ag AuthenticatedRequester) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
-	req, err := AuthenticatedRequestFactory{}.Get(config.Context, path, query)
+	req, err := AuthenticatedRequestFactory{}.Get(config.GetActiveTarget(), path, query)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -72,7 +72,7 @@ func mapToUrlValues(body map[string]string) url.Values {
 func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
-	req, err := UnauthenticatedRequestFactory{}.Post(config.Context, path, query, &data)
+	req, err := UnauthenticatedRequestFactory{}.Post(config.GetActiveTarget(), path, query, &data)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -82,7 +82,7 @@ func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config,
 func (ag AuthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
-	req, err := AuthenticatedRequestFactory{}.Post(config.Context, path, query, &data)
+	req, err := AuthenticatedRequestFactory{}.Post(config.GetActiveTarget(), path, query, &data)
 	if err != nil {
 		return []byte{}, err
 	}

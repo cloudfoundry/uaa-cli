@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
-	"github.com/jhamon/uaa-cli/uaa"
+	. "github.com/jhamon/uaa-cli/uaa"
 	"github.com/jhamon/uaa-cli/config"
 )
 
@@ -20,13 +20,15 @@ var _ = Describe("GetClientCredentialsToken", func() {
 	  "scope" : "clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write",
 	  "jti" : "bc4885d950854fed9a938e96b13ca519"
 	}`
-	var c uaa.Config
+	var c Config
+	var context UaaContext
+
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c = uaa.Config{}
-			c.Context.BaseUrl = server.URL()
+			c = NewConfigWithServerURL(server.URL());
 			config.WriteConfig(c)
+			context = c.GetActiveContext()
 		})
 
 		Describe("when the --trace option is used", func() {
@@ -60,7 +62,6 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 		Describe("when successful", func() {
 			BeforeEach(func() {
-				c.Context.AccessToken = ""
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 						RespondWith(http.StatusOK, tokenResponseJson),
@@ -79,14 +80,15 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 			It("updates the saved context", func() {
 				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
-				Expect(config.ReadConfig().Context.AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
+				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
 			})
 		})
 	})
 
 	Describe("when the token request fails", func() {
 		BeforeEach(func() {
-			c.Context.AccessToken = "old-token"
+			c := NewConfig()
+			c.AddContext(UaaContext{AccessToken:"old-token"})
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
@@ -106,14 +108,17 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 		It("does not update the previously saved context", func() {
 			runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
-			Expect(config.ReadConfig().Context.AccessToken).To(Equal("old-token"))
+			Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("old-token"))
 		})
 	})
 
 	Describe("Validations", func() {
 		Describe("when called with no client id", func() {
 			It("displays help and does not panic", func() {
-				c.Context.BaseUrl = "http://localhost"
+				c := NewConfig()
+				t := NewTarget()
+				t.BaseUrl = "http://localhost"
+				c.AddTarget(t)
 				config.WriteConfig(c)
 				session := runCommand("get-client-credentials-token")
 
@@ -124,7 +129,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 		Describe("when called with no client secret", func() {
 			It("displays help and does not panic", func() {
-				c.Context.BaseUrl = "http://localhost"
+				c := NewConfigWithServerURL("http://localhost");
 				config.WriteConfig(c)
 				session := runCommand("get-client-credentials-token", "admin")
 
@@ -133,13 +138,9 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			})
 		})
 
-
 		Describe("when no target was previously set", func() {
 			BeforeEach(func() {
-				c := uaa.Config{}
-				c.Context = uaa.UaaContext{}
-				c.Context.BaseUrl = ""
-				config.WriteConfig(c)
+				config.WriteConfig(NewConfig())
 			})
 
 			It("tells the user to set a target", func() {

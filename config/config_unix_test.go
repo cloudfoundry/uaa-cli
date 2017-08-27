@@ -18,9 +18,10 @@ var _ = Describe("Config", func() {
 
 	BeforeEach(func() {
 		cfg = uaa.Config{}
-		cfg.Context = uaa.UaaContext{
-			BaseUrl: "https://login.example.com",
+		ctx := uaa.UaaContext{
+			AccessToken: "foo",
 		}
+		cfg.AddContext(ctx)
 	})
 
 	It("set appropriate permissions for persisted files", func() {

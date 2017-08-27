@@ -9,20 +9,20 @@ import (
 	"net/http"
 	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/jhamon/uaa-cli/config"
+	"fmt"
 )
 
 var _ = Describe("Info", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.Config{}
-			c.Context = uaa.UaaContext{}
-			c.Context.BaseUrl = server.URL()
+			c := uaa.NewConfigWithServerURL(server.URL());
 			config.WriteConfig(c)
 		})
 
 		ItSupportsTheTraceFlagWhenGet("info", "/info", InfoResponseJson)
 
 		It("shows the info response", func() {
+			fmt.Sprintf("%+v", config.ReadConfig())
 			server.RouteToHandler("GET", "/info",
 				RespondWith(http.StatusOK, InfoResponseJson),
 			)
@@ -49,8 +49,6 @@ var _ = Describe("Info", func() {
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.Config{}
-			c.Context = uaa.UaaContext{}
-			c.Context.BaseUrl = ""
 			config.WriteConfig(c)
 		})
 

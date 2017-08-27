@@ -30,11 +30,11 @@ import (
 
 var skipSSLValidation bool
 
-func printTarget(target string, status string, version string, skipSSLValidation bool) {
-	fmt.Println("Target: " + target)
+func printTarget(target uaa.Target, status string, version string) {
+	fmt.Println("Target: " + target.BaseUrl)
 	fmt.Println("Status: " + status)
 	fmt.Println("UAA Version: " + version)
-	fmt.Printf("SkipSSLValidation: %v\n", skipSSLValidation)
+	fmt.Printf("SkipSSLValidation: %v\n", target.SkipSSLValidation)
 }
 
 func TraceRetryMsg(c uaa.Config) {
@@ -45,30 +45,31 @@ func TraceRetryMsg(c uaa.Config) {
 
 func showTarget() {
 	c := GetSavedConfig()
-	target := c.Context.BaseUrl
-	if target == "" {
-		printTarget(target, "", "", c.SkipSSLValidation)
+	target := c.GetActiveTarget()
+
+	if target.BaseUrl == "" {
+		printTarget(target, "", "")
 		return
 	}
 
 	info, err := uaa.Info(GetHttpClient(), c)
 	if err != nil {
-		printTarget(target, "ERROR", "unknown", c.SkipSSLValidation)
+		printTarget(target, "ERROR", "unknown")
 		os.Exit(1)
 	}
 
-	printTarget(target, "OK", info.App.Version, c.SkipSSLValidation)
+	printTarget(target, "OK", info.App.Version)
 }
 
 func updateTarget(newTarget string) {
 	c := GetSavedConfig()
-	c.SkipSSLValidation = skipSSLValidation
 
-	context := uaa.UaaContext{
+	target := uaa.Target{
+		SkipSSLValidation: skipSSLValidation,
 		BaseUrl: newTarget,
 	}
 
-	c.Context = context
+	c.AddTarget(target)
 	_, err := uaa.Info(GetHttpClientWithConfig(c), c)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("The target %s could not be set.", newTarget))

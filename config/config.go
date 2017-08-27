@@ -17,7 +17,7 @@ func ConfigPath() string {
 }
 
 func ReadConfig() Config {
-	c := Config{}
+	c := NewConfig()
 
 	data, err := ioutil.ReadFile(ConfigPath())
 	if err != nil {

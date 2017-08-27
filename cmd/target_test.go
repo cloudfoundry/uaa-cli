@@ -42,9 +42,7 @@ var _ = Describe("Target", func() {
 	Describe("when no new url is provided", func() {
 		Describe("and a target was previously set", func() {
 			BeforeEach(func() {
-				c := uaa.Config{}
-				c.Context = uaa.UaaContext{}
-				c.Context.BaseUrl = server.URL()
+				c := uaa.NewConfigWithServerURL(server.URL())
 				config.WriteConfig(c)
 			})
 
@@ -97,18 +95,17 @@ var _ = Describe("Target", func() {
 					RespondWith(http.StatusOK, InfoResponseJson),
 				)
 
-				c := uaa.Config{}
-				c.Context = uaa.UaaContext{}
+				c := uaa.NewConfig()
 				config.WriteConfig(c)
 			})
 
 			It("updates the saved context", func() {
-				Expect(config.ReadConfig().Context.BaseUrl).To(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(""))
 
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().Context.BaseUrl).NotTo(Equal(""))
-				Expect(config.ReadConfig().Context.BaseUrl).To(Equal(server.URL()))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).NotTo(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(server.URL()))
 			})
 
 			It("displays a success message", func() {
@@ -120,10 +117,10 @@ var _ = Describe("Target", func() {
 
 			It("respects the --skip-ssl-validation flag", func() {
 				runCommand("target", server.URL())
-				Expect(config.ReadConfig().SkipSSLValidation).To(BeFalse())
+				Expect(config.ReadConfig().GetActiveTarget().SkipSSLValidation).To(BeFalse())
 
 				runCommand("target", server.URL(), "--skip-ssl-validation")
-				Expect(config.ReadConfig().SkipSSLValidation).To(BeTrue())
+				Expect(config.ReadConfig().GetActiveTarget().SkipSSLValidation).To(BeTrue())
 			})
 		})
 
@@ -133,16 +130,14 @@ var _ = Describe("Target", func() {
 					RespondWith(http.StatusNotFound, ""),
 				)
 
-				c := uaa.Config{}
-				c.Context = uaa.UaaContext{}
-				c.Context.BaseUrl = "http://someuaa.com"
+				c := uaa.NewConfigWithServerURL("http://someuaa.com")
 				config.WriteConfig(c)
 			})
 
 			It("does not update the saved context", func() {
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().Context.BaseUrl).To(Equal("http://someuaa.com"))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal("http://someuaa.com"))
 			})
 
 			It("displays an error message", func() {
