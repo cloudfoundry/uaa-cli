@@ -14,6 +14,7 @@ import (
 	"io"
 	"runtime"
 	"net/http"
+	"github.com/jhamon/uaa-cli/config"
 )
 
 func TestCmd(t *testing.T) {
@@ -42,6 +43,7 @@ var _ = BeforeEach(func() {
 
 var _ = AfterEach(func() {
 	os.RemoveAll(homeDir)
+	config.RemoveConfig()
 	server.Close()
 })
 
@@ -104,7 +106,7 @@ func ItBehavesLikeHelp(command string, alias string, validate func(*Session)) {
 	})
 }
 
-func ItSupportsTheTraceFlag(command string, endpoint string, responseJson string) {
+func ItSupportsTheTraceFlagWhenGet(command string, endpoint string, responseJson string) {
 	It("shows extra output about the request on success", func() {
 		server.RouteToHandler("GET", endpoint,
 			RespondWith(http.StatusOK, responseJson),
@@ -113,7 +115,7 @@ func ItSupportsTheTraceFlag(command string, endpoint string, responseJson string
 		session := runCommand(command, "--trace")
 
 		Eventually(session).Should(Exit(0))
-		Expect(session.Out).To(Say("GET " + server.URL() + "/info"))
+		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))
 		Expect(session.Out).To(Say("Accept: application/json"))
 		Expect(session.Out).To(Say("200 OK"))
 	})
@@ -126,7 +128,7 @@ func ItSupportsTheTraceFlag(command string, endpoint string, responseJson string
 		session := runCommand(command, "--trace")
 
 		Eventually(session).Should(Exit(1))
-		Expect(session.Out).To(Say("GET " + server.URL() + "/info"))
+		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))
 		Expect(session.Out).To(Say("Accept: application/json"))
 		Expect(session.Out).To(Say("400 Bad Request"))
 		Expect(session.Out).To(Say("garbage response"))

@@ -37,6 +37,12 @@ func printTarget(target string, status string, version string, skipSSLValidation
 	fmt.Printf("SkipSSLValidation: %v\n", skipSSLValidation)
 }
 
+func TraceRetryMsg(c uaa.Config) {
+	if !c.Trace {
+		fmt.Println("Retry with --trace for more information.")
+	}
+}
+
 func showTarget() {
 	c := GetSavedConfig()
 	target := c.Context.BaseUrl
@@ -66,7 +72,7 @@ func updateTarget(newTarget string) {
 	_, err := uaa.Info(GetHttpClientWithConfig(c), c)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("The target %s could not be set.", newTarget))
-		if !c.Trace { fmt.Println("Retry with --trace for more information.") }
+		TraceRetryMsg(c)
 		os.Exit(1)
 	}
 

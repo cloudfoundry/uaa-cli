@@ -48,7 +48,7 @@ var _ = Describe("Target", func() {
 				config.WriteConfig(c)
 			})
 
-			ItSupportsTheTraceFlag("target", "/info", InfoResponseJson)
+			ItSupportsTheTraceFlagWhenGet("target", "/info", InfoResponseJson)
 
 			It("shows the currently set target and UAA version", func() {
 				server.RouteToHandler("GET", "/info",
