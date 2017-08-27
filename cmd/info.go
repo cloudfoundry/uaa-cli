@@ -26,7 +26,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/jhamon/uaa-cli/uaa"
 	"os"
-	"net/http"
 	"encoding/json"
 )
 
@@ -46,7 +45,7 @@ var infoCmd = &cobra.Command{
 		EnsureTarget()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Info(&http.Client{}, GetConfig())
+		i, err := uaa.Info(GetHttpClient(), GetConfig())
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

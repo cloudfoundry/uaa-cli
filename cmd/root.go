@@ -39,6 +39,7 @@ func GetConfig() uaa.Config {
 
 var cfgFile string
 var trace bool
+var skipSSLValidation bool
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -77,6 +78,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
+	RootCmd.PersistentFlags().BoolVarP(&skipSSLValidation, "skip-ssl-validation", "k", false, "Disable security validation on HTTPS requests")
 }
 
 // initConfig reads in config file and ENV variables if set.

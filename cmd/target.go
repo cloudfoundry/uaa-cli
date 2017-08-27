@@ -25,9 +25,7 @@ import (
 	"fmt"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
-	"net/http"
 	"os"
-	"time"
 )
 
 func printTarget(target string, status string, version string) {
@@ -44,10 +42,7 @@ func showTarget() {
 		return
 	}
 
-	client := &http.Client{
-		Timeout: 1 * time.Second,
-	}
-	info, err := uaa.Info(client, c)
+	info, err := uaa.Info(GetHttpClient(), c)
 	if err != nil {
 		printTarget(target, "ERROR", "unknown")
 		os.Exit(1)
@@ -63,7 +58,7 @@ func updateTarget(newTarget string) {
 	}
 
 	savedConfig.Context = context
-	_, err := uaa.Info(&http.Client{}, savedConfig)
+	_, err := uaa.Info(GetHttpClient(), savedConfig)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("The target %s is not responding and could not be set.", newTarget))
 		os.Exit(1)
