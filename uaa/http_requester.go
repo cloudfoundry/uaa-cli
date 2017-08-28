@@ -72,7 +72,7 @@ func mapToUrlValues(body map[string]string) url.Values {
 func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
-	req, err := UnauthenticatedRequestFactory{}.Post(config.GetActiveTarget(), path, query, &data)
+	req, err := UnauthenticatedRequestFactory{}.PostForm(config.GetActiveTarget(), path, query, &data)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -82,7 +82,7 @@ func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config,
 func (ag AuthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
-	req, err := AuthenticatedRequestFactory{}.Post(config.GetActiveTarget(), path, query, &data)
+	req, err := AuthenticatedRequestFactory{}.PostForm(config.GetActiveTarget(), path, query, &data)
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,7 +11,7 @@ import (
 
 type HttpRequestFactory interface {
 	Get(Target, string, string) (*http.Request, error)
-	Post(Target, string, string, *url.Values) (*http.Request, error)
+	PostForm(Target, string, string, *url.Values) (*http.Request, error)
 }
 
 type UnauthenticatedRequestFactory struct {}
@@ -33,7 +33,7 @@ func (urf UnauthenticatedRequestFactory) Get(target Target, path string, query s
 	return req, nil
 }
 
-func (urf UnauthenticatedRequestFactory) Post(target Target, path string, query string, data *url.Values) (*http.Request, error) {
+func (urf UnauthenticatedRequestFactory) PostForm(target Target, path string, query string, data *url.Values) (*http.Request, error) {
 	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
 	if err != nil {
 		return nil, err
@@ -67,8 +67,8 @@ func (arf AuthenticatedRequestFactory) Get(target Target, path string, query str
 	return req, nil
 }
 
-func (arf AuthenticatedRequestFactory) Post(target Target, path string, query string, data *url.Values) (*http.Request, error) {
-	req, err := UnauthenticatedRequestFactory{}.Post(target, path, query, data)
+func (arf AuthenticatedRequestFactory) PostForm(target Target, path string, query string, data *url.Values) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.PostForm(target, path, query, data)
 	if err != nil {
 		return nil, err
 	}

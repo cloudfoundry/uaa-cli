@@ -90,7 +90,7 @@ var _ = Describe("HttpRequestFactory", func() {
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 
-				req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 
 				Expect(req.Method).To(Equal("POST"))
 			})
@@ -98,14 +98,14 @@ var _ = Describe("HttpRequestFactory", func() {
 			It("sets an Accept header", func() {
 				config = NewConfigWithServerURL("http://www.localhost.com")
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 				Expect(req.Header.Get("Accept")).To(Equal("application/json"))
 			})
 
 			It("sets Content-Type header", func() {
 				config = NewConfigWithServerURL("http://www.localhost.com")
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 				Expect(req.Header.Get("Content-Type")).To(Equal("application/x-www-form-urlencoded"))
 			})
 
@@ -119,7 +119,7 @@ var _ = Describe("HttpRequestFactory", func() {
 				data.Add("token_format", "opaque")
 				data.Add("response_type", "token")
 
-				req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &data)
+				req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &data)
 				Expect(req.Header.Get("Content-Length")).To(Equal(strconv.Itoa(len(data.Encode()))))
 				reqBody, _ := ioutil.ReadAll(req.Body)
 				Expect(string(reqBody)).To(ContainSubstring("client_id=login"))
@@ -134,17 +134,17 @@ var _ = Describe("HttpRequestFactory", func() {
 				config = NewConfigWithServerURL("http://www.localhost.com")
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 
-				req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 				Expect(req.URL.String()).To(Equal("http://www.localhost.com/foo"))
 
-				req, _ = factory.Post(config.GetActiveTarget(), "/foo", "scheme=openid", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "/foo", "scheme=openid", &url.Values{})
 				Expect(req.URL.String()).To(Equal("http://www.localhost.com/foo?scheme=openid"))
 			})
 
 			It("accepts a query string", func() {
 				config = NewConfigWithServerURL("http://www.localhost.com")
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				req, _ = factory.Post(config.GetActiveTarget(), "/foo", "scheme=openid&foo=bar", &url.Values{})
+				req, _ = factory.PostForm(config.GetActiveTarget(), "/foo", "scheme=openid&foo=bar", &url.Values{})
 				Expect(req.URL.String()).To(Equal("http://www.localhost.com/foo?scheme=openid&foo=bar"))
 			})
 		})
@@ -178,7 +178,7 @@ var _ = Describe("HttpRequestFactory", func() {
 		})
 
 		It("adds an Authorization header when POST", func() {
-			req, _ = factory.Post(config.GetActiveTarget(), "foo", "", &url.Values{})
+			req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 			Expect(req.Header.Get("Authorization")).To(Equal("bearer access_token"))
 		})
 
