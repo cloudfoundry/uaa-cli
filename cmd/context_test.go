@@ -57,6 +57,4 @@ var _ = Describe("Context", func() {
 			Eventually(session).Should(Exit(0))
 		})
 	})
-
-
 })
