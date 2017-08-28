@@ -2,42 +2,6 @@
 
 
 [[projects]]
-  name = "cloud.google.com/go"
-  packages = ["compute/metadata"]
-  revision = "0f0b8420cb699ac4ce059c63bac263f4301fe95b"
-  version = "v0.12.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/armon/consul-api"
-  packages = ["."]
-  revision = "dcfedd50ed5334f96adee43fc88518a4f095e15c"
-
-[[projects]]
-  name = "github.com/coreos/etcd"
-  packages = ["client","pkg/pathutil","pkg/srv","pkg/types","version"]
-  revision = "9d43462d174c664f5edf313dec0de31e1ef4ed47"
-  version = "v3.2.6"
-
-[[projects]]
-  name = "github.com/coreos/go-semver"
-  packages = ["semver"]
-  revision = "8ab6407b697782a06568d4b7f1db25550ec2e4c6"
-  version = "v0.2.0"
-
-[[projects]]
-  name = "github.com/cpuguy83/go-md2man"
-  packages = ["md2man"]
-  revision = "a65d4d2de4d5f7c74868dfa9b202a3c8be315aaa"
-  version = "v1.0.6"
-
-[[projects]]
-  name = "github.com/davecgh/go-spew"
-  packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
-
-[[projects]]
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
@@ -46,13 +10,13 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["descriptor","jsonpb/jsonpb_test_proto","proto","proto/proto3_proto","proto/testdata","protoc-gen-go/descriptor","protoc-gen-go/generator","protoc-gen-go/grpc","protoc-gen-go/plugin","ptypes","ptypes/any","ptypes/duration","ptypes/struct","ptypes/timestamp","ptypes/wrappers"]
+  packages = ["proto"]
   revision = "ab9f9a6dab164b7d1246e0e688b0ab7b94d8553e"
 
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/printer","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token","testhelper"]
+  packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
   revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
 
 [[projects]]
@@ -62,16 +26,16 @@
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/kr/fs"
-  packages = ["."]
-  revision = "2788f0dbd16903de03cb8186e5c7d97b69ad387b"
-
-[[projects]]
   name = "github.com/magiconair/properties"
-  packages = [".","assert"]
+  packages = ["."]
   revision = "be5ece7dd465ab0765a9682137865547526d1dfb"
   version = "v1.7.3"
+
+[[projects]]
+  name = "github.com/mattn/go-runewidth"
+  packages = ["."]
+  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
+  version = "v0.0.2"
 
 [[projects]]
   branch = "master"
@@ -86,14 +50,20 @@
   revision = "d0303fe809921458f417bcf828397a65db30a7e4"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/olekukonko/tablewriter"
+  packages = ["."]
+  revision = "be5337e7b39e64e5f91445ce7e721888dbab7387"
+
+[[projects]]
   name = "github.com/onsi/ginkgo"
-  packages = [".","config","extensions/table","ginkgo/convert","ginkgo/interrupthandler","ginkgo/nodot","ginkgo/testrunner","ginkgo/testsuite","ginkgo/watch","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
+  packages = [".","config","internal/codelocation","internal/containernode","internal/failer","internal/leafnodes","internal/remote","internal/spec","internal/spec_iterator","internal/specrunner","internal/suite","internal/testingtproxy","internal/writer","reporters","reporters/stenographer","reporters/stenographer/support/go-colorable","reporters/stenographer/support/go-isatty","types"]
   revision = "9eda700730cba42af70d53180f9dcce9266bc2bc"
   version = "v1.4.0"
 
 [[projects]]
   name = "github.com/onsi/gomega"
-  packages = [".","format","gbytes","gexec","ghttp","ghttp/protobuf","gstruct","gstruct/errors","internal/assertion","internal/asyncassertion","internal/fakematcher","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
+  packages = [".","format","gbytes","gexec","ghttp","internal/assertion","internal/asyncassertion","internal/oraclematcher","internal/testingtsupport","matchers","matchers/support/goraph/bipartitegraph","matchers/support/goraph/edge","matchers/support/goraph/node","matchers/support/goraph/util","types"]
   revision = "c893efa28eb45626cdaa76c9f653b62488858837"
   version = "v1.2.0"
 
@@ -110,36 +80,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/pkg/errors"
-  packages = ["."]
-  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
-  version = "v0.8.0"
-
-[[projects]]
-  name = "github.com/pkg/sftp"
-  packages = ["."]
-  revision = "6eeffbb80592965a0c8c8b3eeec4796a62485cca"
-  version = "1.0.0"
-
-[[projects]]
-  name = "github.com/pmezard/go-difflib"
-  packages = ["difflib"]
-  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
-  version = "v1.0.0"
-
-[[projects]]
-  name = "github.com/russross/blackfriday"
-  packages = ["."]
-  revision = "cadec560ec52d93835bf2f15bd794700d3a2473b"
-  version = "v2.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/shurcooL/sanitized_anchor_name"
-  packages = ["."]
-  revision = "541ff5ee47f1dddf6a5281af78307d921524bcb5"
-
-[[projects]]
   branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
@@ -154,7 +94,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/spf13/cobra"
-  packages = [".","cobra/cmd","doc"]
+  packages = ["."]
   revision = "4a7b7e65864c064d48dce82efbbfed2bdc0bf2aa"
 
 [[projects]]
@@ -176,88 +116,22 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/stretchr/testify"
-  packages = ["assert","require"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/ugorji/go"
-  packages = ["codec"]
-  revision = "8c0409fcbb70099c748d71f714529204975f6c3f"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/xordataexchange/crypt"
-  packages = ["backend","backend/consul","backend/etcd","config","encoding/secconf"]
-  revision = "b2862e3d0a775f18c7cfe02273500ae307b61218"
-
-[[projects]]
-  branch = "master"
-  name = "go4.org"
-  packages = ["syncutil/singleflight"]
-  revision = "034d17a462f7b2dcd1a4a73553ec5357ff6e6c6e"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/crypto"
-  packages = ["acme","acme/autocert","cast5","curve25519","ed25519","ed25519/internal/edwards25519","openpgp","openpgp/armor","openpgp/elgamal","openpgp/errors","openpgp/packet","openpgp/s2k","ssh","ssh/terminal"]
-  revision = "81e90905daefcd6fd217b62423c0908922eadb30"
-
-[[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["bpf","context","context/ctxhttp","dns/dnsmessage","html","html/atom","html/charset","http2","http2/hpack","icmp","idna","internal/iana","internal/nettest","internal/socket","internal/timeseries","ipv4","ipv6","lex/httplex","webdav","webdav/internal/xml","websocket"]
+  packages = ["html","html/atom","html/charset"]
   revision = "1c05540f6879653db88113bc4a2b70aec4bd491f"
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/oauth2"
-  packages = [".","google","internal","jws","jwt"]
-  revision = "9a379c6b3e95a790ffc43293c2a78dee0d7b6e20"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sync"
-  packages = ["errgroup"]
-  revision = "f52d1811a62927559de87708c8913c1650ce4f26"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/sys"
-  packages = ["plan9","unix","windows","windows/registry","windows/svc","windows/svc/debug","windows/svc/eventlog","windows/svc/mgr"]
+  packages = ["unix"]
   revision = "43e60d72a8e2bd92ee98319ba9a384a0e9837c08"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["cases","collate","collate/build","currency","encoding","encoding/charmap","encoding/htmlindex","encoding/ianaindex","encoding/internal","encoding/internal/enctest","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal","internal/catmsg","internal/colltab","internal/export/idna","internal/format","internal/gen","internal/number","internal/stringset","internal/tag","internal/testtext","internal/triegen","internal/ucd","internal/utf8internal","language","language/display","message","message/catalog","runes","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","unicode/runenames","width"]
+  packages = ["encoding","encoding/charmap","encoding/htmlindex","encoding/internal","encoding/internal/identifier","encoding/japanese","encoding/korean","encoding/simplifiedchinese","encoding/traditionalchinese","encoding/unicode","internal/gen","internal/tag","internal/triegen","internal/ucd","internal/utf8internal","language","runes","transform","unicode/cldr","unicode/norm"]
   revision = "e56139fd9c5bc7244c76116c68e500765bb6db6b"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/tools"
-  packages = ["go/ast/astutil","go/buildutil","go/loader"]
-  revision = "1807494da808122833b9bd8e3e5fa179ef237d41"
-
-[[projects]]
-  branch = "master"
-  name = "google.golang.org/api"
-  packages = ["compute/v1","gensupport","googleapi","googleapi/internal/uritemplates"]
-  revision = "9f6390612e9621af9b26e66c719f9b22e520c669"
-
-[[projects]]
-  name = "google.golang.org/appengine"
-  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
-  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
-
-[[projects]]
-  branch = "v1"
-  name = "gopkg.in/check.v1"
-  packages = ["."]
-  revision = "20d25e2804050c1cd24a7eea1e7a6447dd0e74ec"
 
 [[projects]]
   branch = "v2"
@@ -268,6 +142,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "53fa1bc371f1c1a37d359c704cccff7dc4496a29f4a92437117c2f17bdbea16f"
+  inputs-digest = "4fd3ee3d04396b53a45cd552239f3c9401e656eb5db21a471e499298ffa3dd04"
   solver-name = "gps-cdcl"
   solver-version = 1
