@@ -7,14 +7,14 @@ import (
 
 type Userinfo struct {
 	UserId string `json:"user_id"`
-	Sub string
+	Sub string `json:"sub"`
 	Username string `json:"user_name"`
 	GivenName string `json:"given_name"`
 	FamilyName string `json:"family_name"`
-	Email string
-	PhoneNumber []string
-	PreviousLoginTime int64
-	Name string
+	Email string `json:"email"`
+	PhoneNumber []string `json:"phone_number"`
+	PreviousLoginTime int64 `json:"previous_logon_time"`
+	Name string `json:"name"`
 }
 
 func Me(client *http.Client, config Config) (Userinfo, error) {
