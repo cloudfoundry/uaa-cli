@@ -42,14 +42,17 @@ var getPasswordToken = &cobra.Command{
 	Short: "obtain a token as a password grant client",
 	Long: help.PasswordGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
+		clientId := args[0]
+		requestedType := uaa.OPAQUE
+
 		ccClient := uaa.ResourceOwnerPasswordClient{
-			ClientId: args[0],
+			ClientId: clientId,
 			ClientSecret: clientSecret2,
 			Username: username,
 			Password: password,
 		}
 		c := GetSavedConfig()
-		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.OPAQUE)
+		token, err := ccClient.RequestToken(GetHttpClient(), c, requestedType)
 		if err != nil {
 			fmt.Println("An error occurred while fetching token.")
 			TraceRetryMsg(c)
@@ -58,6 +61,13 @@ var getPasswordToken = &cobra.Command{
 
 		activeContext := c.GetActiveContext()
 		activeContext.AccessToken = token.AccessToken
+		activeContext.ClientId = clientId
+		activeContext.Username = username
+		activeContext.GrantType = uaa.PASSWORD
+		activeContext.TokenType = requestedType
+		activeContext.JTI = token.JTI
+		activeContext.ExpiresIn = token.ExpiresIn
+		activeContext.Scope = token.Scope
 		c.AddContext(activeContext)
 		config.WriteConfig(c)
 		fmt.Println("Access token successfully fetched and added to context.")

@@ -64,6 +64,12 @@ const (
 	JWT = TokenFormat("jwt")
 )
 
+type GrantType string
+const (
+	CLIENT_CREDENTIALS = GrantType("client_credentials")
+	PASSWORD = GrantType("password")
+)
+
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType string `json:"token_type"`

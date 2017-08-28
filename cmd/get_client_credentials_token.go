@@ -49,6 +49,12 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 
 		activeContext := c.GetActiveContext()
 		activeContext.AccessToken = token.AccessToken
+		activeContext.ClientId = args[0]
+		activeContext.GrantType = uaa.CLIENT_CREDENTIALS
+		activeContext.TokenType = uaa.OPAQUE
+		activeContext.JTI = token.JTI
+		activeContext.ExpiresIn = token.ExpiresIn
+		activeContext.Scope = token.Scope
 		c.AddContext(activeContext)
 		config.WriteConfig(c)
 		fmt.Println("Access token successfully fetched and added to context.")

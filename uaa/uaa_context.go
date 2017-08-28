@@ -19,11 +19,11 @@ type Target struct {
 
 type UaaContext struct {
 	ClientId string
-	GrantType string
+	GrantType GrantType
 	Username string
 
 	AccessToken string
-	TokenType string
+	TokenType TokenFormat
 	ExpiresIn int32
 	Scope string
 	JTI string
