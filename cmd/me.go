@@ -12,6 +12,7 @@ import (
 var meCmd = cobra.Command{
 	Use:   "me",
 	Short: "See claims about the authenticated user",
+	Aliases: []string{"userinfo"},
 	Long: help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
