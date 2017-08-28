@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/jhamon/uaa-cli/config"
-	"fmt"
 )
 
 var _ = Describe("Info", func() {
@@ -22,7 +21,6 @@ var _ = Describe("Info", func() {
 		ItSupportsTheTraceFlagWhenGet("info", "/info", InfoResponseJson)
 
 		It("shows the info response", func() {
-			fmt.Sprintf("%+v", config.ReadConfig())
 			server.RouteToHandler("GET", "/info",
 				RespondWith(http.StatusOK, InfoResponseJson),
 			)

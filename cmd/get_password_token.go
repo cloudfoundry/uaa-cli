@@ -38,7 +38,7 @@ var (
 )
 
 var getPasswordToken = &cobra.Command{
-	Use:   "get-password-token",
+	Use:   "get-password-token CLIENT_ID",
 	Short: "obtain a token as a password grant client",
 	Long: help.PasswordGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
