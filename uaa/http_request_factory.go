@@ -7,11 +7,13 @@ import (
 	"net/url"
 	"bytes"
 	"strconv"
+	"encoding/json"
 )
 
 type HttpRequestFactory interface {
 	Get(Target, string, string) (*http.Request, error)
 	PostForm(Target, string, string, *url.Values) (*http.Request, error)
+	PostJson(Target, string, string, interface{}) (*http.Request, error)
 }
 
 type UnauthenticatedRequestFactory struct {}
@@ -52,6 +54,40 @@ func (urf UnauthenticatedRequestFactory) PostForm(target Target, path string, qu
 	return req, nil
 }
 
+func (urf UnauthenticatedRequestFactory) PostJson(target Target, path string, query string, objToJsonify interface{}) (*http.Request, error) {
+	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
+	if err != nil {
+		return nil, err
+	}
+	targetUrl.RawQuery = query
+
+	objectJson, err := json.Marshal(objToJsonify)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyBytes := []byte(objectJson)
+	req, err := http.NewRequest("POST", targetUrl.String(), bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept","application/json")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.Itoa(len(bodyBytes)))
+
+	return req, nil
+}
+
+func addAuthorization(req *http.Request, ctx UaaContext) (*http.Request, error) {
+	accessToken := ctx.AccessToken
+	req.Header.Add("Authorization", "bearer " + accessToken)
+	if accessToken == "" {
+		return nil, errors.New("An access token is required to call " + req.URL.String())
+	}
+
+	return req, nil
+}
+
 func (arf AuthenticatedRequestFactory) Get(target Target, path string, query string) (*http.Request, error) {
 	req, err := UnauthenticatedRequestFactory{}.Get(target, path, query)
 
@@ -59,12 +95,7 @@ func (arf AuthenticatedRequestFactory) Get(target Target, path string, query str
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "bearer " + target.GetActiveContext().AccessToken)
-	if target.GetActiveContext().AccessToken == "" {
-		return nil, errors.New("An access token is required to call " + req.URL.String())
-	}
-
-	return req, nil
+	return addAuthorization(req, target.GetActiveContext())
 }
 
 func (arf AuthenticatedRequestFactory) PostForm(target Target, path string, query string, data *url.Values) (*http.Request, error) {
@@ -73,11 +104,14 @@ func (arf AuthenticatedRequestFactory) PostForm(target Target, path string, quer
 		return nil, err
 	}
 
-	accessToken := target.GetActiveContext().AccessToken
-	req.Header.Add("Authorization", "bearer " + accessToken)
-	if accessToken == "" {
-		return nil, errors.New("An access token is required to call " + req.URL.String())
+	return addAuthorization(req, target.GetActiveContext())
+}
+
+func (arf AuthenticatedRequestFactory) PostJson(target Target, path string, query string, objToJsonify interface{}) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.PostJson(target, path, query, objToJsonify)
+	if err != nil {
+		return nil, err
 	}
 
-	return req, nil
+	return addAuthorization(req, target.GetActiveContext())
 }
