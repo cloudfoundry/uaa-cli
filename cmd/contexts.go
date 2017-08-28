@@ -28,7 +28,7 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-var contextsCmd = &cobra.Command{
+var contextsCmd = cobra.Command{
 	Use:   "contexts",
 	Short: "List available contexts for the currently targeted UAA",
 	Long: help.Context(),
@@ -57,5 +57,6 @@ var contextsCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(contextsCmd)
+	RootCmd.AddCommand(&contextsCmd)
+	contextsCmd.Hidden = true
 }
