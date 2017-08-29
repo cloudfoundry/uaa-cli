@@ -165,7 +165,7 @@ var _ = Describe("Clients", func() {
 		server.RouteToHandler("POST", "/oauth/clients", ghttp.CombineHandlers(
 			ghttp.RespondWith(200, "{unparsable}"),
 		))
-		
+
 		cm := &ClientManager{httpClient, config}
 		_, err := cm.Create(UaaClient{})
 

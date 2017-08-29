@@ -83,6 +83,18 @@ var _ = Describe("HttpGetter", func() {
 				Expect(parsedResponse).To(ContainSubstring("expires_in"))
 			})
 
+			It("treats 201 as success", func() {
+				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
+					ghttp.RespondWith(201, responseJson),
+					ghttp.VerifyRequest("POST", "/oauth/token", ""),
+				))
+
+				_, err := UnauthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).To(BeNil())
+			})
+
 			It("returns an error when request fails", func() {
 				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
 					ghttp.RespondWith(500, "garbage"),

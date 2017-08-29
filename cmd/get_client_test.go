@@ -24,7 +24,7 @@ var _ = Describe("GetClient", func() {
 		  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
 		  "name" : "My Client Name",
 		  "lastModified" : 1502816030525,
-		  "required_user_groups" : [ ]
+		  "required_user_groups" : [ "cloud_controller.admin" ]
 		}`
 
 	Describe("--trace flag support", func() {

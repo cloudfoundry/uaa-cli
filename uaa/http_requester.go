@@ -16,6 +16,13 @@ type Requester interface {
 type UnauthenticatedRequester struct {}
 type AuthenticatedRequester struct {}
 
+func is2XX(status int) bool {
+	if status >= 200 && status < 300 {
+		return true
+	}
+	return false
+}
+
 func doAndRead(req *http.Request, client *http.Client, config Config, path string, query string) ([]byte, error) {
 	if config.Trace {
 		logRequest(req)
@@ -40,7 +47,7 @@ func doAndRead(req *http.Request, client *http.Client, config Config, path strin
 		logResponse(resp, bytes)
 	}
 
-	if (resp.StatusCode != http.StatusOK) {
+	if !is2XX(resp.StatusCode) {
 		return []byte{}, requestError(req.URL.String())
 	}
 	return bytes, nil

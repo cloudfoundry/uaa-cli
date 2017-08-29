@@ -11,18 +11,19 @@ type ClientManager struct {
 }
 
 type UaaClient struct {
-	Scope                []string `json:"scope"`
-	ClientId             string `json:"client_id"`
-	ResourceIds          []string `json:"resource_ids"`
-	AuthorizedGrantTypes []string `json:"authorized_grant_types"`
-	RedirectUri          []string `json:"redirect_uri"`
-	Autoapprove          []string `json:"autoapprove"`
-	Authorities          []string `json:"authorities"`
-	TokenSalt            string `json:"token_salt"`
-	AllowedProviders     []string `json:"allowedproviders"`
-	DisplayName          string `json:"name"`
-	LastModified         int64 `json:"lastModified"`
-	RequiredUserGroups   []string `json:"required_user_groups"`
+	Scope                []string `json:"scope,omitempty"`
+	ClientId             string `json:"client_id,omitempty"`
+	ClientSecret         string `json:"client_secret,omitempty"`
+	ResourceIds          []string `json:"resource_ids,omitempty"`
+	AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
+	RedirectUri          []string `json:"redirect_uri,omitempty"`
+	Autoapprove          []string `json:"autoapprove,omitempty"`
+	Authorities          []string `json:"authorities,omitempty"`
+	TokenSalt            string `json:"token_salt,omitempty"`
+	AllowedProviders     []string `json:"allowedproviders,omitempty"`
+	DisplayName          string `json:"name,omitempty"`
+	LastModified         int64 `json:"lastModified,omitempty"`
+	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
 }
 
 func (cm *ClientManager) Get(clientId string) (UaaClient, error) {
