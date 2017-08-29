@@ -46,9 +46,41 @@ func (cm *ClientManager) Get(clientId string) (UaaClient, error) {
 	return uaaClient, err
 }
 
+func (cm *ClientManager) Delete(clientId string) (UaaClient, error) {
+	url := "/oauth/clients/" + clientId
+	bytes, err := AuthenticatedRequester{}.Delete(cm.HttpClient, cm.Config, url, "")
+	if err != nil {
+		return UaaClient{}, err
+	}
+
+	uaaClient := UaaClient{}
+	err = json.Unmarshal(bytes, &uaaClient)
+	if err != nil {
+		return UaaClient{}, parseError("", bytes)
+	}
+
+	return uaaClient, err
+}
+
 func (cm *ClientManager) Create(toCreate UaaClient) (UaaClient, error) {
 	url := "/oauth/clients"
 	bytes, err := AuthenticatedRequester{}.PostJson(cm.HttpClient, cm.Config, url, "", toCreate)
+	if err != nil {
+		return UaaClient{}, err
+	}
+
+	uaaClient := UaaClient{}
+	err = json.Unmarshal(bytes, &uaaClient)
+	if err != nil {
+		return UaaClient{}, parseError("", bytes)
+	}
+
+	return uaaClient, err
+}
+
+func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
+	url := "/oauth/clients"
+	bytes, err := AuthenticatedRequester{}.PutJson(cm.HttpClient, cm.Config, url, "", toUpdate)
 	if err != nil {
 		return UaaClient{}, err
 	}
