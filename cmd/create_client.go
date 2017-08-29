@@ -27,6 +27,7 @@ import (
 	"strings"
 	"fmt"
 	"encoding/json"
+	"github.com/jhamon/uaa-cli/help"
 )
 
 var (
@@ -51,6 +52,7 @@ func arrayify(commaSeparatedStr string) []string {
 var createClientCmd = &cobra.Command{
 	Use:   "create-client CLIENT_ID",
 	Short: "Create an OAuth client registration in the UAA",
+	Long: help.CreateClient(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
