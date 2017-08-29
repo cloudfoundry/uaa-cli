@@ -14,6 +14,7 @@ type HttpRequestFactory interface {
 	Get(Target, string, string) (*http.Request, error)
 	PostForm(Target, string, string, *url.Values) (*http.Request, error)
 	PostJson(Target, string, string, interface{}) (*http.Request, error)
+	PutJson(Target, string, string, interface{}) (*http.Request, error)
 }
 
 type UnauthenticatedRequestFactory struct{}
@@ -78,6 +79,30 @@ func (urf UnauthenticatedRequestFactory) PostJson(target Target, path string, qu
 	return req, nil
 }
 
+func (urf UnauthenticatedRequestFactory) PutJson(target Target, path string, query string, objToJsonify interface{}) (*http.Request, error) {
+	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
+	if err != nil {
+		return nil, err
+	}
+	targetUrl.RawQuery = query
+
+	objectJson, err := json.Marshal(objToJsonify)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyBytes := []byte(objectJson)
+	req, err := http.NewRequest("PUT", targetUrl.String(), bytes.NewBuffer(bodyBytes))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Content-Length", strconv.Itoa(len(bodyBytes)))
+
+	return req, nil
+}
+
 func addAuthorization(req *http.Request, ctx UaaContext) (*http.Request, error) {
 	accessToken := ctx.AccessToken
 	req.Header.Add("Authorization", "bearer "+accessToken)
@@ -109,6 +134,15 @@ func (arf AuthenticatedRequestFactory) PostForm(target Target, path string, quer
 
 func (arf AuthenticatedRequestFactory) PostJson(target Target, path string, query string, objToJsonify interface{}) (*http.Request, error) {
 	req, err := UnauthenticatedRequestFactory{}.PostJson(target, path, query, objToJsonify)
+	if err != nil {
+		return nil, err
+	}
+
+	return addAuthorization(req, target.GetActiveContext())
+}
+
+func (arf AuthenticatedRequestFactory) PutJson(target Target, path string, query string, objToJsonify interface{}) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.PutJson(target, path, query, objToJsonify)
 	if err != nil {
 		return nil, err
 	}

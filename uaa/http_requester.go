@@ -11,6 +11,7 @@ type Requester interface {
 	Get(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
 	PostForm(client *http.Client, context UaaContext, path string, query string, body map[string]string) ([]byte, error)
 	PostJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
+	PutJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
 }
 
 type UnauthenticatedRequester struct{}
@@ -107,6 +108,22 @@ func (ug UnauthenticatedRequester) PostJson(client *http.Client, config Config, 
 
 func (ag AuthenticatedRequester) PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
 	req, err := AuthenticatedRequestFactory{}.PostJson(config.GetActiveTarget(), path, query, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config, path, query)
+}
+
+func (ug UnauthenticatedRequester) PutJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := UnauthenticatedRequestFactory{}.PutJson(config.GetActiveTarget(), path, query, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config, path, query)
+}
+
+func (ag AuthenticatedRequester) PutJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := AuthenticatedRequestFactory{}.PutJson(config.GetActiveTarget(), path, query, body)
 	if err != nil {
 		return []byte{}, err
 	}

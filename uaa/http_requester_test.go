@@ -122,7 +122,6 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
-				config.AddContext(UaaContext{AccessToken: "access_token"})
 
 				returnedBytes, _ := UnauthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
 				parsedResponse := string(returnedBytes)
@@ -137,9 +136,44 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyRequest("POST", "/foo", ""),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				_, err := UnauthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+		})
+
+		Describe("PutJson", func() {
+			It("calls an endpoint with correct body and headers", func() {
+				responseJson = `{ "status" : "great successs" }`
+
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+					ghttp.VerifyJSON(`{"Field1": "hello", "Field2": "world"}`),
+				))
+
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
+
+				returnedBytes, _ := UnauthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
+				parsedResponse := string(returnedBytes)
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(parsedResponse).To(ContainSubstring("great success"))
+			})
+
+			It("returns an error when request fails", func() {
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(500, "garbage"),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+				))
+
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
+				_, err := UnauthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(err).NotTo(BeNil())
@@ -289,5 +323,54 @@ var _ = Describe("HttpGetter", func() {
 				Expect(err.Error()).To(ContainSubstring("An access token is required to call"))
 			})
 		})
+
+		Describe("PostJson", func() {
+			It("calls an endpoint with correct body and headers", func() {
+				responseJson = `{ "status" : "great successs" }`
+
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+					ghttp.VerifyJSON(`{"Field1": "hello", "Field2": "world"}`),
+				))
+
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+
+				returnedBytes, _ := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
+				parsedResponse := string(returnedBytes)
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(parsedResponse).To(ContainSubstring("great success"))
+			})
+
+			It("returns an error when request fails", func() {
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(500, "garbage"),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
+				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+
+			It("returns a helpful error when no token in context", func() {
+				config.AddContext(UaaContext{AccessToken: ""})
+				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", map[string]string{})
+
+				Expect(server.ReceivedRequests()).To(HaveLen(0))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An access token is required to call"))
+			})
+		})
+
 	})
 })
