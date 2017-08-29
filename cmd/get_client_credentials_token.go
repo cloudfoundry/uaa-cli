@@ -23,11 +23,11 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/jhamon/uaa-cli/config"
-	"os"
 	"github.com/jhamon/uaa-cli/help"
+	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var clientSecret string
@@ -35,9 +35,9 @@ var clientSecret string
 var getClientCredentialsTokenCmd = &cobra.Command{
 	Use:   "get-client-credentials-token CLIENT_ID",
 	Short: "obtain a token as a client_credentials grant client",
-	Long: help.ClientCredentials(),
+	Long:  help.ClientCredentials(),
 	Run: func(cmd *cobra.Command, args []string) {
-		ccClient := uaa.ClientCredentialsClient{ ClientId: args[0], ClientSecret: clientSecret }
+		ccClient := uaa.ClientCredentialsClient{ClientId: args[0], ClientSecret: clientSecret}
 		c := GetSavedConfig()
 		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.OPAQUE)
 		if err != nil {

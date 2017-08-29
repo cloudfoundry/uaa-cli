@@ -11,8 +11,8 @@ import (
 
 var _ = Describe("Clients", func() {
 	var (
-		server *ghttp.Server
-		config Config
+		server     *ghttp.Server
+		config     Config
 		httpClient *http.Client
 	)
 
@@ -20,7 +20,7 @@ var _ = Describe("Clients", func() {
 		server = ghttp.NewServer()
 		httpClient = &http.Client{}
 		config = NewConfigWithServerURL(server.URL())
-		ctx := UaaContext{AccessToken: "access_token" }
+		ctx := UaaContext{AccessToken: "access_token"}
 		config.AddContext(ctx)
 	})
 
@@ -130,13 +130,13 @@ var _ = Describe("Clients", func() {
 			))
 
 			toCreate := UaaClient{
-				ClientId: "peanuts_client",
+				ClientId:             "peanuts_client",
 				AuthorizedGrantTypes: []string{"client_credentials"},
-				Scope: []string{"clients.read", "clients.write"},
-				ResourceIds: []string{"none"},
-				RedirectUri: []string{"http://snoopy.com/**", "http://woodstock.com"},
-				Authorities: []string{"comics.read", "comics.write"},
-				DisplayName: "The Peanuts Client",
+				Scope:                []string{"clients.read", "clients.write"},
+				ResourceIds:          []string{"none"},
+				RedirectUri:          []string{"http://snoopy.com/**", "http://woodstock.com"},
+				Authorities:          []string{"comics.read", "comics.write"},
+				DisplayName:          "The Peanuts Client",
 			}
 
 			cm := &ClientManager{httpClient, config}

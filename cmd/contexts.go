@@ -21,17 +21,17 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
-	"os"
 	"github.com/jhamon/uaa-cli/help"
 	"github.com/olekukonko/tablewriter"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var contextsCmd = cobra.Command{
 	Use:   "contexts",
 	Short: "List available contexts for the currently targeted UAA",
-	Long: help.Context(),
+	Long:  help.Context(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 

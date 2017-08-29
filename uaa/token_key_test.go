@@ -11,9 +11,9 @@ import (
 
 var _ = Describe("TokenKey", func() {
 	var (
-		server *ghttp.Server
-		client *http.Client
-		config Config
+		server       *ghttp.Server
+		client       *http.Client
+		config       Config
 		tokenKeyJson string
 	)
 

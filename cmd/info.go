@@ -23,10 +23,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-	"github.com/jhamon/uaa-cli/uaa"
-	"os"
 	"encoding/json"
+	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var infoCmd = &cobra.Command{

@@ -1,15 +1,14 @@
 package cmd_test
 
 import (
-
+	"github.com/jhamon/uaa-cli/config"
+	. "github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/gbytes"
+	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
-	. "github.com/jhamon/uaa-cli/uaa"
-	"github.com/jhamon/uaa-cli/config"
 )
 
 var _ = Describe("GetClientCredentialsToken", func() {
@@ -23,10 +22,9 @@ var _ = Describe("GetClientCredentialsToken", func() {
 	var c Config
 	var context UaaContext
 
-
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c = NewConfigWithServerURL(server.URL());
+			c = NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 			context = c.GetActiveContext()
 		})
@@ -64,11 +62,11 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			BeforeEach(func() {
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-						RespondWith(http.StatusOK, tokenResponseJson),
-						VerifyFormKV("client_id", "admin"),
-						VerifyFormKV("client_secret", "adminsecret"),
-						VerifyFormKV("grant_type", "client_credentials"),
-					),
+					RespondWith(http.StatusOK, tokenResponseJson),
+					VerifyFormKV("client_id", "admin"),
+					VerifyFormKV("client_secret", "adminsecret"),
+					VerifyFormKV("grant_type", "client_credentials"),
+				),
 				)
 			})
 
@@ -94,17 +92,16 @@ var _ = Describe("GetClientCredentialsToken", func() {
 	Describe("when the token request fails", func() {
 		BeforeEach(func() {
 			c := NewConfig()
-			c.AddContext(UaaContext{AccessToken:"old-token"})
+			c.AddContext(UaaContext{AccessToken: "old-token"})
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-					RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
-					VerifyFormKV("client_id", "admin"),
-					VerifyFormKV("client_secret", "adminsecret"),
-					VerifyFormKV("grant_type", "client_credentials"),
-				),
+				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
+				VerifyFormKV("client_id", "admin"),
+				VerifyFormKV("client_secret", "adminsecret"),
+				VerifyFormKV("grant_type", "client_credentials"),
+			),
 			)
 		})
-
 
 		It("displays help to the user", func() {
 			session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
@@ -132,7 +129,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 		Describe("when called with no client secret", func() {
 			It("displays help and does not panic", func() {
-				c := NewConfigWithServerURL("http://localhost");
+				c := NewConfigWithServerURL("http://localhost")
 				config.WriteConfig(c)
 				session := runCommand("get-client-credentials-token", "admin")
 

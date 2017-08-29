@@ -3,18 +3,18 @@ package cmd_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	. "github.com/onsi/gomega/gbytes"
 
-	"testing"
-	"io/ioutil"
-	"os/exec"
-	"os"
-	"io"
-	"runtime"
-	"net/http"
 	"github.com/jhamon/uaa-cli/config"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"os/exec"
+	"runtime"
+	"testing"
 )
 
 func TestCmd(t *testing.T) {

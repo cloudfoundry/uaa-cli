@@ -1,10 +1,10 @@
 package uaa
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"fmt"
 )
 
 type Requester interface {
@@ -13,8 +13,8 @@ type Requester interface {
 	PostJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
 }
 
-type UnauthenticatedRequester struct {}
-type AuthenticatedRequester struct {}
+type UnauthenticatedRequester struct{}
+type AuthenticatedRequester struct{}
 
 func is2XX(status int) bool {
 	if status >= 200 && status < 300 {
@@ -28,7 +28,7 @@ func doAndRead(req *http.Request, client *http.Client, config Config, path strin
 		logRequest(req)
 	}
 	resp, err := client.Do(req)
-	if (err != nil) {
+	if err != nil {
 		if config.Trace {
 			fmt.Printf("%v\n\n", err)
 		}

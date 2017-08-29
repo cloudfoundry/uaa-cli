@@ -1,19 +1,19 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-	"github.com/spf13/cobra"
-	"github.com/jhamon/uaa-cli/uaa"
 	"encoding/json"
+	"fmt"
 	"github.com/jhamon/uaa-cli/help"
+	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var meCmd = cobra.Command{
-	Use:   "me",
-	Short: "See claims about the authenticated user",
+	Use:     "me",
+	Short:   "See claims about the authenticated user",
 	Aliases: []string{"userinfo"},
-	Long: help.Userinfo(),
+	Long:    help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},

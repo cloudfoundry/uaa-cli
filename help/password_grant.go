@@ -1,7 +1,7 @@
 package help
 
 func PasswordGrant() string {
-  return `USAGE
+	return `USAGE
 
   uaa target UAA_URL
   uaa get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD

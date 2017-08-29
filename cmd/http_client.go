@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"net/http"
 	"crypto/tls"
-	"time"
 	"github.com/jhamon/uaa-cli/uaa"
+	"net/http"
+	"time"
 )
 
 func GetHttpClient() *http.Client {

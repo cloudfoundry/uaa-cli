@@ -21,10 +21,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"fmt"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
 	"os"
 )
 
@@ -66,7 +66,7 @@ func updateTarget(newTarget string) {
 
 	target := uaa.Target{
 		SkipSSLValidation: skipSSLValidation,
-		BaseUrl: newTarget,
+		BaseUrl:           newTarget,
 	}
 
 	c.AddTarget(target)

@@ -1,13 +1,13 @@
 package uaa_test
 
 import (
+	. "github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/jhamon/uaa-cli/uaa"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
-	"io/ioutil"
 )
 
 type TestData struct {
@@ -19,8 +19,8 @@ var _ = Describe("HttpRequestFactory", func() {
 	var (
 		factory HttpRequestFactory
 		context UaaContext
-		req *http.Request
-		config Config
+		req     *http.Request
+		config  Config
 	)
 
 	ItBuildsUrlsFromUaaContext := func() {
@@ -155,7 +155,7 @@ var _ = Describe("HttpRequestFactory", func() {
 		Describe("PostJson", func() {
 			var dataToPost TestData
 			BeforeEach(func() {
-				dataToPost = TestData{Field1:"foo", Field2: "bar"}
+				dataToPost = TestData{Field1: "foo", Field2: "bar"}
 			})
 
 			It("builds a POST request", func() {
@@ -243,7 +243,6 @@ var _ = Describe("HttpRequestFactory", func() {
 			req, _ = factory.PostForm(config.GetActiveTarget(), "foo", "", &url.Values{})
 			Expect(req.Header.Get("Authorization")).To(Equal("bearer access_token"))
 		})
-
 
 		It("returns an error when context has no token", func() {
 			config = NewConfigWithServerURL("http://www.localhost.com")

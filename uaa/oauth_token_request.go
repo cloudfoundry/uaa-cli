@@ -1,12 +1,12 @@
 package uaa
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 type ClientCredentialsClient struct {
-	ClientId string
+	ClientId     string
 	ClientSecret string
 }
 
@@ -17,7 +17,7 @@ func postToOAuthToken(httpClient *http.Client, config Config, body map[string]st
 	}
 
 	tokenResponse := TokenResponse{}
-	err = json.Unmarshal(bytes,&tokenResponse)
+	err = json.Unmarshal(bytes, &tokenResponse)
 	if err != nil {
 		return TokenResponse{}, parseError("/oauth/token", bytes)
 	}
@@ -27,10 +27,10 @@ func postToOAuthToken(httpClient *http.Client, config Config, body map[string]st
 
 func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
 	body := map[string]string{
-		"grant_type": "client_credentials",
-		"client_id": cc.ClientId,
+		"grant_type":    "client_credentials",
+		"client_id":     cc.ClientId,
 		"client_secret": cc.ClientSecret,
-		"token_format": string(format),
+		"token_format":  string(format),
 		"response_type": "token",
 	}
 
@@ -38,20 +38,20 @@ func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config C
 }
 
 type ResourceOwnerPasswordClient struct {
-	ClientId string
+	ClientId     string
 	ClientSecret string
-	Username string
-	Password string
+	Username     string
+	Password     string
 }
 
 func (rop ResourceOwnerPasswordClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
 	body := map[string]string{
-		"grant_type": "password",
-		"client_id": rop.ClientId,
+		"grant_type":    "password",
+		"client_id":     rop.ClientId,
 		"client_secret": rop.ClientSecret,
-		"username": rop.Username,
-		"password": rop.Password,
-		"token_format": string(format),
+		"username":      rop.Username,
+		"password":      rop.Password,
+		"token_format":  string(format),
 		"response_type": "token",
 	}
 
@@ -59,21 +59,23 @@ func (rop ResourceOwnerPasswordClient) RequestToken(httpClient *http.Client, con
 }
 
 type TokenFormat string
+
 const (
 	OPAQUE = TokenFormat("opaque")
-	JWT = TokenFormat("jwt")
+	JWT    = TokenFormat("jwt")
 )
 
 type GrantType string
+
 const (
 	CLIENT_CREDENTIALS = GrantType("client_credentials")
-	PASSWORD = GrantType("password")
+	PASSWORD           = GrantType("password")
 )
 
 type TokenResponse struct {
 	AccessToken string `json:"access_token"`
-	TokenType string `json:"token_type"`
-	ExpiresIn int32 `json:"expires_in"`
-	Scope string `json:"scope"`
-	JTI string `json:"jti"`
+	TokenType   string `json:"token_type"`
+	ExpiresIn   int32  `json:"expires_in"`
+	Scope       string `json:"scope"`
+	JTI         string `json:"jti"`
 }

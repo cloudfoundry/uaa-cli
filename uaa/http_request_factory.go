@@ -1,13 +1,13 @@
 package uaa
 
 import (
-	"net/http"
-	"github.com/jhamon/uaa-cli/utils"
-	"errors"
-	"net/url"
 	"bytes"
-	"strconv"
 	"encoding/json"
+	"errors"
+	"github.com/jhamon/uaa-cli/utils"
+	"net/http"
+	"net/url"
+	"strconv"
 )
 
 type HttpRequestFactory interface {
@@ -16,8 +16,8 @@ type HttpRequestFactory interface {
 	PostJson(Target, string, string, interface{}) (*http.Request, error)
 }
 
-type UnauthenticatedRequestFactory struct {}
-type AuthenticatedRequestFactory struct {}
+type UnauthenticatedRequestFactory struct{}
+type AuthenticatedRequestFactory struct{}
 
 func (urf UnauthenticatedRequestFactory) Get(target Target, path string, query string) (*http.Request, error) {
 	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
@@ -30,7 +30,7 @@ func (urf UnauthenticatedRequestFactory) Get(target Target, path string, query s
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Accept","application/json")
+	req.Header.Add("Accept", "application/json")
 
 	return req, nil
 }
@@ -47,7 +47,7 @@ func (urf UnauthenticatedRequestFactory) PostForm(target Target, path string, qu
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Accept","application/json")
+	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Content-Length", strconv.Itoa(len(bodyBytes)))
 
@@ -71,7 +71,7 @@ func (urf UnauthenticatedRequestFactory) PostJson(target Target, path string, qu
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Accept","application/json")
+	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Content-Length", strconv.Itoa(len(bodyBytes)))
 
@@ -80,7 +80,7 @@ func (urf UnauthenticatedRequestFactory) PostJson(target Target, path string, qu
 
 func addAuthorization(req *http.Request, ctx UaaContext) (*http.Request, error) {
 	accessToken := ctx.AccessToken
-	req.Header.Add("Authorization", "bearer " + accessToken)
+	req.Header.Add("Authorization", "bearer "+accessToken)
 	if accessToken == "" {
 		return nil, errors.New("An access token is required to call " + req.URL.String())
 	}

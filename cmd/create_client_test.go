@@ -145,7 +145,7 @@ var _ = Describe("CreateClient", func() {
 	Describe("when the client creation fails", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfig()
-			c.AddContext(uaa.UaaContext{AccessToken:"old-token"})
+			c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),

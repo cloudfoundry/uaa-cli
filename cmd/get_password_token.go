@@ -23,32 +23,32 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/help"
+	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
-	"github.com/jhamon/uaa-cli/config"
-	"github.com/jhamon/uaa-cli/uaa"
-	"github.com/jhamon/uaa-cli/help"
 )
 
 var (
-	password string
-	username string
+	password      string
+	username      string
 	clientSecret2 string
 )
 
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID",
 	Short: "obtain a token as a password grant client",
-	Long: help.PasswordGrant(),
+	Long:  help.PasswordGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
 		clientId := args[0]
 		requestedType := uaa.OPAQUE
 
 		ccClient := uaa.ResourceOwnerPasswordClient{
-			ClientId: clientId,
+			ClientId:     clientId,
 			ClientSecret: clientSecret2,
-			Username: username,
-			Password: password,
+			Username:     username,
+			Password:     password,
 		}
 		c := GetSavedConfig()
 		token, err := ccClient.RequestToken(GetHttpClient(), c, requestedType)

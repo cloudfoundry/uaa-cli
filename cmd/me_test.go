@@ -1,14 +1,14 @@
 package cmd_test
 
 import (
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
-	"github.com/jhamon/uaa-cli/config"
-	"github.com/jhamon/uaa-cli/uaa"
 )
 
 var _ = Describe("Me", func() {
@@ -26,7 +26,7 @@ var _ = Describe("Me", func() {
 		}`
 
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL());
+			c := uaa.NewConfigWithServerURL(server.URL())
 			ctx := uaa.UaaContext{AccessToken: "access_token"}
 			c.AddContext(ctx)
 			config.WriteConfig(c)

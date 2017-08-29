@@ -21,11 +21,11 @@
 package cmd
 
 import (
-"github.com/spf13/cobra"
-	"github.com/jhamon/uaa-cli/uaa"
-	"fmt"
-	"os"
 	"encoding/json"
+	"fmt"
+	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var getClientCmd = &cobra.Command{
@@ -60,4 +60,3 @@ var getClientCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(getClientCmd)
 }
-

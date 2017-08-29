@@ -18,4 +18,3 @@ func EnsureTarget() {
 		os.Exit(1)
 	}
 }
-

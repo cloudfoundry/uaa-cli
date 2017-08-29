@@ -21,52 +21,52 @@
 package cmd
 
 import (
-"github.com/spf13/cobra"
+	"encoding/json"
+	"fmt"
+	"github.com/jhamon/uaa-cli/help"
 	"github.com/jhamon/uaa-cli/uaa"
+	"github.com/spf13/cobra"
 	"os"
 	"strings"
-	"fmt"
-	"encoding/json"
-	"github.com/jhamon/uaa-cli/help"
 )
 
 var (
 	authorizedGrantTypes string
-	authorities string
-	accessTokenValidity int32
+	authorities          string
+	accessTokenValidity  int32
 	refreshTokenValidity int32
-	displayName string
-	autoapprove string
-	scope string
-	redirectUri string
+	displayName          string
+	autoapprove          string
+	scope                string
+	redirectUri          string
 )
 
 func arrayify(commaSeparatedStr string) []string {
 	if commaSeparatedStr == "" {
 		return []string{}
 	} else {
-		return strings.Split(commaSeparatedStr,",")
+		return strings.Split(commaSeparatedStr, ",")
 	}
 }
 
 var createClientCmd = &cobra.Command{
 	Use:   "create-client CLIENT_ID",
 	Short: "Create an OAuth client registration in the UAA",
-	Long: help.CreateClient(),
+	Long:  help.CreateClient(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
 
 		clientId := args[0]
 		toCreate := uaa.UaaClient{
-			ClientId: clientId,
-			ClientSecret: clientSecret,
-			DisplayName: displayName,
+			ClientId:             clientId,
+			ClientSecret:         clientSecret,
+			DisplayName:          displayName,
 			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
-			Authorities: arrayify(authorities),
-			Autoapprove: arrayify(autoapprove),
-			RedirectUri: arrayify(redirectUri),
-			Scope: arrayify(scope),
+			Authorities:          arrayify(authorities),
+			Autoapprove:          arrayify(autoapprove),
+			RedirectUri:          arrayify(redirectUri),
+			Scope:                arrayify(scope),
 		}
 
 		created, err := cm.Create(toCreate)
@@ -112,4 +112,3 @@ func init() {
 	createClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	createClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 }
-

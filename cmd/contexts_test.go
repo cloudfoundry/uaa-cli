@@ -1,12 +1,12 @@
 package cmd_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gexec"
-	. "github.com/onsi/gomega/gbytes"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gbytes"
+	. "github.com/onsi/gomega/gexec"
 )
 
 var _ = Describe("Contexts", func() {
@@ -43,7 +43,7 @@ var _ = Describe("Contexts", func() {
 	Describe("when there are contexts", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
-			ctx1 := uaa.UaaContext{ClientId: "admin", Username: "woodstock", GrantType: uaa.PASSWORD }
+			ctx1 := uaa.UaaContext{ClientId: "admin", Username: "woodstock", GrantType: uaa.PASSWORD}
 			c.AddContext(ctx1)
 			config.WriteConfig(c)
 		})

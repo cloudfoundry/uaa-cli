@@ -24,12 +24,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/help"
+	"github.com/jhamon/uaa-cli/uaa"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/jhamon/uaa-cli/config"
-	"github.com/jhamon/uaa-cli/uaa"
-	"github.com/jhamon/uaa-cli/help"
 )
 
 func GetSavedConfig() uaa.Config {
@@ -45,7 +45,7 @@ var trace bool
 var RootCmd = &cobra.Command{
 	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
-	Long: help.Root(),
+	Long:  help.Root(),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -57,7 +57,7 @@ func Execute() {
 	}
 }
 
-func init() { 
+func init() {
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")

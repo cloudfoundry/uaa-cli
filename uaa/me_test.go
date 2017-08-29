@@ -11,9 +11,9 @@ import (
 
 var _ = Describe("Me", func() {
 	var (
-		server *ghttp.Server
-		client *http.Client
-		config Config
+		server       *ghttp.Server
+		client       *http.Client
+		config       Config
 		userinfoJson string
 	)
 
@@ -55,7 +55,6 @@ var _ = Describe("Me", func() {
 		Expect(userinfo.Username).To(Equal("charlieb"))
 		Expect(userinfo.GivenName).To(Equal("Charlie"))
 		Expect(userinfo.FamilyName).To(Equal("Brown"))
-
 
 		Expect(userinfo.Email).To(Equal("charlieb@peanuts.com"))
 	})

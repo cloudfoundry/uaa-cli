@@ -21,17 +21,17 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"fmt"
-	"os"
 	"encoding/json"
+	"fmt"
 	"github.com/jhamon/uaa-cli/help"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 var contextCmd = &cobra.Command{
 	Use:   "context",
 	Short: "See information about the currently active CLI context",
-	Long: help.Context(),
+	Long:  help.Context(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 

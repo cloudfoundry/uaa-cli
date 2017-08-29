@@ -11,9 +11,9 @@ import (
 
 var _ = Describe("HttpGetter", func() {
 	var (
-		server *ghttp.Server
-		client *http.Client
-		config Config
+		server       *ghttp.Server
+		client       *http.Client
+		config       Config
 		responseJson string
 	)
 
@@ -75,7 +75,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Content-Type", "application/x-www-form-urlencoded"),
 				))
 
-				body := map[string]string{"hello": "world",}
+				body := map[string]string{"hello": "world"}
 				returnedBytes, _ := UnauthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", body)
 				parsedResponse := string(returnedBytes)
 
@@ -121,7 +121,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyJSON(`{"Field1": "hello", "Field2": "world"}`),
 				))
 
-				bodyObj := TestData{ Field1: "hello", Field2: "world" }
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 
 				returnedBytes, _ := UnauthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
@@ -138,7 +138,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				bodyObj := TestData{ Field1: "hello", Field2: "world" }
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				_, err := UnauthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -208,7 +208,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Content-Type", "application/x-www-form-urlencoded"),
 				))
 
-				body := map[string]string{"hello": "world", }
+				body := map[string]string{"hello": "world"}
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 
 				returnedBytes, _ := AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", body)
@@ -255,7 +255,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyJSON(`{"Field1": "hello", "Field2": "world"}`),
 				))
 
-				bodyObj := TestData{ Field1: "hello", Field2: "world" }
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				config.AddContext(UaaContext{AccessToken: "access_token"})
 
 				returnedBytes, _ := AuthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
@@ -272,7 +272,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				bodyObj := TestData{ Field1: "hello", Field2: "world" }
+				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				_, err := AuthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))

@@ -1,10 +1,10 @@
 package uaa_test
 
 import (
+	. "github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
-	. "github.com/jhamon/uaa-cli/uaa"
 	"net/http"
 )
 

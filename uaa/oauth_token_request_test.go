@@ -86,10 +86,10 @@ var _ = Describe("OauthTokenRequest", func() {
 			))
 
 			ropClient := ResourceOwnerPasswordClient{
-				ClientId: "identity",
+				ClientId:     "identity",
 				ClientSecret: "identitysecret",
-				Username: "woodstock",
-				Password: "birdsrule",
+				Username:     "woodstock",
+				Password:     "birdsrule",
 			}
 			tokenResponse, _ := ropClient.RequestToken(client, config, OPAQUE)
 
@@ -108,10 +108,10 @@ var _ = Describe("OauthTokenRequest", func() {
 			))
 
 			ropClient := ResourceOwnerPasswordClient{
-				ClientId: "identity",
+				ClientId:     "identity",
 				ClientSecret: "identitysecret",
-				Username: "woodstock",
-				Password: "birdsrule",
+				Username:     "woodstock",
+				Password:     "birdsrule",
 			}
 			_, err := ropClient.RequestToken(client, config, OPAQUE)
 

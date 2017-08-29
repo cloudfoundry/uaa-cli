@@ -18,15 +18,15 @@ type Target struct {
 }
 
 type UaaContext struct {
-	ClientId string
+	ClientId  string
 	GrantType GrantType
-	Username string
+	Username  string
 
 	AccessToken string
-	TokenType TokenFormat
-	ExpiresIn int32
-	Scope string
-	JTI string
+	TokenType   TokenFormat
+	ExpiresIn   int32
+	Scope       string
+	JTI         string
 }
 
 func NewConfigWithServerURL(url string) Config {

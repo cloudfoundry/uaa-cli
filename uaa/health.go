@@ -1,8 +1,8 @@
 package uaa
 
 import (
-	"net/http"
 	"github.com/jhamon/uaa-cli/utils"
+	"net/http"
 )
 
 type UaaHealthStatus string

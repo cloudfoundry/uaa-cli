@@ -1,14 +1,14 @@
 package cmd_test
 
 import (
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
-	. "github.com/onsi/gomega/ghttp"
 	. "github.com/onsi/gomega/gexec"
+	. "github.com/onsi/gomega/ghttp"
 	"net/http"
-	"github.com/jhamon/uaa-cli/uaa"
-	"github.com/jhamon/uaa-cli/config"
 )
 
 var _ = Describe("GetResourceOwnerPasswordToken", func() {
@@ -24,10 +24,9 @@ var _ = Describe("GetResourceOwnerPasswordToken", func() {
 	var c uaa.Config
 	var ctx uaa.UaaContext
 
-
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c = uaa.NewConfigWithServerURL(server.URL());
+			c = uaa.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 			ctx = c.GetActiveContext()
 		})
@@ -62,7 +61,6 @@ var _ = Describe("GetResourceOwnerPasswordToken", func() {
 					"-u", "woodstock",
 					"-p", "secret",
 					"--trace")
-
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))
@@ -117,7 +115,7 @@ var _ = Describe("GetResourceOwnerPasswordToken", func() {
 	Describe("when the token request fails", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfig()
-			c.AddContext(uaa.UaaContext{AccessToken:"old-token"})
+			c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),

@@ -17,7 +17,7 @@ func TokenKeys(client *http.Client, config Config) ([]JWK, error) {
 	}
 
 	keys := Keys{}
-	err = json.Unmarshal(body,&keys)
+	err = json.Unmarshal(body, &keys)
 	if err != nil {
 		return []JWK{}, parseError("/token_keys", body)
 	}

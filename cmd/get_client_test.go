@@ -1,14 +1,14 @@
 package cmd_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/ghttp"
-	. "github.com/onsi/gomega/gexec"
-	. "github.com/onsi/gomega/gbytes"
-	"net/http"
 	"github.com/jhamon/uaa-cli/config"
 	"github.com/jhamon/uaa-cli/uaa"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/gbytes"
+	. "github.com/onsi/gomega/gexec"
+	. "github.com/onsi/gomega/ghttp"
+	"net/http"
 )
 
 var _ = Describe("GetClient", func() {
@@ -29,7 +29,7 @@ var _ = Describe("GetClient", func() {
 
 	Describe("--trace flag support", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL());
+			c := uaa.NewConfigWithServerURL(server.URL())
 			ctx := uaa.UaaContext{AccessToken: "access_token"}
 			c.AddContext(ctx)
 			config.WriteConfig(c)
@@ -65,7 +65,7 @@ var _ = Describe("GetClient", func() {
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL());
+			c := uaa.NewConfigWithServerURL(server.URL())
 			ctx := uaa.UaaContext{AccessToken: "access_token"}
 			c.AddContext(ctx)
 			config.WriteConfig(c)
@@ -79,7 +79,7 @@ var _ = Describe("GetClient", func() {
 				),
 			)
 
-			session := runCommand("get-client","clientid")
+			session := runCommand("get-client", "clientid")
 
 			outputBytes := session.Out.Contents()
 			Expect(outputBytes).To(MatchJSON(GetClientResponseJson))
@@ -91,7 +91,7 @@ var _ = Describe("GetClient", func() {
 				RespondWith(http.StatusNotFound, ""),
 			)
 
-			session := runCommand("get-client","clientid")
+			session := runCommand("get-client", "clientid")
 
 			Expect(session.Out).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients/clientid"))
 			Eventually(session).Should(Exit(1))
@@ -100,7 +100,7 @@ var _ = Describe("GetClient", func() {
 
 	Describe("when no client_id is supplied", func() {
 		It("displays and error message to the user", func() {
-			c := uaa.NewConfigWithServerURL(server.URL());
+			c := uaa.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 			session := runCommand("get-client")
 
