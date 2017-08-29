@@ -29,15 +29,6 @@ import (
 	"encoding/json"
 )
 
-func EnsureTarget() {
-	c := GetSavedConfig()
-
-	if c.ActiveTargetName == "" {
-		fmt.Println("You must set a target in order to use this command.")
-		os.Exit(1)
-	}
-}
-
 var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "See version and global configurations for the targeted UAA",

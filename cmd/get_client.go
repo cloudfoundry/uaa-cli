@@ -26,12 +26,11 @@ import (
 	"fmt"
 	"os"
 	"encoding/json"
-	"errors"
 )
 
 var getClientCmd = &cobra.Command{
 	Use:   "get-client CLIENT_ID",
-	Short: "View client registration for a client",
+	Short: "View client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},
@@ -52,7 +51,7 @@ var getClientCmd = &cobra.Command{
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return errors.New("Missing argument `client_id` must be specified.\n")
+			return MissingArgument("client_id")
 		}
 		return nil
 	},

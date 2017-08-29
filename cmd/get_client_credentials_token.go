@@ -27,7 +27,6 @@ import (
 	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/jhamon/uaa-cli/config"
 	"os"
-	"errors"
 	"github.com/jhamon/uaa-cli/help"
 )
 
@@ -63,10 +62,10 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		EnsureTarget()
 
 		if len(args) < 1 {
-			return errors.New("Missing argument `client_id` must be specified.\n")
+			return MissingArgument("client_id")
 		}
 		if clientSecret == "" {
-			return errors.New("Missing argument `client_secret` must be specified.\n")
+			return MissingArgument("client_secret")
 		}
 		return nil
 	},
