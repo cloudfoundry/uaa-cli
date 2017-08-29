@@ -26,9 +26,13 @@ type UaaClient struct {
 	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
 }
 
+type PaginatedClientList struct {
+	Resources []UaaClient
+}
+
 func (cm *ClientManager) Get(clientId string) (UaaClient, error) {
 	url := "/oauth/clients/" + clientId
-	bytes, err := AuthenticatedRequester{}.GetBytes(cm.HttpClient, cm.Config, url, "")
+	bytes, err := AuthenticatedRequester{}.Get(cm.HttpClient, cm.Config, url, "")
 	if err != nil {
 		return UaaClient{}, err
 	}
@@ -56,4 +60,9 @@ func (cm *ClientManager) Create(toCreate UaaClient) (UaaClient, error) {
 	}
 
 	return uaaClient, err
+}
+
+func (cm *ClientManager) List() ([]UaaClient, error) {
+	// TODO: implement this
+	return []UaaClient{}, nil
 }

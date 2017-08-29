@@ -28,7 +28,7 @@ type uaaLinks struct {
 }
 
 func Info(client *http.Client, config Config) (UaaInfo, error) {
-	bytes, err := UnauthenticatedRequester{}.GetBytes(client, config, "info", "")
+	bytes, err := UnauthenticatedRequester{}.Get(client, config, "info", "")
 	if err != nil {
 		return UaaInfo{}, err
 	}

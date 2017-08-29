@@ -12,6 +12,7 @@ import (
 
 type HttpRequestFactory interface {
 	Get(Target, string, string) (*http.Request, error)
+	Delete(Target, string, string) (*http.Request, error)
 	PostForm(Target, string, string, *url.Values) (*http.Request, error)
 	PostJson(Target, string, string, interface{}) (*http.Request, error)
 	PutJson(Target, string, string, interface{}) (*http.Request, error)
@@ -28,6 +29,22 @@ func (urf UnauthenticatedRequestFactory) Get(target Target, path string, query s
 	targetUrl.RawQuery = query
 
 	req, err := http.NewRequest("GET", targetUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept", "application/json")
+
+	return req, nil
+}
+
+func (urf UnauthenticatedRequestFactory) Delete(target Target, path string, query string) (*http.Request, error) {
+	targetUrl, err := utils.BuildUrl(target.BaseUrl, path)
+	if err != nil {
+		return nil, err
+	}
+	targetUrl.RawQuery = query
+
+	req, err := http.NewRequest("DELETE", targetUrl.String(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +132,16 @@ func addAuthorization(req *http.Request, ctx UaaContext) (*http.Request, error) 
 
 func (arf AuthenticatedRequestFactory) Get(target Target, path string, query string) (*http.Request, error) {
 	req, err := UnauthenticatedRequestFactory{}.Get(target, path, query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return addAuthorization(req, target.GetActiveContext())
+}
+
+func (arf AuthenticatedRequestFactory) Delete(target Target, path string, query string) (*http.Request, error) {
+	req, err := UnauthenticatedRequestFactory{}.Delete(target, path, query)
 
 	if err != nil {
 		return nil, err

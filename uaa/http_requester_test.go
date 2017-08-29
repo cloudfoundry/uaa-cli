@@ -29,7 +29,7 @@ var _ = Describe("HttpGetter", func() {
 	})
 
 	Describe("UnauthenticatedRequester", func() {
-		Describe("GetBytes", func() {
+		Describe("Get", func() {
 			It("calls an endpoint with Accept application/json header", func() {
 				server.RouteToHandler("GET", "/testPath", ghttp.CombineHandlers(
 					ghttp.RespondWith(200, responseJson),
@@ -37,7 +37,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 				))
 
-				UnauthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
+				UnauthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
@@ -49,7 +49,35 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 				))
 
-				_, err := UnauthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
+				_, err := UnauthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+		})
+
+		Describe("Delete", func() {
+			It("calls an endpoint with Accept application/json header", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("DELETE", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+				))
+
+				UnauthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
+
+			It("returns helpful error when DELETE request fails", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(500, ""),
+					ghttp.VerifyRequest("DELETE", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+				))
+
+				_, err := UnauthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(err).NotTo(BeNil())
@@ -183,7 +211,7 @@ var _ = Describe("HttpGetter", func() {
 	})
 
 	Describe("AuthenticatedRequester", func() {
-		Describe("GetBytes", func() {
+		Describe("Get", func() {
 			It("calls an endpoint with Accept and Authorization headers", func() {
 				server.RouteToHandler("GET", "/testPath", ghttp.CombineHandlers(
 					ghttp.RespondWith(200, responseJson),
@@ -193,7 +221,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
+				AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
@@ -206,7 +234,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				config.AddContext(UaaContext{AccessToken: "access_token"})
-				_, err := AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
+				_, err := AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(err).NotTo(BeNil())
@@ -215,7 +243,47 @@ var _ = Describe("HttpGetter", func() {
 
 			It("returns a helpful error when no token in context", func() {
 				config.AddContext(UaaContext{AccessToken: ""})
-				_, err := AuthenticatedRequester{}.GetBytes(client, config, "/testPath", "someQueryParam=true")
+				_, err := AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(0))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An access token is required to call"))
+			})
+		})
+
+		Describe("Delete", func() {
+			It("calls an endpoint with Accept and Authorization headers", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("DELETE", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
+
+			It("returns a helpful error when DELETE request fails", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(500, ""),
+					ghttp.VerifyRequest("DELETE", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				_, err := AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+
+			It("returns a helpful error when no token in context", func() {
+				config.AddContext(UaaContext{AccessToken: ""})
+				_, err := AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
 				Expect(err).NotTo(BeNil())

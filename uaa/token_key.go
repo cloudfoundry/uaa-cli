@@ -16,7 +16,7 @@ type JWK struct {
 }
 
 func TokenKey(client *http.Client, config Config) (JWK, error) {
-	body, err := AuthenticatedRequester{}.GetBytes(client, config, "token_key", "")
+	body, err := AuthenticatedRequester{}.Get(client, config, "token_key", "")
 	if err != nil {
 		return JWK{}, err
 	}

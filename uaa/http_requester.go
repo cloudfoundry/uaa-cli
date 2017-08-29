@@ -9,6 +9,7 @@ import (
 
 type Requester interface {
 	Get(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
+	Delete(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
 	PostForm(client *http.Client, context UaaContext, path string, query string, body map[string]string) ([]byte, error)
 	PostJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
 	PutJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
@@ -24,7 +25,7 @@ func is2XX(status int) bool {
 	return false
 }
 
-func doAndRead(req *http.Request, client *http.Client, config Config, path string, query string) ([]byte, error) {
+func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, error) {
 	if config.Trace {
 		logRequest(req)
 	}
@@ -54,20 +55,36 @@ func doAndRead(req *http.Request, client *http.Client, config Config, path strin
 	return bytes, nil
 }
 
-func (ug UnauthenticatedRequester) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
+func (ug UnauthenticatedRequester) Get(client *http.Client, config Config, path string, query string) ([]byte, error) {
 	req, err := UnauthenticatedRequestFactory{}.Get(config.GetActiveTarget(), path, query)
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
-func (ag AuthenticatedRequester) GetBytes(client *http.Client, config Config, path string, query string) ([]byte, error) {
+func (ag AuthenticatedRequester) Get(client *http.Client, config Config, path string, query string) ([]byte, error) {
 	req, err := AuthenticatedRequestFactory{}.Get(config.GetActiveTarget(), path, query)
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
+}
+
+func (ug UnauthenticatedRequester) Delete(client *http.Client, config Config, path string, query string) ([]byte, error) {
+	req, err := UnauthenticatedRequestFactory{}.Delete(config.GetActiveTarget(), path, query)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config)
+}
+
+func (ug AuthenticatedRequester) Delete(client *http.Client, config Config, path string, query string) ([]byte, error) {
+	req, err := AuthenticatedRequestFactory{}.Delete(config.GetActiveTarget(), path, query)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config)
 }
 
 func mapToUrlValues(body map[string]string) url.Values {
@@ -85,7 +102,7 @@ func (ug UnauthenticatedRequester) PostForm(client *http.Client, config Config, 
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
 func (ag AuthenticatedRequester) PostForm(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
@@ -95,7 +112,7 @@ func (ag AuthenticatedRequester) PostForm(client *http.Client, config Config, pa
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
 func (ug UnauthenticatedRequester) PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
@@ -103,7 +120,7 @@ func (ug UnauthenticatedRequester) PostJson(client *http.Client, config Config, 
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
 func (ag AuthenticatedRequester) PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
@@ -111,7 +128,7 @@ func (ag AuthenticatedRequester) PostJson(client *http.Client, config Config, pa
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
 func (ug UnauthenticatedRequester) PutJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
@@ -119,7 +136,7 @@ func (ug UnauthenticatedRequester) PutJson(client *http.Client, config Config, p
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
 
 func (ag AuthenticatedRequester) PutJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
@@ -127,5 +144,5 @@ func (ag AuthenticatedRequester) PutJson(client *http.Client, config Config, pat
 	if err != nil {
 		return []byte{}, err
 	}
-	return doAndRead(req, client, config, path, query)
+	return doAndRead(req, client, config)
 }
