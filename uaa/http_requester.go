@@ -8,8 +8,9 @@ import (
 )
 
 type Requester interface {
-	GetBytes(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
-	PostBytes(client *http.Client, context UaaContext, path string, query string, body map[string]string) ([]byte, error)
+	Get(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
+	PostForm(client *http.Client, context UaaContext, path string, query string, body map[string]string) ([]byte, error)
+	PostJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
 }
 
 type UnauthenticatedRequester struct {}
@@ -69,7 +70,7 @@ func mapToUrlValues(body map[string]string) url.Values {
 	return data
 }
 
-func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
+func (ug UnauthenticatedRequester) PostForm(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
 	req, err := UnauthenticatedRequestFactory{}.PostForm(config.GetActiveTarget(), path, query, &data)
@@ -79,10 +80,26 @@ func (ug UnauthenticatedRequester) PostBytes(client *http.Client, config Config,
 	return doAndRead(req, client, config, path, query)
 }
 
-func (ag AuthenticatedRequester) PostBytes(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
+func (ag AuthenticatedRequester) PostForm(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
 	data := mapToUrlValues(body)
 
 	req, err := AuthenticatedRequestFactory{}.PostForm(config.GetActiveTarget(), path, query, &data)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config, path, query)
+}
+
+func (ug UnauthenticatedRequester) PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := UnauthenticatedRequestFactory{}.PostJson(config.GetActiveTarget(), path, query, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	return doAndRead(req, client, config, path, query)
+}
+
+func (ag AuthenticatedRequester) PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := AuthenticatedRequestFactory{}.PostJson(config.GetActiveTarget(), path, query, body)
 	if err != nil {
 		return []byte{}, err
 	}

@@ -11,7 +11,7 @@ type ClientCredentialsClient struct {
 }
 
 func postToOAuthToken(httpClient *http.Client, config Config, body map[string]string) (TokenResponse, error) {
-	bytes, err := UnauthenticatedRequester{}.PostBytes(httpClient, config, "/oauth/token", "", body)
+	bytes, err := UnauthenticatedRequester{}.PostForm(httpClient, config, "/oauth/token", "", body)
 	if err != nil {
 		return TokenResponse{}, err
 	}

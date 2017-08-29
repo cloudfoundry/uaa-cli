@@ -10,13 +10,21 @@ import (
 )
 
 var _ = Describe("Clients", func() {
-	Describe("Get", func() {
-		var (
-			server *ghttp.Server
-			config Config
-			httpClient *http.Client
-		)
+	var (
+		server *ghttp.Server
+		config Config
+		httpClient *http.Client
+	)
 
+	BeforeEach(func() {
+		server = ghttp.NewServer()
+		httpClient = &http.Client{}
+		config = NewConfigWithServerURL(server.URL())
+		ctx := UaaContext{AccessToken: "access_token" }
+		config.AddContext(ctx)
+	})
+
+	Describe("Get", func() {
 		const GetClientResponseJson string = `{
 		  "scope" : [ "clients.read", "clients.write" ],
 		  "client_id" : "clientid",
@@ -31,14 +39,6 @@ var _ = Describe("Clients", func() {
 		  "lastModified" : 1502816030525,
 		  "required_user_groups" : [ ]
 		}`
-
-		BeforeEach(func() {
-			server = ghttp.NewServer()
-			httpClient = &http.Client{}
-			config = NewConfigWithServerURL(server.URL())
-			ctx := UaaContext{AccessToken: "access_token" }
-			config.AddContext(ctx)
-		})
 
 		AfterEach(func() {
 			server.Close()
@@ -68,7 +68,7 @@ var _ = Describe("Clients", func() {
 			Expect(clientResponse.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(clientResponse.AllowedProviders[1]).To(Equal("ldap"))
 			Expect(clientResponse.AllowedProviders[2]).To(Equal("my-saml-provider"))
-			Expect(clientResponse.Name).To(Equal("My Client Name"))
+			Expect(clientResponse.DisplayName).To(Equal("My Client Name"))
 			Expect(clientResponse.LastModified).To(Equal(int64(1502816030525)))
 		})
 
@@ -104,5 +104,72 @@ var _ = Describe("Clients", func() {
 		})
 	})
 
+	Describe("Create", func() {
+		const createdClientResponse string = `{
+		  "scope" : [ "clients.read", "clients.write" ],
+		  "client_id" : "peanuts_client",
+		  "resource_ids" : [ "none" ],
+		  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
+		  "redirect_uri" : [ "http://snoopy.com/**", "http://woodstock.com" ],
+		  "autoapprove" : ["true"],
+		  "authorities" : [ "comics.read", "comics.write" ],
+		  "token_salt" : "1SztLL",
+		  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
+		  "name" : "The Peanuts Client",
+		  "lastModified" : 1502816030525,
+		  "required_user_groups" : [ ]
+		}`
 
+		It("calls the oauth/clients endpoint and returns response", func() {
+			server.RouteToHandler("POST", "/oauth/clients", ghttp.CombineHandlers(
+				ghttp.RespondWith(200, createdClientResponse),
+				ghttp.VerifyRequest("POST", "/oauth/clients"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+			))
+
+			toCreate := UaaClient{
+				ClientId: "peanuts_client",
+				AuthorizedGrantTypes: []string{"client_credentials"},
+				Scope: []string{"clients.read", "clients.write"},
+				ResourceIds: []string{"none"},
+				RedirectUri: []string{"http://snoopy.com/**", "http://woodstock.com"},
+				Authorities: []string{"comics.read", "comics.write"},
+				DisplayName: "The Peanuts Client",
+			}
+
+			cm := &ClientManager{httpClient, config}
+			createdClient, _ := cm.Create(toCreate)
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(createdClient.Scope[0]).To(Equal("clients.read"))
+			Expect(createdClient.Scope[1]).To(Equal("clients.write"))
+			Expect(createdClient.ClientId).To(Equal("peanuts_client"))
+			Expect(createdClient.ResourceIds[0]).To(Equal("none"))
+			Expect(createdClient.AuthorizedGrantTypes[0]).To(Equal("client_credentials"))
+			Expect(createdClient.AuthorizedGrantTypes[1]).To(Equal("authorization_code"))
+			Expect(createdClient.RedirectUri[0]).To(Equal("http://snoopy.com/**"))
+			Expect(createdClient.RedirectUri[1]).To(Equal("http://woodstock.com"))
+			Expect(createdClient.Autoapprove[0]).To(Equal("true")) // TODO wtf is autoapprove
+			Expect(createdClient.TokenSalt).To(Equal("1SztLL"))
+			Expect(createdClient.AllowedProviders[0]).To(Equal("uaa"))
+			Expect(createdClient.AllowedProviders[1]).To(Equal("ldap"))
+			Expect(createdClient.AllowedProviders[2]).To(Equal("my-saml-provider"))
+			Expect(createdClient.DisplayName).To(Equal("The Peanuts Client"))
+			Expect(createdClient.LastModified).To(Equal(int64(1502816030525)))
+		})
+	})
+
+	It("returns error when response is unparsable", func() {
+		server.RouteToHandler("POST", "/oauth/clients", ghttp.CombineHandlers(
+			ghttp.RespondWith(200, "{unparsable}"),
+		))
+		
+		cm := &ClientManager{httpClient, config}
+		_, err := cm.Create(UaaClient{})
+
+		Expect(server.ReceivedRequests()).To(HaveLen(1))
+		Expect(err).NotTo(BeNil())
+	})
 })
