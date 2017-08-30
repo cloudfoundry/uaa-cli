@@ -36,7 +36,7 @@ var updateClientCmd = &cobra.Command{
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
 
 		clientId := args[0]
-		toCreate := uaa.UaaClient{
+		toUpdate := uaa.UaaClient{
 			ClientId:             clientId,
 			DisplayName:          displayName,
 			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
@@ -46,14 +46,14 @@ var updateClientCmd = &cobra.Command{
 			Scope:                arrayify(scope),
 		}
 
-		created, err := cm.Update(toCreate)
+		updated, err := cm.Update(toUpdate)
 		if err != nil {
 			fmt.Println("An error occurred while updating the client.")
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
 
-		j, err := json.MarshalIndent(&created, "", "  ")
+		j, err := json.MarshalIndent(&updated, "", "  ")
 		if err != nil {
 			fmt.Println(err)
 			TraceRetryMsg(c)
@@ -72,9 +72,7 @@ var updateClientCmd = &cobra.Command{
 		}
 		if clientSecret != "" {
 			fmt.Printf(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
-		}
-		if authorizedGrantTypes == "" {
-			return MissingArgument("authorized_grant_types")
+			os.Exit(1)
 		}
 		return nil
 	},
@@ -93,4 +91,5 @@ func init() {
 	updateClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
 	updateClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	updateClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
+	updateClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to update the client")
 }

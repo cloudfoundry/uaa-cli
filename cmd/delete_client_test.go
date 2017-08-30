@@ -63,6 +63,27 @@ var _ = Describe("DeleteClient", func() {
 		})
 	})
 
+	Describe("using the --zone flag", func() {
+		BeforeEach(func() {
+			c := uaa.NewConfigWithServerURL(server.URL())
+			ctx := uaa.UaaContext{AccessToken: "access_token"}
+			c.AddContext(ctx)
+			config.WriteConfig(c)
+		})
+
+		It("adds a zone-switching header to the delete request", func() {
+			server.RouteToHandler("DELETE", "/oauth/clients/notifier", CombineHandlers(
+				VerifyRequest("DELETE", "/oauth/clients/notifier"),
+				VerifyHeaderKV("Authorization", "bearer access_token"),
+				VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			))
+
+			runCommand("delete-client", "notifier", "--zone", "twilight-zone")
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+		})
+	})
+
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())

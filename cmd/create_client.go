@@ -20,6 +20,7 @@ var (
 	scope                string
 	redirectUri          string
 	clone                string
+	zoneSubdomain        string
 )
 
 func arrayify(commaSeparatedStr string) []string {
@@ -128,4 +129,5 @@ func init() {
 	createClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	createClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 	createClientCmd.Flags().StringVarP(&clone, "clone", "", "", "client_id of client configuration to clone")
+	createClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to create the client")
 }

@@ -63,6 +63,29 @@ var _ = Describe("GetClient", func() {
 		})
 	})
 
+	Describe("zone switching support", func() {
+		BeforeEach(func() {
+			c := uaa.NewConfigWithServerURL(server.URL())
+			ctx := uaa.UaaContext{AccessToken: "access_token"}
+			c.AddContext(ctx)
+			config.WriteConfig(c)
+		})
+
+		It("adds the zone switching header", func() {
+			server.RouteToHandler("GET", "/oauth/clients/clientid",
+				CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/clientid"),
+					RespondWith(http.StatusOK, GetClientResponseJson),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				),
+			)
+
+			session := runCommand("get-client", "clientid", "--zone", "twilight-zone")
+			Eventually(session).Should(Exit(0))
+		})
+	})
+
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())

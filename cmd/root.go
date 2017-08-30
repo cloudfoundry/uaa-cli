@@ -15,6 +15,7 @@ import (
 func GetSavedConfig() uaa.Config {
 	c := config.ReadConfig()
 	c.Trace = trace
+	c.ZoneSubdomain = zoneSubdomain
 	return c
 }
 

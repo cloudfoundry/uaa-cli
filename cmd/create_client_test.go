@@ -127,6 +127,24 @@ var _ = Describe("CreateClient", func() {
 			})
 		})
 
+		Describe("using the --zone flag", func() {
+			It("adds a zone-switching header to the create request", func() {
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				runCommand("create-client",
+					"notifier",
+					"--client_secret", "secret",
+					"--authorized_grant_types", "client_credentials",
+					"--authorities", "notifications.write,notifications.read",
+					"--zone", "twilight-zone")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
+		})
+
 		Describe("cloning another client configuration", func() {
 			var shinyClient string
 
