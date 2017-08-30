@@ -5,7 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"testing"
-	"github.com/jhamon/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/config"
 )
 
 func TestClient(t *testing.T) {

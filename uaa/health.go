@@ -1,7 +1,7 @@
 package uaa
 
 import (
-	"github.com/jhamon/uaa-cli/utils"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"net/http"
 )
 

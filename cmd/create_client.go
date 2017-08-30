@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/help"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
 	"fmt"
-	"github.com/jhamon/uaa-cli/help"
-	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"

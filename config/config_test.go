@@ -5,8 +5,8 @@ package config_test
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/jhamon/uaa-cli/config"
-	"github.com/jhamon/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 )
 
 var _ = Describe("Config", func() {

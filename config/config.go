@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	. "github.com/jhamon/uaa-cli/uaa"
+	. "code.cloudfoundry.org/uaa-cli/uaa"
 )
 
 func ConfigDir() string {

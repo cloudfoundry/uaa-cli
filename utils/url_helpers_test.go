@@ -4,7 +4,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/jhamon/uaa-cli/utils"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 var _ = Describe("UrlHelpers", func() {

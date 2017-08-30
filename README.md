@@ -18,8 +18,8 @@ echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.bash_profile
 ## Trying out the latest code
 
 ```
-go get github.com/jhamon/uaa-cli
-cd $GOPATH/src/github.com/jhamon/uaa-cli
+go get code.cloudfoundry.org/uaa-cli
+cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
 dep ensure
 go build && ./uaa-cli
 ```
@@ -27,6 +27,6 @@ go build && ./uaa-cli
 ## Running the tests
 
 ```
-cd $GOPATH/src/github.com/jhamon/uaa-cli
+cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
 ginkgo -r
 ```

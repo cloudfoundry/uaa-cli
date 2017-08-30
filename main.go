@@ -20,7 +20,7 @@
 
 package main
 
-import "github.com/jhamon/uaa-cli/cmd"
+import "code.cloudfoundry.org/uaa-cli/cmd"
 
 func main() {
 	cmd.Execute()

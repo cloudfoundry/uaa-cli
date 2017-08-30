@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 
-	"github.com/jhamon/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -48,7 +48,7 @@ var _ = AfterEach(func() {
 })
 
 var _ = SynchronizedBeforeSuite(func() []byte {
-	executable_path, err := Build("github.com/jhamon/uaa-cli", "-ldflags", "-X github.com/jhamon/uaa-cli/version.Version=test-version")
+	executable_path, err := Build("code.cloudfoundry.org/uaa-cli", "-ldflags", "-X code.cloudfoundry.org/uaa-cli/version.Version=test-version")
 	Expect(err).NotTo(HaveOccurred())
 	return []byte(executable_path)
 }, func(data []byte) {

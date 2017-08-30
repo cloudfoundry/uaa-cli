@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	"crypto/tls"
-	"github.com/jhamon/uaa-cli/uaa"
 	"net/http"
 	"time"
 )

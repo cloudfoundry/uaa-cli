@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
-	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
 )

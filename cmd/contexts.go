@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/help"
 	"fmt"
-	"github.com/jhamon/uaa-cli/help"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"

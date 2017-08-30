@@ -2,9 +2,9 @@ package uaa
 
 import (
 	"bytes"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"encoding/json"
 	"errors"
-	"github.com/jhamon/uaa-cli/utils"
 	"net/http"
 	"net/url"
 	"strconv"

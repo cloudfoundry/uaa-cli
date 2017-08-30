@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jhamon/uaa-cli/config"
-	"github.com/jhamon/uaa-cli/help"
-	"github.com/jhamon/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/help"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

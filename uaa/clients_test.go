@@ -1,7 +1,7 @@
 package uaa_test
 
 import (
-	. "github.com/jhamon/uaa-cli/uaa"
+	. "code.cloudfoundry.org/uaa-cli/uaa"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -103,7 +103,6 @@ var _ = Describe("Clients", func() {
 			Expect(err.Error()).To(ContainSubstring("Response was {unparsable-json-response}"))
 		})
 	})
-
 
 	Describe("Delete", func() {
 		const DeleteClientResponseJson string = `{
