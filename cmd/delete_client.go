@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"github.com/jhamon/uaa-cli/uaa"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 var deleteClientCmd = &cobra.Command{
