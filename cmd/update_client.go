@@ -83,6 +83,8 @@ var updateClientCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(updateClientCmd)
 	updateClientCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
+	updateClientCmd.Flag("client_secret").Hidden = true
+
 	updateClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client.")
 	updateClientCmd.Flags().StringVarP(&authorities, "authorities", "", "", "scopes requested by client during client_credentials grant")
 	updateClientCmd.Flags().StringVarP(&scope, "scope", "", "", "scopes requested by client during authorization_code, implicit, or password grants")
