@@ -102,7 +102,7 @@ func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
 func (cm *ClientManager) ChangeSecret(clientId string, newSecret string) (error) {
 	url := "/oauth/clients/"+clientId+"/secret"
 	body := changeSecretBody{ClientId: clientId, ClientSecret: newSecret}
-	_, err := AuthenticatedRequester{}.PostJson(cm.HttpClient, cm.Config, url, "", body)
+	_, err := AuthenticatedRequester{}.PutJson(cm.HttpClient, cm.Config, url, "", body)
 	return err
 }
 

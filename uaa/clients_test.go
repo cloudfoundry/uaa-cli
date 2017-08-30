@@ -300,9 +300,9 @@ var _ = Describe("Clients", func() {
 
 	Describe("ChangeSecret", func() {
 		It("calls the /oauth/clients/<clientid>/secret endpoint", func() {
-			server.RouteToHandler("POST", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
+			server.RouteToHandler("PUT", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusOK, ""),
-				ghttp.VerifyRequest("POST", "/oauth/clients/peanuts_client/secret"),
+				ghttp.VerifyRequest("PUT", "/oauth/clients/peanuts_client/secret"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
@@ -316,9 +316,9 @@ var _ = Describe("Clients", func() {
 		})
 
 		It("does not panic when error happens during network call", func() {
-			server.RouteToHandler("POST", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
+			server.RouteToHandler("PUT", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusUnauthorized, ""),
-				ghttp.VerifyRequest("POST", "/oauth/clients/peanuts_client/secret"),
+				ghttp.VerifyRequest("PUT", "/oauth/clients/peanuts_client/secret"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
