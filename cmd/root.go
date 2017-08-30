@@ -22,7 +22,7 @@ var cfgFile string
 var trace bool
 
 // RootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
+var RootCmd = cobra.Command{
 	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
 	Long:  help.Root(),
@@ -38,8 +38,8 @@ func Execute() {
 }
 
 func init() {
+	RootCmd.SetUsageTemplate(" ")
 	cobra.OnInitialize(initConfig)
-
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
 }
 
