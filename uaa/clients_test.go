@@ -258,10 +258,10 @@ var _ = Describe("Clients", func() {
 		  "required_user_groups" : [ ]
 		}`
 
-		It("calls the oauth/clients endpoint and returns response", func() {
-			server.RouteToHandler("PUT", "/oauth/clients", ghttp.CombineHandlers(
+		It("calls the PUT oauth/clients/CLIENT_ID endpoint and returns response", func() {
+			server.RouteToHandler("PUT", "/oauth/clients/peanuts_client", ghttp.CombineHandlers(
 				ghttp.RespondWith(200, updatedClientResponse),
-				ghttp.VerifyRequest("PUT", "/oauth/clients"),
+				ghttp.VerifyRequest("PUT", "/oauth/clients/peanuts_client"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
@@ -300,12 +300,12 @@ var _ = Describe("Clients", func() {
 	})
 
 	It("returns error when response is unparsable", func() {
-		server.RouteToHandler("PUT", "/oauth/clients", ghttp.CombineHandlers(
+		server.RouteToHandler("PUT", "/oauth/clients/peanuts_client", ghttp.CombineHandlers(
 			ghttp.RespondWith(200, "{unparsable}"),
 		))
 
 		cm := &ClientManager{httpClient, config}
-		_, err := cm.Update(UaaClient{})
+		_, err := cm.Update(UaaClient{ClientId: "peanuts_client"})
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(err).NotTo(BeNil())

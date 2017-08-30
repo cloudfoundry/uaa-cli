@@ -12,20 +12,6 @@ import (
 )
 
 var _ = Describe("CreateClient", func() {
-	//	clientJson := `{
-	//  "scope" : [ "clients.read", "clients.write" ],
-	//  "client_id" : "myclient",
-	//  "client_secret" : "secret",
-	//  "resource_ids" : [ ],
-	//  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
-	//  "redirect_uri" : [ "http://test1.com", "http://ant.path.wildcard/**/passback/*" ],
-	//  "authorities" : [ "clients.read", "clients.write" ],
-	//  "token_salt" : "zCSAYx",
-	//  "autoapprove" : true,
-	//  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
-	//  "name" : "My Client Name"
-	//}`
-
 	notifierClient := `{
 	  "scope" : [ "notifications.write" ],
 	  "client_id" : "notifier",

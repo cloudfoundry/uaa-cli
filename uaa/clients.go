@@ -79,7 +79,7 @@ func (cm *ClientManager) Create(toCreate UaaClient) (UaaClient, error) {
 }
 
 func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
-	url := "/oauth/clients"
+	url := "/oauth/clients/" + toUpdate.ClientId
 	bytes, err := AuthenticatedRequester{}.PutJson(cm.HttpClient, cm.Config, url, "", toUpdate)
 	if err != nil {
 		return UaaClient{}, err
