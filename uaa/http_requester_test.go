@@ -42,6 +42,15 @@ var _ = Describe("HttpGetter", func() {
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
 
+			It("supports zone switching", func() {
+				server.RouteToHandler("GET", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+				config.ZoneSubdomain = "twilight-zone"
+				UnauthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
+			})
+
 			It("returns helpful error when GET request fails", func() {
 				server.RouteToHandler("GET", "/testPath", ghttp.CombineHandlers(
 					ghttp.RespondWith(500, ""),
@@ -70,6 +79,15 @@ var _ = Describe("HttpGetter", func() {
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
 
+			It("supports zone switching", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+				config.ZoneSubdomain = "twilight-zone"
+				UnauthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
+			})
+
 			It("returns helpful error when DELETE request fails", func() {
 				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
 					ghttp.RespondWith(500, ""),
@@ -85,7 +103,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 		})
 
-		Describe("PostBytes", func() {
+		Describe("PostForm", func() {
 			It("calls an endpoint with correct body and headers", func() {
 				responseJson = `{
 				  "access_token" : "bc4885d950854fed9a938e96b13ca519",
@@ -135,6 +153,20 @@ var _ = Describe("HttpGetter", func() {
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
 			})
+
+			It("supports zone switching", func() {
+				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
+					ghttp.RespondWith(201, responseJson),
+					ghttp.VerifyRequest("POST", "/oauth/token", ""),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.ZoneSubdomain = "twilight-zone"
+				_, err := UnauthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).To(BeNil())
+			})
 		})
 
 		Describe("PostJson", func() {
@@ -170,6 +202,20 @@ var _ = Describe("HttpGetter", func() {
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+
+			It("supports zone switching", func() {
+				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
+					ghttp.RespondWith(201, responseJson),
+					ghttp.VerifyRequest("POST", "/oauth/token", ""),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.ZoneSubdomain = "twilight-zone"
+				_, err := UnauthenticatedRequester{}.PostJson(client, config, "/oauth/token", "", map[string]string{})
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).To(BeNil())
 			})
 		})
 
@@ -207,6 +253,20 @@ var _ = Describe("HttpGetter", func() {
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
 			})
+
+			It("supports zone switching", func() {
+				responseJson = `{ "status" : "great successs" }`
+
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.ZoneSubdomain = "twilight-zone"
+				UnauthenticatedRequester{}.PutJson(client, config, "/foo", "", TestData{Field1: "hello", Field2: "world"})
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
 		})
 	})
 
@@ -221,6 +281,20 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				config.AddContext(UaaContext{AccessToken: "access_token"})
+				AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
+
+			It("supports zone switching", func() {
+				server.RouteToHandler("GET", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("GET", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.ZoneSubdomain = "twilight-zone"
 				AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -266,6 +340,20 @@ var _ = Describe("HttpGetter", func() {
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
 
+			It("supports zone switching", func() {
+				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, responseJson),
+					ghttp.VerifyRequest("DELETE", "/testPath", "someQueryParam=true"),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.ZoneSubdomain = "twilight-zone"
+				AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+			})
+
 			It("returns a helpful error when DELETE request fails", func() {
 				server.RouteToHandler("DELETE", "/testPath", ghttp.CombineHandlers(
 					ghttp.RespondWith(500, ""),
@@ -291,7 +379,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 		})
 
-		Describe("PostBytes", func() {
+		Describe("PostForm", func() {
 			It("calls an endpoint with correct body and headers", func() {
 				responseJson = `{
 				  "access_token" : "bc4885d950854fed9a938e96b13ca519",
@@ -318,6 +406,19 @@ var _ = Describe("HttpGetter", func() {
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(parsedResponse).To(ContainSubstring("expires_in"))
+			})
+
+			It("supports zone switching", func() {
+				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
+					ghttp.VerifyRequest("POST", "/oauth/token", ""),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.ZoneSubdomain = "twilight-zone"
+
+				AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
 
 			It("returns an error when request fails", func() {
@@ -392,7 +493,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 		})
 
-		Describe("PostJson", func() {
+		Describe("PutJson", func() {
 			It("calls an endpoint with correct body and headers", func() {
 				responseJson = `{ "status" : "great successs" }`
 
@@ -428,6 +529,20 @@ var _ = Describe("HttpGetter", func() {
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(err).NotTo(BeNil())
 				Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+			})
+
+			It("supports zone switching", func() {
+				server.RouteToHandler("PUT", "/foo", ghttp.CombineHandlers(
+					ghttp.RespondWith(200, `{ "status" : "great successs" }`),
+					ghttp.VerifyRequest("PUT", "/foo", ""),
+					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				))
+
+				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.ZoneSubdomain = "twilight-zone"
+				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", TestData{Field1: "hello", Field2: "world"})
+				Expect(err).To(BeNil())
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
 			})
 
 			It("returns a helpful error when no token in context", func() {

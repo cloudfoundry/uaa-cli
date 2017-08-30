@@ -6,6 +6,7 @@ import (
 
 type Config struct {
 	Trace            bool
+	ZoneSubdomain	 string
 	Targets          map[string]Target
 	ActiveTargetName string
 }

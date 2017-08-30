@@ -25,6 +25,18 @@ func is2XX(status int) bool {
 	return false
 }
 
+func addZoneSwitchHeader(req *http.Request, config *Config) {
+	req.Header.Add("X-Identity-Zone-Subdomain", config.ZoneSubdomain)
+}
+
+func mapToUrlValues(body map[string]string) url.Values {
+	data := url.Values{}
+	for key, val := range body {
+		data.Add(key, val)
+	}
+	return data
+}
+
 func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, error) {
 	if config.Trace {
 		logRequest(req)
@@ -60,6 +72,7 @@ func (ug UnauthenticatedRequester) Get(client *http.Client, config Config, path 
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -68,6 +81,7 @@ func (ag AuthenticatedRequester) Get(client *http.Client, config Config, path st
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -76,6 +90,7 @@ func (ug UnauthenticatedRequester) Delete(client *http.Client, config Config, pa
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -84,15 +99,8 @@ func (ug AuthenticatedRequester) Delete(client *http.Client, config Config, path
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
-}
-
-func mapToUrlValues(body map[string]string) url.Values {
-	data := url.Values{}
-	for key, val := range body {
-		data.Add(key, val)
-	}
-	return data
 }
 
 func (ug UnauthenticatedRequester) PostForm(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error) {
@@ -102,6 +110,7 @@ func (ug UnauthenticatedRequester) PostForm(client *http.Client, config Config, 
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -112,6 +121,7 @@ func (ag AuthenticatedRequester) PostForm(client *http.Client, config Config, pa
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -120,6 +130,7 @@ func (ug UnauthenticatedRequester) PostJson(client *http.Client, config Config, 
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -128,6 +139,7 @@ func (ag AuthenticatedRequester) PostJson(client *http.Client, config Config, pa
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -136,6 +148,7 @@ func (ug UnauthenticatedRequester) PutJson(client *http.Client, config Config, p
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
 
@@ -144,5 +157,6 @@ func (ag AuthenticatedRequester) PutJson(client *http.Client, config Config, pat
 	if err != nil {
 		return []byte{}, err
 	}
+	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
