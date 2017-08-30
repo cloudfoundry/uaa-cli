@@ -38,7 +38,6 @@ func Execute() {
 }
 
 func init() {
-	RootCmd.SetUsageTemplate(" ")
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
 }
