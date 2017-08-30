@@ -26,6 +26,11 @@ type UaaClient struct {
 	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
 }
 
+type changeSecretBody struct {
+	ClientId             string   `json:"clientId,omitempty"`
+	ClientSecret         string   `json:"secret,omitempty"`
+}
+
 type PaginatedClientList struct {
 	Resources []UaaClient
 }
@@ -92,6 +97,13 @@ func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
 	}
 
 	return uaaClient, err
+}
+
+func (cm *ClientManager) ChangeSecret(clientId string, newSecret string) (error) {
+	url := "/oauth/clients/"+clientId+"/secret"
+	body := changeSecretBody{ClientId: clientId, ClientSecret: newSecret}
+	_, err := AuthenticatedRequester{}.PostJson(cm.HttpClient, cm.Config, url, "", body)
+	return err
 }
 
 func (cm *ClientManager) List() ([]UaaClient, error) {

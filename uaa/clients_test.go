@@ -298,6 +298,41 @@ var _ = Describe("Clients", func() {
 		})
 	})
 
+	Describe("ChangeSecret", func() {
+		It("calls the /oauth/clients/<clientid>/secret endpoint", func() {
+			server.RouteToHandler("POST", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, ""),
+				ghttp.VerifyRequest("POST", "/oauth/clients/peanuts_client/secret"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyJSON(`{"clientId": "peanuts_client", "secret": "new_secret"}`),
+			))
+
+			cm := &ClientManager{httpClient, config}
+			cm.ChangeSecret("peanuts_client", "new_secret")
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+		})
+
+		It("does not panic when error happens during network call", func() {
+			server.RouteToHandler("POST", "/oauth/clients/peanuts_client/secret", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusUnauthorized, ""),
+				ghttp.VerifyRequest("POST", "/oauth/clients/peanuts_client/secret"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyJSON(`{"clientId": "peanuts_client", "secret": "new_secret"}`),
+			))
+
+			cm := &ClientManager{httpClient, config}
+			err := cm.ChangeSecret("peanuts_client", "new_secret")
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(err).NotTo(BeNil())
+		})
+	})
+
 	It("returns error when response is unparsable", func() {
 		server.RouteToHandler("PUT", "/oauth/clients/peanuts_client", ghttp.CombineHandlers(
 			ghttp.RespondWith(200, "{unparsable}"),
