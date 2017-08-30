@@ -19,6 +19,7 @@ var (
 	autoapprove          string
 	scope                string
 	redirectUri          string
+	clone                string
 )
 
 func arrayify(commaSeparatedStr string) []string {
@@ -38,15 +39,47 @@ var createClientCmd = &cobra.Command{
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
 
 		clientId := args[0]
-		toCreate := uaa.UaaClient{
-			ClientId:             clientId,
-			ClientSecret:         clientSecret,
-			DisplayName:          displayName,
-			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
-			Authorities:          arrayify(authorities),
-			Autoapprove:          arrayify(autoapprove),
-			RedirectUri:          arrayify(redirectUri),
-			Scope:                arrayify(scope),
+
+		var toCreate uaa.UaaClient
+		var err error
+		if clone != "" {
+			toCreate, err = cm.Get(clone)
+			toCreate.ClientId = clientId
+			toCreate.ClientSecret = clientSecret
+			if displayName != "" {
+				toCreate.DisplayName = displayName
+			}
+			if authorizedGrantTypes != "" {
+				toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
+			}
+			if authorities != "" {
+				toCreate.Authorities = arrayify(authorities)
+			}
+			if autoapprove != "" {
+				toCreate.Autoapprove = arrayify(autoapprove)
+			}
+			if redirectUri != "" {
+				toCreate.RedirectUri = arrayify(redirectUri)
+			}
+			if scope != "" {
+				toCreate.Scope = arrayify(scope)
+			}
+
+			if err != nil {
+				fmt.Printf("The client %v could not be found.\n", clone)
+				TraceRetryMsg(c)
+				os.Exit(1)
+			}
+		} else {
+			toCreate = uaa.UaaClient{}
+			toCreate.ClientId = clientId
+			toCreate.ClientSecret = clientSecret
+			toCreate.DisplayName = displayName
+			toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
+			toCreate.Authorities = arrayify(authorities)
+			toCreate.Autoapprove = arrayify(autoapprove)
+			toCreate.RedirectUri = arrayify(redirectUri)
+			toCreate.Scope = arrayify(scope)
 		}
 
 		created, err := cm.Create(toCreate)
@@ -63,8 +96,8 @@ var createClientCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("The client %v has been successfully created.", clientId)
-		fmt.Printf("\n%v", string(j))
+		fmt.Printf("The client %v has been successfully created.\n", clientId)
+		fmt.Printf("%v\n", string(j))
 
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -73,8 +106,11 @@ var createClientCmd = &cobra.Command{
 		if len(args) < 1 {
 			return MissingArgument("client_id")
 		}
-		if authorizedGrantTypes == "" {
+		if clone == "" && authorizedGrantTypes == "" {
 			return MissingArgument("authorized_grant_types")
+		}
+		if clientSecret == "" {
+			return MissingArgument("client_secret")
 		}
 		return nil
 	},
@@ -91,4 +127,5 @@ func init() {
 	createClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
 	createClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	createClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
+	createClientCmd.Flags().StringVarP(&clone, "clone", "", "", "client_id of client configuration to clone")
 }

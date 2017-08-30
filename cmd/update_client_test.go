@@ -1,15 +1,14 @@
 package cmd_test
 
 import (
-
+	"github.com/jhamon/uaa-cli/config"
+	"github.com/jhamon/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/gbytes"
+	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"github.com/jhamon/uaa-cli/uaa"
 	"net/http"
-	"github.com/jhamon/uaa-cli/config"
 )
 
 var _ = Describe("UpdateClient", func() {
@@ -134,20 +133,72 @@ var _ = Describe("UpdateClient", func() {
 					Eventually(session).Should(Exit(1))
 				})
 			})
+		})
+	})
+
+	Describe("when the client update fails", func() {
+		BeforeEach(func() {
+			c := uaa.NewConfig()
+			c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
+			config.WriteConfig(c)
+			server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
+				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
+			))
+		})
+
+		It("displays help to the user", func() {
+			session := runCommand("update-client",
+				"notifier",
+				"--authorized_grant_types", "client_credentials",
+				"--scope", "notifications.write",
+				"--redirect_uri", "http://localhost:8080/*",
+				"--authorities", "notifications.write,notifications.read",
+			)
+
+			Eventually(session).Should(Say("An error occurred while updating the client."))
+			Eventually(session).Should(Exit(1))
+		})
+	})
+
+	Describe("Validations", func() {
+		Describe("when called with no client id", func() {
+			It("displays help and does not panic", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
+				config.WriteConfig(c)
+				session := runCommand("update-client",
+					"--authorized_grant_types", "client_credentials",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
 
-		Describe("when the client update fails", func() {
-			BeforeEach(func() {
-				c := uaa.NewConfig()
-				c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
+		Describe("when called with no authorized_grant_type", func() {
+			It("displays help and does not panic", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
 				config.WriteConfig(c)
-				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
-					RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
-				))
+				session := runCommand("update-client",
+					"notifier",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `authorized_grant_types` must be specified."))
+			})
+		})
+
+		Describe("when no target was previously set", func() {
+			BeforeEach(func() {
+				config.WriteConfig(uaa.NewConfig())
 			})
 
-			It("displays help to the user", func() {
+			It("tells the user to set a target", func() {
 				session := runCommand("update-client",
 					"notifier",
 					"--authorized_grant_types", "client_credentials",
@@ -155,61 +206,9 @@ var _ = Describe("UpdateClient", func() {
 					"--redirect_uri", "http://localhost:8080/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
-
-				Eventually(session).Should(Say("An error occurred while updating the client."))
 				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("You must set a target in order to use this command."))
 			})
 		})
-
-		Describe("Validations", func() {
-			Describe("when called with no client id", func() {
-				It("displays help and does not panic", func() {
-					c := uaa.NewConfigWithServerURL("http://localhost")
-					config.WriteConfig(c)
-					session := runCommand("update-client",
-						"--authorized_grant_types", "client_credentials",
-						"--scope", "notifications.write",
-						"--redirect_uri", "http://localhost:8080/*",
-						"--authorities", "notifications.write,notifications.read",
-					)
-
-					Eventually(session).Should(Exit(1))
-					Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
-				})
-			})
-
-			Describe("when called with no authorized_grant_type", func() {
-				It("displays help and does not panic", func() {
-					c := uaa.NewConfigWithServerURL("http://localhost")
-					config.WriteConfig(c)
-					session := runCommand("update-client",
-						"notifier",
-						"--scope", "notifications.write",
-						"--redirect_uri", "http://localhost:8080/*",
-						"--authorities", "notifications.write,notifications.read",
-					)
-
-					Eventually(session).Should(Exit(1))
-					Expect(session.Out).To(Say("Missing argument `authorized_grant_types` must be specified."))
-				})
-			})
-
-			Describe("when no target was previously set", func() {
-				BeforeEach(func() {
-					config.WriteConfig(uaa.NewConfig())
-				})
-
-				It("tells the user to set a target", func() {
-					session := runCommand("update-client",
-						"notifier",
-						"--authorized_grant_types", "client_credentials",
-						"--scope", "notifications.write",
-						"--redirect_uri", "http://localhost:8080/*",
-						"--authorities", "notifications.write,notifications.read",
-					)
-					Eventually(session).Should(Exit(1))
-					Expect(session.Out).To(Say("You must set a target in order to use this command."))
-				})
-			})
-		})
+	})
 })

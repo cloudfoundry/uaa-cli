@@ -38,5 +38,8 @@ EXAMPLE USAGE
                     --authorized_grant_types password \
                     --scope cloud_controller.admin,uaa.admin,network.write
 
+  uaa create-client trusted_cli_copy \
+                    --clone trusted_cli \
+                    --client_secret donttellanyone
 `
 }

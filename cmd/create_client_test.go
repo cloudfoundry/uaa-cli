@@ -126,6 +126,140 @@ var _ = Describe("CreateClient", func() {
 				Eventually(session).Should(Exit(0))
 			})
 		})
+
+		Describe("cloning another client configuration", func() {
+			var shinyClient string
+
+			BeforeEach(func() {
+				shinyClient = `{
+			  "scope" : [ "shiny.write" ],
+			  "client_id" : "shiny",
+			  "resource_ids" : [ ],
+			  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
+			  "redirect_uri" : [ "http://localhost:8080/*" ],
+			  "authorities" : [ "shiny.write", "shiny.read" ],
+			  "token_salt" : "",
+			  "autoapprove" : ["true"],
+			  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
+			  "name" : "The Shiniest Client"
+			}`
+			})
+
+			It("gets the specified client and creates a copy", func() {
+				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/shiny"),
+					RespondWith(http.StatusOK, shinyClient),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyRequest("POST", "/oauth/clients"),
+					RespondWith(http.StatusOK, shinyCopy),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyJSON(shinyCopy),
+				))
+
+				session := runCommand("create-client",
+					"shinycopy",
+					"--clone", "shiny",
+					"--client_secret", "secretsecret")
+
+				Expect(session.Out).To(Say("The client shinycopy has been successfully created."))
+				Expect(session).Should(Exit(0))
+			})
+
+			It("overrides other properties if specified", func() {
+				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/shiny"),
+					RespondWith(http.StatusOK, shinyClient),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client"}`
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyRequest("POST", "/oauth/clients"),
+					RespondWith(http.StatusOK, shinyCopy),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyJSON(shinyCopy),
+				))
+
+				session := runCommand("create-client",
+					"shinycopy",
+					"--clone", "shiny",
+					"--scope", "foo.read",
+					"--authorized_grant_types", "implicit",
+					"--client_secret", "secretsecret",
+					"--display_name", "foo client",
+					"--redirect_uri", "http://localhost:8001/*",
+					"--authorities", "shiny.read",
+				)
+
+				Expect(session.Out).To(Say("The client shinycopy has been successfully created."))
+				Expect(session).Should(Exit(0))
+			})
+
+			It("displays an error when the client cannot be found", func() {
+				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/shiny"),
+					RespondWith(http.StatusNotFound, ""),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				session := runCommand("create-client",
+					"shinycopy",
+					"--clone", "shiny",
+					"--client_secret", "secretsecret")
+
+				Expect(session.Out).To(Say("The client shiny could not be found."))
+				Expect(session).Should(Exit(1))
+			})
+
+			It("displays an error when the create fails", func() {
+				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/shiny"),
+					RespondWith(http.StatusOK, shinyClient),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyRequest("POST", "/oauth/clients"),
+					RespondWith(http.StatusBadRequest, shinyCopy),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyJSON(shinyCopy),
+				))
+
+				session := runCommand("create-client",
+					"shinycopy",
+					"--clone", "shiny",
+					"--client_secret", "secretsecret")
+
+				Expect(session.Out).To(Say("An error occurred while creating the client."))
+				Expect(session).Should(Exit(1))
+			})
+
+			It("still insists on a client_secret", func() {
+				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/shiny"),
+					RespondWith(http.StatusOK, shinyClient),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyRequest("POST", "/oauth/clients"),
+					RespondWith(http.StatusOK, shinyCopy),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyJSON(shinyCopy),
+				))
+
+				session := runCommand("create-client", "shinycopy", "--clone", "shiny")
+
+				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+				Expect(session).Should(Exit(1))
+			})
+		})
 	})
 
 	Describe("when the client creation fails", func() {
