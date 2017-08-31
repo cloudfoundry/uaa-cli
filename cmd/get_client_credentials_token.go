@@ -13,7 +13,7 @@ import (
 var clientSecret string
 
 var getClientCredentialsTokenCmd = &cobra.Command{
-	Use:   "get-client-credentials-token CLIENT_ID",
+	Use:   "get-client-credentials-token CLIENT_ID -s CLIENT_SECRET",
 	Short: "obtain a token as a client_credentials grant client",
 	Long:  help.ClientCredentials(),
 	Run: func(cmd *cobra.Command, args []string) {

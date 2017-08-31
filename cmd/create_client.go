@@ -32,7 +32,7 @@ func arrayify(commaSeparatedStr string) []string {
 }
 
 var createClientCmd = &cobra.Command{
-	Use:   "create-client CLIENT_ID",
+	Use:   "create-client CLIENT_ID -s CLIENT_SECRET --authorized_grant_types GRANT_TYPES",
 	Short: "Create an OAuth client registration in the UAA",
 	Long:  help.CreateClient(),
 	Run: func(cmd *cobra.Command, args []string) {

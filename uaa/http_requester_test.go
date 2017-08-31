@@ -141,6 +141,18 @@ var _ = Describe("HttpGetter", func() {
 				Expect(err).To(BeNil())
 			})
 
+			It("treats 405 as error", func() {
+				server.RouteToHandler("PUT", "/oauth/token/foo/secret", ghttp.CombineHandlers(
+					ghttp.RespondWith(405, responseJson),
+					ghttp.VerifyRequest("PUT", "/oauth/token/foo/secret", ""),
+				))
+
+				_, err := UnauthenticatedRequester{}.PutJson(client, config, "/oauth/token/foo/secret", "", map[string]string{})
+
+				Expect(server.ReceivedRequests()).To(HaveLen(1))
+				Expect(err).NotTo(BeNil())
+			})
+
 			It("returns an error when request fails", func() {
 				server.RouteToHandler("POST", "/oauth/token", ghttp.CombineHandlers(
 					ghttp.RespondWith(500, "garbage"),
