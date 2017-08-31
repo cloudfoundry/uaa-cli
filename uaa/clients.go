@@ -2,6 +2,7 @@ package uaa
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -27,12 +28,16 @@ type UaaClient struct {
 }
 
 type changeSecretBody struct {
-	ClientId             string   `json:"clientId,omitempty"`
-	ClientSecret         string   `json:"secret,omitempty"`
+	ClientId     string `json:"clientId,omitempty"`
+	ClientSecret string `json:"secret,omitempty"`
 }
 
 type PaginatedClientList struct {
-	Resources []UaaClient
+	Resources    []UaaClient `json:"resources"`
+	StartIndex   int         `json:"startIndex"`
+	ItemsPerPage int         `json:"itemsPerPage"`
+	TotalResults int         `json:"totalResults"`
+	Schemas      []string    `json:"schemas"`
 }
 
 func (cm *ClientManager) Get(clientId string) (UaaClient, error) {
@@ -99,14 +104,48 @@ func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
 	return uaaClient, err
 }
 
-func (cm *ClientManager) ChangeSecret(clientId string, newSecret string) (error) {
-	url := "/oauth/clients/"+clientId+"/secret"
+func (cm *ClientManager) ChangeSecret(clientId string, newSecret string) error {
+	url := "/oauth/clients/" + clientId + "/secret"
 	body := changeSecretBody{ClientId: clientId, ClientSecret: newSecret}
 	_, err := AuthenticatedRequester{}.PutJson(cm.HttpClient, cm.Config, url, "", body)
 	return err
 }
 
+func getResultPage(cm *ClientManager, startIndex, count int) (PaginatedClientList, error) {
+	query := fmt.Sprintf("startIndex=%v&count=%v", startIndex, count)
+	if startIndex == 0 {
+		query = ""
+	}
+
+	bytes, err := AuthenticatedRequester{}.Get(cm.HttpClient, cm.Config, "/oauth/clients", query)
+	if err != nil {
+		return PaginatedClientList{}, err
+	}
+
+	clientList := PaginatedClientList{}
+	err = json.Unmarshal(bytes, &clientList)
+	if err != nil {
+		return PaginatedClientList{}, parseError("/oauth/clients", bytes)
+	}
+	return clientList, nil
+}
+
 func (cm *ClientManager) List() ([]UaaClient, error) {
-	// TODO: implement this
-	return []UaaClient{}, nil
+	results, err := getResultPage(cm, 0, 0)
+	if err != nil {
+		return []UaaClient{}, err
+	}
+
+	clientList := results.Resources
+	startIndex, count := results.StartIndex, results.ItemsPerPage
+	for results.TotalResults > len(clientList) {
+		startIndex += count
+		newResults, err := getResultPage(cm, startIndex, count)
+		if err != nil {
+			return []UaaClient{}, err
+		}
+		clientList = append(clientList, newResults.Resources...)
+	}
+
+	return clientList, nil
 }

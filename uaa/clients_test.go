@@ -344,4 +344,65 @@ var _ = Describe("Clients", func() {
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(err).NotTo(BeNil())
 	})
+
+	Describe("List", func() {
+		const ClientsListResponseJsonPage1 = `{
+		  "resources" : [ {
+			"client_id" : "client1"
+		  },
+		  {
+			"client_id" : "client2"
+		  }],
+		  "startIndex" : 1,
+		  "itemsPerPage" : 2,
+		  "totalResults" : 6,
+		  "schemas" : [ "http://cloudfoundry.org/schema/scim/oauth-clients-1.0" ]
+		}`
+
+		It("can fetch and display multiple pages of results", func() {
+			// This test is fairly bogus. Even though the query params vary each
+			// time the /oauth/clients endpoint is called, I couldn't figure out
+			// a way to make ghttp return different responses for sequential
+			// calls to the same endpoint. In reality, with totalResults=6 I would
+			// expect the three calls to each get a different response.
+			server.RouteToHandler("GET", "/oauth/clients", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/oauth/clients"),
+				ghttp.RespondWith(http.StatusOK, ClientsListResponseJsonPage1),
+			))
+
+			cm := &ClientManager{httpClient, config}
+			clientList, err := cm.List()
+
+			Expect(server.ReceivedRequests()).To(HaveLen(3))
+			Expect(clientList).To(HaveLen(6))
+			Expect(clientList[0].ClientId).To(Equal("client1"))
+			Expect(err).To(BeNil())
+		})
+
+		It("returns an error if an error occurs while fetching clients", func() {
+			server.RouteToHandler("GET", "/oauth/clients", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/oauth/clients"),
+				ghttp.RespondWith(http.StatusInternalServerError, ""),
+			))
+
+			cm := &ClientManager{httpClient, config}
+			_, err := cm.List()
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(err).NotTo(BeNil())
+		})
+
+		It("returns an error when parsing fails", func() {
+			server.RouteToHandler("GET", "/oauth/clients", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("GET", "/oauth/clients"),
+				ghttp.RespondWith(http.StatusInternalServerError, "{garbage}"),
+			))
+
+			cm := &ClientManager{httpClient, config}
+			_, err := cm.List()
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(err).NotTo(BeNil())
+		})
+	})
 })
