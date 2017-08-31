@@ -1,8 +1,31 @@
 # uaa-cli
 
-Experimental UAA cli. Not really ready for public consumption.
+Experimental UAA CLI written in golang. At this time it performs a limited subset of the features provided by uaac.
 
-## Setting up Go
+### Goals
+
+- To provide a CLI which can be easily installed in environments without a functioning Ruby setup
+- To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
+- To more closely conform to the style of other widely used CLIs in the CF ecosystem, e.g. the cf CLI. Commands should be of the form VERB-NOUN, similar to `cf delete-app`.
+- To provide outputs that are machine-parseable whenever possible.
+
+### Roadmap
+
+The immediate goal is to reach feature-parity with the uaac. Right now 
+tasks are being tracked in this [trello board](https://trello.com/b/Hw4Pz0Jd/uaa-cli).
+
+### Trying out the latest code
+
+```
+go get code.cloudfoundry.org/uaa-cli
+cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
+dep ensure
+go build && ./uaa-cli -h
+```
+
+## Development notes
+
+### Setting up Go
 
 If you don't have a working Go setup
 
@@ -15,18 +38,9 @@ echo 'export GOPATH="$HOME/go"' >> ~/.bash_profile
 echo 'export PATH="$GOPATH/bin:$PATH"' >> ~/.bash_profile
 ```
 
-## Trying out the latest code
-
-```
-go get code.cloudfoundry.org/uaa-cli
-cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
-dep ensure
-go build && ./uaa-cli
-```
-
-## Running the tests
+### Running the tests
 
 ```
 cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
-ginkgo -r
+ginkgo -r -randomizeAllSpecs -randomizeSuites
 ```
