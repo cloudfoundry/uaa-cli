@@ -8,8 +8,6 @@ import (
 	"os"
 )
 
-var skipSSLValidation bool
-
 func printTarget(target uaa.Target, status string, version string) {
 	fmt.Println("Target: " + target.BaseUrl)
 	fmt.Println("Status: " + status)

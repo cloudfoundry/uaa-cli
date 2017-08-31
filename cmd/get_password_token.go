@@ -10,12 +10,6 @@ import (
 	"os"
 )
 
-var (
-	password      string
-	username      string
-	clientSecret2 string
-)
-
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD",
 	Short: "obtain a token as a password grant client",
@@ -26,7 +20,7 @@ var getPasswordToken = &cobra.Command{
 
 		ccClient := uaa.ResourceOwnerPasswordClient{
 			ClientId:     clientId,
-			ClientSecret: clientSecret2,
+			ClientSecret: clientSecret,
 			Username:     username,
 			Password:     password,
 		}
@@ -57,7 +51,7 @@ var getPasswordToken = &cobra.Command{
 		if len(args) < 1 {
 			return MissingArgument("client_id")
 		}
-		if clientSecret2 == "" {
+		if clientSecret == "" {
 			return MissingArgument("client_secret")
 		}
 		if password == "" {
@@ -72,7 +66,7 @@ var getPasswordToken = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(getPasswordToken)
-	getPasswordToken.Flags().StringVarP(&clientSecret2, "client_secret", "s", "", "client secret")
+	getPasswordToken.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	getPasswordToken.Flags().StringVarP(&username, "username", "u", "", "username")
 	getPasswordToken.Flags().StringVarP(&password, "password", "p", "", "user password")
 }

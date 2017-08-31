@@ -10,19 +10,6 @@ import (
 	"strings"
 )
 
-var (
-	authorizedGrantTypes string
-	authorities          string
-	accessTokenValidity  int32
-	refreshTokenValidity int32
-	displayName          string
-	autoapprove          string
-	scope                string
-	redirectUri          string
-	clone                string
-	zoneSubdomain        string
-)
-
 func arrayify(commaSeparatedStr string) []string {
 	if commaSeparatedStr == "" {
 		return []string{}

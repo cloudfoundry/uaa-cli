@@ -155,7 +155,6 @@ var _ = Describe("UpdateClient", func() {
 		})
 	})
 
-
 	Describe("when the client update fails", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfig()

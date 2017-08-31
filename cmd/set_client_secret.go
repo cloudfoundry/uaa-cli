@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"fmt"
+	"github.com/spf13/cobra"
 	"os"
 )
 
@@ -41,4 +41,3 @@ func init() {
 	setClientSecretCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "new client secret")
 	setClientSecretCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain where the client resides")
 }
-

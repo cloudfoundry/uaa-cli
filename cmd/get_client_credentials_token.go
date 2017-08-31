@@ -10,8 +10,6 @@ import (
 	"os"
 )
 
-var clientSecret string
-
 var getClientCredentialsTokenCmd = &cobra.Command{
 	Use:   "get-client-credentials-token CLIENT_ID -s CLIENT_SECRET",
 	Short: "obtain a token as a client_credentials grant client",
