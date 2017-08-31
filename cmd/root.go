@@ -6,9 +6,11 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/spf13/cobra"
+	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 )
 
-var cfgFile string
+var cfgFile uaa.Config
 
 // User flags
 var (
@@ -59,4 +61,17 @@ func init() {
 
 func initConfig() {
 	// Startup tasks
+}
+
+var configLoaded bool
+func GetSavedConfig() uaa.Config {
+	if configLoaded {
+		return cfgFile
+	}
+
+	cfgFile = config.ReadConfig()
+	cfgFile.Trace = trace
+	cfgFile.ZoneSubdomain = zoneSubdomain
+	configLoaded = true
+	return cfgFile
 }

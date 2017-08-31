@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"crypto/tls"
 	"net/http"
@@ -28,11 +27,4 @@ func GetHttpClientWithConfig(config uaa.Config) *http.Client {
 	}
 
 	return client
-}
-
-func GetSavedConfig() uaa.Config {
-	c := config.ReadConfig()
-	c.Trace = trace
-	c.ZoneSubdomain = zoneSubdomain
-	return c
 }
