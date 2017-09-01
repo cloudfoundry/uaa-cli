@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/spf13/cobra"
 	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/spf13/cobra"
 )
 
 var cfgFile uaa.Config
@@ -64,6 +64,7 @@ func initConfig() {
 }
 
 var configLoaded bool
+
 func GetSavedConfig() uaa.Config {
 	if configLoaded {
 		return cfgFile

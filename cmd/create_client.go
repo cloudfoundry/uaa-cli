@@ -44,7 +44,7 @@ var createClientCmd = &cobra.Command{
 				toCreate.Authorities = arrayify(authorities)
 			}
 			if autoapprove != "" {
-				toCreate.Autoapprove = arrayify(autoapprove)
+				toCreate.AutoapprovedScopes = arrayify(autoapprove)
 			}
 			if redirectUri != "" {
 				toCreate.RedirectUri = arrayify(redirectUri)
@@ -65,7 +65,7 @@ var createClientCmd = &cobra.Command{
 			toCreate.DisplayName = displayName
 			toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
 			toCreate.Authorities = arrayify(authorities)
-			toCreate.Autoapprove = arrayify(autoapprove)
+			toCreate.AutoapprovedScopes = arrayify(autoapprove)
 			toCreate.RedirectUri = arrayify(redirectUri)
 			toCreate.Scope = arrayify(scope)
 		}

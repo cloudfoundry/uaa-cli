@@ -2,6 +2,7 @@ package uaa
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 )
@@ -12,19 +13,161 @@ type ClientManager struct {
 }
 
 type UaaClient struct {
-	Scope                []string `json:"scope,omitempty"`
-	ClientId             string   `json:"client_id,omitempty"`
-	ClientSecret         string   `json:"client_secret,omitempty"`
-	ResourceIds          []string `json:"resource_ids,omitempty"`
-	AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
-	RedirectUri          []string `json:"redirect_uri,omitempty"`
-	Autoapprove          []string `json:"autoapprove,omitempty"`
-	Authorities          []string `json:"authorities,omitempty"`
-	TokenSalt            string   `json:"token_salt,omitempty"`
-	AllowedProviders     []string `json:"allowedproviders,omitempty"`
-	DisplayName          string   `json:"name,omitempty"`
-	LastModified         int64    `json:"lastModified,omitempty"`
-	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+	Scope                []string
+	ClientId             string
+	ClientSecret         string
+	ResourceIds          []string
+	AuthorizedGrantTypes []string
+	RedirectUri          []string
+	Authorities          []string
+	AutoapprovedScopes   []string
+	AutoapproveAll       bool
+	TokenSalt            string
+	AllowedProviders     []string
+	DisplayName          string
+	LastModified         int64
+	RequiredUserGroups   []string
+}
+
+// This json-parsing insanity is necessary because the UAA will accept
+// either a boolean or an array of strings in the autoapprove field
+func (uc UaaClient) MarshalJSON() ([]byte, error) {
+	if uc.AutoapproveAll {
+		toJsonify := &struct {
+			AutoapproveAll       bool     `json:"autoapprove,omitempty"`
+			Scope                []string `json:"scope,omitempty"`
+			ClientId             string   `json:"client_id,omitempty"`
+			ClientSecret         string   `json:"client_secret,omitempty"`
+			ResourceIds          []string `json:"resource_ids,omitempty"`
+			AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
+			RedirectUri          []string `json:"redirect_uri,omitempty"`
+			Authorities          []string `json:"authorities,omitempty"`
+			TokenSalt            string   `json:"token_salt,omitempty"`
+			AllowedProviders     []string `json:"allowedproviders,omitempty"`
+			DisplayName          string   `json:"name,omitempty"`
+			LastModified         int64    `json:"lastModified,omitempty"`
+			RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+		}{
+			AutoapproveAll:       uc.AutoapproveAll,
+			Scope:                uc.Scope,
+			ClientId:             uc.ClientId,
+			ClientSecret:         uc.ClientSecret,
+			ResourceIds:          uc.ResourceIds,
+			AuthorizedGrantTypes: uc.AuthorizedGrantTypes,
+			RedirectUri:          uc.RedirectUri,
+			Authorities:          uc.Authorities,
+			TokenSalt:            uc.TokenSalt,
+			AllowedProviders:     uc.AllowedProviders,
+			DisplayName:          uc.DisplayName,
+			LastModified:         uc.LastModified,
+			RequiredUserGroups:   uc.RequiredUserGroups,
+		}
+		return json.Marshal(toJsonify)
+	}
+
+	toJsonify := &struct {
+		AutoapprovedScopes   []string `json:"autoapprove,omitempty"`
+		Scope                []string `json:"scope,omitempty"`
+		ClientId             string   `json:"client_id,omitempty"`
+		ClientSecret         string   `json:"client_secret,omitempty"`
+		ResourceIds          []string `json:"resource_ids,omitempty"`
+		AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
+		RedirectUri          []string `json:"redirect_uri,omitempty"`
+		Authorities          []string `json:"authorities,omitempty"`
+		TokenSalt            string   `json:"token_salt,omitempty"`
+		AllowedProviders     []string `json:"allowedproviders,omitempty"`
+		DisplayName          string   `json:"name,omitempty"`
+		LastModified         int64    `json:"lastModified,omitempty"`
+		RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+	}{
+		AutoapprovedScopes:   uc.AutoapprovedScopes,
+		Scope:                uc.Scope,
+		ClientId:             uc.ClientId,
+		ClientSecret:         uc.ClientSecret,
+		ResourceIds:          uc.ResourceIds,
+		AuthorizedGrantTypes: uc.AuthorizedGrantTypes,
+		RedirectUri:          uc.RedirectUri,
+		Authorities:          uc.Authorities,
+		TokenSalt:            uc.TokenSalt,
+		AllowedProviders:     uc.AllowedProviders,
+		DisplayName:          uc.DisplayName,
+		LastModified:         uc.LastModified,
+		RequiredUserGroups:   uc.RequiredUserGroups,
+	}
+	return json.Marshal(toJsonify)
+}
+
+// []byte to UaaClient
+func (uc *UaaClient) UnmarshalJSON(data []byte) error {
+	clientWithBoolAutoapprove := &struct {
+		AutoapproveAll       bool     `json:"autoapprove,omitempty"`
+		Scope                []string `json:"scope,omitempty"`
+		ClientId             string   `json:"client_id,omitempty"`
+		ClientSecret         string   `json:"client_secret,omitempty"`
+		ResourceIds          []string `json:"resource_ids,omitempty"`
+		AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
+		RedirectUri          []string `json:"redirect_uri,omitempty"`
+		Authorities          []string `json:"authorities,omitempty"`
+		TokenSalt            string   `json:"token_salt,omitempty"`
+		AllowedProviders     []string `json:"allowedproviders,omitempty"`
+		DisplayName          string   `json:"name,omitempty"`
+		LastModified         int64    `json:"lastModified,omitempty"`
+		RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+	}{}
+
+	err := json.Unmarshal(data, &clientWithBoolAutoapprove)
+	if err == nil {
+		uc.AutoapproveAll = clientWithBoolAutoapprove.AutoapproveAll
+		uc.Scope = clientWithBoolAutoapprove.Scope
+		uc.ClientId = clientWithBoolAutoapprove.ClientId
+		uc.ClientSecret = clientWithBoolAutoapprove.ClientSecret
+		uc.ResourceIds = clientWithBoolAutoapprove.ResourceIds
+		uc.AuthorizedGrantTypes = clientWithBoolAutoapprove.AuthorizedGrantTypes
+		uc.RedirectUri = clientWithBoolAutoapprove.RedirectUri
+		uc.Authorities = clientWithBoolAutoapprove.Authorities
+		uc.TokenSalt = clientWithBoolAutoapprove.TokenSalt
+		uc.AllowedProviders = clientWithBoolAutoapprove.AllowedProviders
+		uc.DisplayName = clientWithBoolAutoapprove.DisplayName
+		uc.LastModified = clientWithBoolAutoapprove.LastModified
+		uc.RequiredUserGroups = clientWithBoolAutoapprove.RequiredUserGroups
+		return nil
+	}
+
+	clientWithStrArrAutoapprove := &struct {
+		AutoapprovedScopes   []string `json:"autoapprove,omitempty"`
+		Scope                []string `json:"scope,omitempty"`
+		ClientId             string   `json:"client_id,omitempty"`
+		ClientSecret         string   `json:"client_secret,omitempty"`
+		ResourceIds          []string `json:"resource_ids,omitempty"`
+		AuthorizedGrantTypes []string `json:"authorized_grant_types,omitempty"`
+		RedirectUri          []string `json:"redirect_uri,omitempty"`
+		Authorities          []string `json:"authorities,omitempty"`
+		TokenSalt            string   `json:"token_salt,omitempty"`
+		AllowedProviders     []string `json:"allowedproviders,omitempty"`
+		DisplayName          string   `json:"name,omitempty"`
+		LastModified         int64    `json:"lastModified,omitempty"`
+		RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+	}{}
+
+	err = json.Unmarshal(data, &clientWithStrArrAutoapprove)
+	if err == nil {
+		uc.AutoapprovedScopes = clientWithStrArrAutoapprove.AutoapprovedScopes
+		uc.Scope = clientWithStrArrAutoapprove.Scope
+		uc.ClientId = clientWithStrArrAutoapprove.ClientId
+		uc.ClientSecret = clientWithStrArrAutoapprove.ClientSecret
+		uc.ResourceIds = clientWithStrArrAutoapprove.ResourceIds
+		uc.AuthorizedGrantTypes = clientWithStrArrAutoapprove.AuthorizedGrantTypes
+		uc.RedirectUri = clientWithStrArrAutoapprove.RedirectUri
+		uc.Authorities = clientWithStrArrAutoapprove.Authorities
+		uc.TokenSalt = clientWithStrArrAutoapprove.TokenSalt
+		uc.AllowedProviders = clientWithStrArrAutoapprove.AllowedProviders
+		uc.DisplayName = clientWithStrArrAutoapprove.DisplayName
+		uc.LastModified = clientWithStrArrAutoapprove.LastModified
+		uc.RequiredUserGroups = clientWithStrArrAutoapprove.RequiredUserGroups
+		return nil
+	}
+
+	return errors.New("Could not Unmarshal client json: " + string(data) + " " + err.Error())
 }
 
 type changeSecretBody struct {

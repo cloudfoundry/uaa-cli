@@ -41,7 +41,7 @@ var updateClientCmd = &cobra.Command{
 			DisplayName:          displayName,
 			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
 			Authorities:          arrayify(authorities),
-			Autoapprove:          arrayify(autoapprove),
+			AutoapprovedScopes:   arrayify(autoapprove),
 			RedirectUri:          arrayify(redirectUri),
 			Scope:                arrayify(scope),
 		}
