@@ -12,7 +12,7 @@ var getClientCmd = &cobra.Command{
 	Use:   "get-client CLIENT_ID",
 	Short: "View client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		EnsureContext()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}

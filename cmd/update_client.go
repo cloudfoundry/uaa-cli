@@ -31,6 +31,9 @@ import (
 var updateClientCmd = &cobra.Command{
 	Use:   "update-client CLIENT_ID",
 	Short: "Update an OAuth client registration in the UAA",
+	PreRun: func(cmd *cobra.Command, args []string) {
+		EnsureTarget()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
@@ -64,8 +67,6 @@ var updateClientCmd = &cobra.Command{
 
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		EnsureTarget()
-
 		if len(args) < 1 {
 			return MissingArgument("client_id")
 		}

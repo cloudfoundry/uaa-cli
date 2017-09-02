@@ -14,6 +14,9 @@ var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD",
 	Short: "obtain a token as a password grant client",
 	Long:  help.PasswordGrant(),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		EnsureTarget()
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		clientId := args[0]
 		requestedType := uaa.OPAQUE
@@ -46,8 +49,6 @@ var getPasswordToken = &cobra.Command{
 		fmt.Println("Access token successfully fetched and added to context.")
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		EnsureTarget()
-
 		if len(args) < 1 {
 			return MissingArgument("client_id")
 		}

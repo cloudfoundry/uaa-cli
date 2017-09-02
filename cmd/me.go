@@ -15,7 +15,7 @@ var meCmd = cobra.Command{
 	Aliases: []string{"userinfo"},
 	Long:    help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		EnsureContext()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		i, err := uaa.Me(GetHttpClient(), GetSavedConfig())

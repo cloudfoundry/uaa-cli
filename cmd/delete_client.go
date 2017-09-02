@@ -11,7 +11,7 @@ var deleteClientCmd = &cobra.Command{
 	Use:   "delete-client CLIENT_ID",
 	Short: "Delete a client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		EnsureContext()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
