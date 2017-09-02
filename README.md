@@ -1,6 +1,6 @@
 # UAA Command Line Interface
 
-[![Travis CI](https://travis-ci.org/cloudfoundry-incubator/uaa-cli.svg?branch=master)]()
+[![Travis CI](https://travis-ci.org/cloudfoundry-incubator/uaa-cli.svg?branch=master)](https://travis-ci.org/cloudfoundry-incubator/uaa-cli)
 
 Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golang. At this time it performs a limited subset of the features provided by the [uaac](https://github.com/cloudfoundry/cf-uaac) gem.
 
