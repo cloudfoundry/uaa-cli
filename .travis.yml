@@ -3,4 +3,4 @@ go:
   - 1.8.x
   - 1.9.x
 go_import_path: code.cloudfoundry.org/uaa-cli
-script: run_tests
+script: ./run_tests.sh

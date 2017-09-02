@@ -1,6 +1,8 @@
-# uaa-cli
+# UAA Command Line Interface
 
-Experimental UAA CLI written in golang. At this time it performs a limited subset of the features provided by uaac.
+[![Travis CI](https://travis-ci.org/cloudfoundry-incubator/uaa-cli.svg?branch=master)]()
+
+Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golang. At this time it performs a limited subset of the features provided by the [uaac](https://github.com/cloudfoundry/cf-uaac) gem.
 
 ### Goals
 

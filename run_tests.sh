@@ -1,6 +1,6 @@
 !#/bin/bash
 
-set -e
+set -ex
 
 go version
 
@@ -11,8 +11,12 @@ go get -u github.com/golang/dep/cmd/dep
 go install github.com/golang/dep/cmd/dep
 
 echo "Installing dependencies with dep"
+go get github.com/onsi/ginkgo/ginkgo
+go get github.com/onsi/gomega
 dep version
-dep install
+dep ensure
+
+ls vendor
 
 echo "Running tests"
 ginkgo version
