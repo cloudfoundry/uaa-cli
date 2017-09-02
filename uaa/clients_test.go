@@ -3,12 +3,10 @@ package uaa_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/uaa"
 
-	"encoding/json"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	"net/http"
-	"reflect"
 )
 
 var _ = Describe("Clients", func() {
@@ -24,103 +22,6 @@ var _ = Describe("Clients", func() {
 		config = NewConfigWithServerURL(server.URL())
 		ctx := UaaContext{AccessToken: "access_token"}
 		config.AddContext(ctx)
-	})
-
-	Describe("horrible past API decisions are handled in stride", func() {
-		It("can deserialize when autoapprove is bool", func() {
-			client1 := `{"autoapprove": true}`
-			uaaClient := UaaClient{}
-			json.Unmarshal([]byte(client1), &uaaClient)
-			Expect(uaaClient.AutoapproveAll).To(BeTrue())
-			Expect(uaaClient.AutoapprovedScopes).To(HaveLen(0))
-			Expect(reflect.TypeOf(uaaClient)).To(Equal(reflect.TypeOf(UaaClient{})))
-
-			client2 := `{ "autoapprove": false }`
-			uaaClient2 := UaaClient{}
-			json.Unmarshal([]byte(client2), &uaaClient2)
-			Expect(uaaClient2.AutoapproveAll).To(BeFalse())
-			Expect(uaaClient.AutoapprovedScopes).To(HaveLen(0))
-			Expect(reflect.TypeOf(uaaClient2)).To(Equal(reflect.TypeOf(UaaClient{})))
-		})
-
-		It("can deserialize when autoapprove is []string", func() {
-			client1 := `{"autoapprove": ["shiny.read", "shiny.write"]}`
-			uaaClient := UaaClient{}
-			json.Unmarshal([]byte(client1), &uaaClient)
-			Expect(uaaClient.AutoapproveAll).To(BeFalse())
-			Expect(uaaClient.AutoapprovedScopes).To(HaveLen(2))
-			Expect(uaaClient.AutoapprovedScopes[0]).To(Equal("shiny.read"))
-			Expect(uaaClient.AutoapprovedScopes[1]).To(Equal("shiny.write"))
-			Expect(reflect.TypeOf(uaaClient)).To(Equal(reflect.TypeOf(UaaClient{})))
-
-			client2 := `{"autoapprove": []}`
-			uaaClient2 := UaaClient{}
-			json.Unmarshal([]byte(client2), &uaaClient2)
-			Expect(uaaClient2.AutoapproveAll).To(BeFalse())
-			Expect(uaaClient2.AutoapprovedScopes).To(HaveLen(0))
-			Expect(reflect.TypeOf(uaaClient2)).To(Equal(reflect.TypeOf(UaaClient{})))
-		})
-
-		It("can serialize when autoapprove is bool", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapproveAll = true
-			j, _ := json.Marshal(&uaaClient)
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": true}`))
-		})
-
-		It("can serialize when autoapprove is []string", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapprovedScopes = []string{"shiny.read"}
-			j, _ := json.Marshal(&uaaClient)
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": ["shiny.read"]}`))
-		})
-
-		It("can serialize bool using fancy indentation", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapproveAll = true
-			j, _ := json.MarshalIndent(&uaaClient, "", "  ")
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": true}`))
-		})
-
-		It("can serialize string array using fancy indentation", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapprovedScopes = []string{"scim.read", "scim.write"}
-			j, _ := json.MarshalIndent(&uaaClient, "", "  ")
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": ["scim.read", "scim.write"]}`))
-		})
-
-		It("can serialize and deserialize repeatedly with string arrays", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapprovedScopes = []string{"scim.read", "scim.write"}
-			j, _ := json.MarshalIndent(&uaaClient, "", "  ")
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": ["scim.read", "scim.write"]}`))
-
-			uaaClient2 := UaaClient{}
-			json.Unmarshal([]byte(j), &uaaClient2)
-
-			Expect(uaaClient2.AutoapprovedScopes).To(Equal(uaaClient.AutoapprovedScopes))
-			Expect(uaaClient2.AutoapprovedScopes).To(HaveLen(2))
-
-			j2, _ := json.MarshalIndent(&uaaClient2, "", "  ")
-			Expect(string(j2)).To(MatchJSON(`{"autoapprove": ["scim.read", "scim.write"]}`))
-		})
-
-		It("can serialize and deserialize repeatedly with bool", func() {
-			uaaClient := UaaClient{}
-			uaaClient.AutoapproveAll = true
-			j, _ := json.MarshalIndent(&uaaClient, "", "  ")
-			Expect(string(j)).To(MatchJSON(`{"autoapprove": true}`))
-
-			uaaClient2 := UaaClient{}
-			json.Unmarshal([]byte(j), &uaaClient2)
-
-			Expect(uaaClient2.AutoapproveAll).To(Equal(uaaClient.AutoapproveAll))
-			Expect(uaaClient2.AutoapproveAll).To(BeTrue())
-
-			j2, _ := json.MarshalIndent(&uaaClient2, "", "  ")
-			Expect(string(j2)).To(MatchJSON(`{"autoapprove": true}`))
-			Expect(j).To(Equal(j2))
-		})
 	})
 
 	Describe("Get", func() {
@@ -162,7 +63,6 @@ var _ = Describe("Clients", func() {
 			Expect(clientResponse.AuthorizedGrantTypes[0]).To(Equal("client_credentials"))
 			Expect(clientResponse.RedirectUri[0]).To(Equal("http://ant.path.wildcard/**/passback/*"))
 			Expect(clientResponse.RedirectUri[1]).To(Equal("http://test1.com"))
-			Expect(clientResponse.AutoapprovedScopes[0]).To(Equal("true")) // TODO wtf is autoapprove
 			Expect(clientResponse.TokenSalt).To(Equal("1SztLL"))
 			Expect(clientResponse.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(clientResponse.AllowedProviders[1]).To(Equal("ldap"))
@@ -221,7 +121,6 @@ var _ = Describe("Clients", func() {
 			Expect(clientResponse.AuthorizedGrantTypes[0]).To(Equal("client_credentials"))
 			Expect(clientResponse.RedirectUri[0]).To(Equal("http://ant.path.wildcard/**/passback/*"))
 			Expect(clientResponse.RedirectUri[1]).To(Equal("http://test1.com"))
-			Expect(clientResponse.AutoapproveAll).To(Equal(true))
 			Expect(clientResponse.TokenSalt).To(Equal("1SztLL"))
 			Expect(clientResponse.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(clientResponse.AllowedProviders[1]).To(Equal("ldap"))
@@ -286,7 +185,6 @@ var _ = Describe("Clients", func() {
 			Expect(clientResponse.AuthorizedGrantTypes[0]).To(Equal("client_credentials"))
 			Expect(clientResponse.RedirectUri[0]).To(Equal("http://ant.path.wildcard/**/passback/*"))
 			Expect(clientResponse.RedirectUri[1]).To(Equal("http://test1.com"))
-			Expect(clientResponse.AutoapprovedScopes[0]).To(Equal("true")) // TODO wtf is autoapprove
 			Expect(clientResponse.TokenSalt).To(Equal("1SztLL"))
 			Expect(clientResponse.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(clientResponse.AllowedProviders[1]).To(Equal("ldap"))
@@ -374,7 +272,6 @@ var _ = Describe("Clients", func() {
 			Expect(createdClient.AuthorizedGrantTypes[1]).To(Equal("authorization_code"))
 			Expect(createdClient.RedirectUri[0]).To(Equal("http://snoopy.com/**"))
 			Expect(createdClient.RedirectUri[1]).To(Equal("http://woodstock.com"))
-			Expect(createdClient.AutoapprovedScopes[0]).To(Equal("true")) // TODO wtf is autoapprove
 			Expect(createdClient.TokenSalt).To(Equal("1SztLL"))
 			Expect(createdClient.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(createdClient.AllowedProviders[1]).To(Equal("ldap"))
@@ -431,7 +328,6 @@ var _ = Describe("Clients", func() {
 			Expect(updatedClient.AuthorizedGrantTypes[1]).To(Equal("authorization_code"))
 			Expect(updatedClient.RedirectUri[0]).To(Equal("http://snoopy.com/**"))
 			Expect(updatedClient.RedirectUri[1]).To(Equal("http://woodstock.com"))
-			Expect(updatedClient.AutoapprovedScopes[0]).To(Equal("true")) // TODO wtf is autoapprove
 			Expect(updatedClient.TokenSalt).To(Equal("1SztLL"))
 			Expect(updatedClient.AllowedProviders[0]).To(Equal("uaa"))
 			Expect(updatedClient.AllowedProviders[1]).To(Equal("ldap"))

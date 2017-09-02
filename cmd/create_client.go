@@ -43,9 +43,6 @@ var createClientCmd = &cobra.Command{
 			if authorities != "" {
 				toCreate.Authorities = arrayify(authorities)
 			}
-			if autoapprove != "" {
-				toCreate.AutoapprovedScopes = arrayify(autoapprove)
-			}
 			if redirectUri != "" {
 				toCreate.RedirectUri = arrayify(redirectUri)
 			}
@@ -65,7 +62,6 @@ var createClientCmd = &cobra.Command{
 			toCreate.DisplayName = displayName
 			toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
 			toCreate.Authorities = arrayify(authorities)
-			toCreate.AutoapprovedScopes = arrayify(autoapprove)
 			toCreate.RedirectUri = arrayify(redirectUri)
 			toCreate.Scope = arrayify(scope)
 		}
@@ -113,7 +109,6 @@ func init() {
 	createClientCmd.Flags().Int32VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
 	createClientCmd.Flags().Int32VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
 	createClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
-	createClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	createClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 	createClientCmd.Flags().StringVarP(&clone, "clone", "", "", "client_id of client configuration to clone")
 	createClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to create the client")

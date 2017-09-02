@@ -32,7 +32,6 @@ var (
 	accessTokenValidity  int32
 	refreshTokenValidity int32
 	displayName          string
-	autoapprove          string
 	scope                string
 	redirectUri          string
 	clone                string

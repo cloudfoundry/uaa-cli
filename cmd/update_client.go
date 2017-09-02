@@ -41,7 +41,6 @@ var updateClientCmd = &cobra.Command{
 			DisplayName:          displayName,
 			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
 			Authorities:          arrayify(authorities),
-			AutoapprovedScopes:   arrayify(autoapprove),
 			RedirectUri:          arrayify(redirectUri),
 			Scope:                arrayify(scope),
 		}
@@ -89,7 +88,6 @@ func init() {
 	updateClientCmd.Flags().Int32VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
 	updateClientCmd.Flags().Int32VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
 	updateClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
-	updateClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "list of scopes that do not require user approval")
 	updateClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 	updateClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to update the client")
 }

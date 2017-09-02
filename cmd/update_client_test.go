@@ -122,7 +122,7 @@ var _ = Describe("UpdateClient", func() {
 				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
 					RespondWith(http.StatusOK, notifierClient),
 					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "autoapprove" : ["scim.write", "scim.read"], "name" : "Display name" }`),
+					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name" }`),
 				))
 
 				session := runCommand("update-client",
@@ -134,7 +134,6 @@ var _ = Describe("UpdateClient", func() {
 					"--display_name", "Display name",
 					"--access_token_validity", "3600",
 					"--refresh_token_validity", "4500",
-					"--autoapprove", "scim.write,scim.read",
 				)
 
 				Eventually(session).Should(Say("The client notifier has been successfully updated."))
