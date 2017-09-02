@@ -65,7 +65,7 @@ var _ = Describe("SetClientSecret", func() {
 		config.WriteConfig(c)
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
-		Expect(session.Out).To(Say("You must set have a token in your context to perform this command."))
+		Expect(session.Out).To(Say("You must have a token in your context to perform this command."))
 		Eventually(session).Should(Exit(1))
 	})
 

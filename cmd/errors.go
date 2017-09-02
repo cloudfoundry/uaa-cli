@@ -24,7 +24,7 @@ func EnsureContext() {
 	c := GetSavedConfig()
 
 	if c.GetActiveTarget().ActiveContextName == "" {
-		fmt.Println("You must set have a token in your context to perform this command.")
+		fmt.Println("You must have a token in your context to perform this command.")
 		os.Exit(1)
 	}
 }
