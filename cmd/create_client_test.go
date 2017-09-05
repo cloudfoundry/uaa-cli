@@ -276,6 +276,40 @@ var _ = Describe("CreateClient", func() {
 				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
 				Expect(session).Should(Exit(1))
 			})
+
+			It("does not require client_secret when cloning implicit grant type", func() {
+				var implicitClient = `{
+				  "scope" : [ "implicit.write" ],
+				  "client_id" : "myImplicitClient",
+				  "resource_ids" : [ ],
+				  "authorized_grant_types" : [ "implicit" ],
+				  "redirect_uri" : [ "http://localhost:8080/*" ],
+				  "authorities" : [ "implicit.write", "implicit.read" ],
+				  "token_salt" : "",
+				  "autoapprove" : ["true"],
+				  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
+				  "name" : "Implicit Client"
+				}`
+
+				server.RouteToHandler("GET", "/oauth/clients/myImplicitClient", CombineHandlers(
+					VerifyRequest("GET", "/oauth/clients/myImplicitClient"),
+					RespondWith(http.StatusOK, implicitClient),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client" }`
+
+				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
+					VerifyRequest("POST", "/oauth/clients"),
+					RespondWith(http.StatusOK, implicitCopy),
+					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyJSON(implicitCopy),
+				))
+
+				session := runCommand("create-client", "implicitcopy", "--clone", "myImplicitClient")
+
+				Expect(session).Should(Exit(0))
+			})
 		})
 	})
 
@@ -319,6 +353,68 @@ var _ = Describe("CreateClient", func() {
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+			})
+		})
+
+		Describe("requires client_secret for all but implicit grant type", func() {
+			It("required for client_credentials", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
+				config.WriteConfig(c)
+				session := runCommand("create-client",
+					"someclient",
+					"--authorized_grant_types", "client_credentials",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+			})
+
+			It("required for authorization_code", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
+				config.WriteConfig(c)
+				session := runCommand("create-client",
+					"someclient",
+					"--authorized_grant_types", "authorization_code",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+			})
+
+			It("required for password", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
+				config.WriteConfig(c)
+				session := runCommand("create-client",
+					"someclient",
+					"--authorized_grant_types", "password",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+			})
+
+			It("is required when multiple grant types even when implicit included", func() {
+				c := uaa.NewConfigWithServerURL("http://localhost")
+				config.WriteConfig(c)
+				session := runCommand("create-client",
+					"someclient",
+					"--authorized_grant_types", "implicit,authorization_code",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
 			})
 		})
 

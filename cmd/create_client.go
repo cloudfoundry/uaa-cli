@@ -18,6 +18,10 @@ func arrayify(commaSeparatedStr string) []string {
 	}
 }
 
+func onlyImplicit(toCreate uaa.UaaClient) bool {
+	return len(toCreate.AuthorizedGrantTypes) == 1 && toCreate.AuthorizedGrantTypes[0] == "implicit"
+}
+
 var createClientCmd = &cobra.Command{
 	Use:   "create-client CLIENT_ID -s CLIENT_SECRET --authorized_grant_types GRANT_TYPES",
 	Short: "Create an OAuth client registration in the UAA",
@@ -32,7 +36,17 @@ var createClientCmd = &cobra.Command{
 		var err error
 		if clone != "" {
 			toCreate, err = cm.Get(clone)
+			if err != nil {
+				fmt.Printf("The client %v could not be found.\n", clone)
+				TraceRetryMsg(c)
+				os.Exit(1)
+			}
+
 			toCreate.ClientId = clientId
+			if !onlyImplicit(toCreate) && clientSecret == "" {
+				fmt.Println(MissingArgument("client_secret").Error())
+				os.Exit(1)
+			}
 			toCreate.ClientSecret = clientSecret
 			if displayName != "" {
 				toCreate.DisplayName = displayName
@@ -48,12 +62,6 @@ var createClientCmd = &cobra.Command{
 			}
 			if scope != "" {
 				toCreate.Scope = arrayify(scope)
-			}
-
-			if err != nil {
-				fmt.Printf("The client %v could not be found.\n", clone)
-				TraceRetryMsg(c)
-				os.Exit(1)
 			}
 		} else {
 			toCreate = uaa.UaaClient{}
@@ -90,10 +98,14 @@ var createClientCmd = &cobra.Command{
 		if len(args) < 1 {
 			return MissingArgument("client_id")
 		}
-		if clone == "" && authorizedGrantTypes == "" {
+		if clone != "" {
+			return nil
+		}
+
+		if authorizedGrantTypes == "" {
 			return MissingArgument("authorized_grant_types")
 		}
-		if clientSecret == "" {
+		if authorizedGrantTypes != "implicit" && clientSecret == "" {
 			return MissingArgument("client_secret")
 		}
 		return nil
