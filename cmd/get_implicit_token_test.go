@@ -31,8 +31,7 @@ var _ = Describe("GetImplicitToken", func() {
 
 	It("launches a browser for the authorize page and gets the callback params", func() {
 		launcher := TestLauncher{}
-		run := ImplicitTokenCommandRun(launcher.Run, "openid", 8080)
-		go run(nil, []string{"shinyclient"})
+		go ImplicitTokenCommandRun(launcher.Run, "openid", "shinyclient", 8080)
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
@@ -46,16 +45,29 @@ var _ = Describe("GetImplicitToken", func() {
 
 	It("handles multiple scopes", func() {
 		launcher := TestLauncher{}
-		run := ImplicitTokenCommandRun(launcher.Run, "openid,user_attributes", 8081)
-		go run(nil, []string{"shinyclient"})
+		go ImplicitTokenCommandRun(launcher.Run, "openid,user_attributes", "shinyclient", 8081)
 
-		// Callback from UAA
 		httpClient := &http.Client{}
+		// UAA sends the user to this redirect_uri after they auth and grant approvals
 		httpClient.Get("http://localhost:8081/?access_token=foo")
 
 		Eventually(launcher.Target).Should(ContainSubstring("/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8081&response_type=token&scope=openid%2Cuser_attributes"))
 		Eventually(GetSavedConfig().GetActiveContext().AccessToken).Should(Equal("foo"))
 		Eventually(GetSavedConfig().GetActiveContext().ClientId).Should(Equal("shinyclient"))
 		Eventually(GetSavedConfig().GetActiveContext().GrantType).Should(Equal(uaa.GrantType("implicit")))
+	})
+
+	Describe("Argument validation", func() {
+		It("requires client_id", func() {
+			err := ImplicitTokenArgumentValidation([]string{}, 8080)
+
+			Expect(err.Error()).To(Equal("Missing argument `client_id` must be specified.\n"))
+		})
+
+		It("requires port", func() {
+			err := ImplicitTokenArgumentValidation([]string{"shinyclient"}, 0)
+
+			Expect(err.Error()).To(Equal("Missing argument `port` must be specified.\n"))
+		})
 	})
 })

@@ -70,35 +70,43 @@ func startHttpServer(port int, done chan url.Values) {
 	})
 
 	fmt.Printf("Starting local HTTP server on port %v\n", port)
+	fmt.Println("Waiting for authorization redirect from UAA")
 	if err := srv.ListenAndServe(); err != nil {
 		fmt.Printf("Stopping local HTTP server on port %v\n", port)
 	}
 }
 
-func ImplicitTokenCommandRun(launcher func(string) error, scope string, port int) func(*cobra.Command, []string) {
-	return func(cmd *cobra.Command, args []string) {
-		clientId := args[0]
-		done := make(chan url.Values)
-		go startHttpServer(port, done)
-
-		requestValues := url.Values{}
-		requestValues.Add("response_type", "token")
-		requestValues.Add("client_id", clientId)
-		requestValues.Add("scope", scope)
-		requestValues.Add("redirect_uri", fmt.Sprintf("http://localhost:%v", port))
-
-		authUrl, err := utils.BuildUrl(GetSavedConfig().GetActiveTarget().BaseUrl, "/oauth/authorize")
-		if err != nil {
-			fmt.Println("Something went wrong while building the authorization URL.")
-			os.Exit(1)
-		}
-		authUrl.RawQuery = requestValues.Encode()
-
-		fmt.Println("Launching browser window to " + authUrl.String())
-		launcher(authUrl.String())
-		params := <-done
-		addImplicitTokenToContext(clientId, params)
+func ImplicitTokenArgumentValidation(args []string, port int) error {
+	if len(args) < 1 {
+		return MissingArgument("client_id")
 	}
+	if port == 0 {
+		return MissingArgument("port")
+	}
+	return nil
+}
+
+func ImplicitTokenCommandRun(launcher func(string) error, scope string, clientId string, port int) {
+	done := make(chan url.Values)
+	go startHttpServer(port, done)
+
+	requestValues := url.Values{}
+	requestValues.Add("response_type", "token")
+	requestValues.Add("client_id", clientId)
+	requestValues.Add("scope", scope)
+	requestValues.Add("redirect_uri", fmt.Sprintf("http://localhost:%v", port))
+
+	authUrl, err := utils.BuildUrl(GetSavedConfig().GetActiveTarget().BaseUrl, "/oauth/authorize")
+	if err != nil {
+		fmt.Println("Something went wrong while building the authorization URL.")
+		os.Exit(1)
+	}
+	authUrl.RawQuery = requestValues.Encode()
+
+	fmt.Println("Launching browser window to " + authUrl.String())
+	launcher(authUrl.String())
+	params := <-done
+	addImplicitTokenToContext(clientId, params)
 }
 
 var getImplicitToken = &cobra.Command{
@@ -108,17 +116,16 @@ var getImplicitToken = &cobra.Command{
 		EnsureTarget()
 	},
 	Long: help.PasswordGrant(),
-	Run:  ImplicitTokenCommandRun(open.Run, scope, port),
+	Run: func(cmd *cobra.Command, args []string) {
+		ImplicitTokenCommandRun(open.Run, scope, args[0], port)
+	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return MissingArgument("client_id")
-		}
-		return nil
+		return ImplicitTokenArgumentValidation(args, port)
 	},
 }
 
 func init() {
-	RootCmd.AddCommand(getImplicitToken)
 	getImplicitToken.Flags().IntVarP(&port, "port", "", 0, "port on which to run local callback server")
 	getImplicitToken.Flags().StringVarP(&scope, "scope", "", "openid", "comma-separated scopes to request in token")
+	RootCmd.AddCommand(getImplicitToken)
 }
