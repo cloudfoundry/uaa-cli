@@ -36,6 +36,7 @@ var (
 	redirectUri          string
 	clone                string
 	zoneSubdomain        string
+	port                 int
 )
 
 var RootCmd = cobra.Command{

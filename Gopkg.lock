@@ -39,6 +39,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/skratchdot/open-golang"
+  packages = ["open"]
+  revision = "75fb7ed4208cf72d323d7d02fd1a5964a7a9073c"
+
+[[projects]]
+  branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "4a7b7e65864c064d48dce82efbbfed2bdc0bf2aa"
@@ -76,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3ab433f7268b0103fca5c482aa2d910e5cee2240f9361a5731ff6f984a2503b5"
+  inputs-digest = "6948f049527476353d6e1d4f693cf2838f3b9ba2be41186b27882371e009be59"
   solver-name = "gps-cdcl"
   solver-version = 1
