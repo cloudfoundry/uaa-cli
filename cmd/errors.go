@@ -10,6 +10,10 @@ func MissingArgument(argName string) error {
 	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified.\n", argName))
 }
 
+func MissingArgumentForGrantType(argName, grantType string) error {
+	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified for %v grant type.\n", argName, grantType))
+}
+
 func EnsureTarget() {
 	c := GetSavedConfig()
 

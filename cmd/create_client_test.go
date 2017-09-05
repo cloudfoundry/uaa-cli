@@ -46,7 +46,7 @@ var _ = Describe("CreateClient", func() {
 				session := runCommand("create-client",
 					"notifier",
 					"--client_secret", "secret",
-					"--authorized_grant_types", "client_credentials,authorization_code",
+					"--authorized_grant_types", "client_credentials",
 					"--authorities", "notifications.write",
 					"--trace")
 
@@ -64,7 +64,7 @@ var _ = Describe("CreateClient", func() {
 				session := runCommand("create-client",
 					"notifier",
 					"--client_secret", "secret",
-					"--authorized_grant_types", "client_credentials,authorization_code",
+					"--authorized_grant_types", "client_credentials",
 					"--authorities", "notifications.write",
 					"--trace")
 
@@ -353,6 +353,34 @@ var _ = Describe("CreateClient", func() {
 				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
+
+		Describe("when creating authorization_code client", func() {
+			It("requires redirect_uri", func() {
+				session := runCommand("create-client",
+					"myclient",
+					"--client_secret", "secret",
+					"--authorized_grant_types", "authorization_code",
+					"--scope", "notifications.write",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `redirect_uri` must be specified for authorization_code grant type."))
+			})
+		})
+
+		Describe("when creating implicit client", func() {
+			It("requires redirect_uri", func() {
+				session := runCommand("create-client",
+					"myimplicit",
+					"--authorized_grant_types", "implicit",
+					"--scope", "notifications.write",
+				)
+
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("Missing argument `redirect_uri` must be specified for implicit grant type."))
+			})
+		})
+
 
 		Describe("requires client_secret for all but implicit grant type", func() {
 			It("required for client_credentials", func() {

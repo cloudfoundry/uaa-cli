@@ -108,6 +108,13 @@ var createClientCmd = &cobra.Command{
 		if authorizedGrantTypes != "implicit" && clientSecret == "" {
 			return MissingArgument("client_secret")
 		}
+		if strings.Contains(authorizedGrantTypes,"authorization_code") && redirectUri == "" {
+			return MissingArgumentForGrantType("redirect_uri","authorization_code")
+		}
+		if strings.Contains(authorizedGrantTypes,"implicit") && redirectUri == "" {
+			return MissingArgumentForGrantType("redirect_uri","implicit")
+		}
+
 		return nil
 	},
 }
