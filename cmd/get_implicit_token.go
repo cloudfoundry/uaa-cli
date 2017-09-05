@@ -86,7 +86,7 @@ func ImplicitTokenArgumentValidation(args []string, port int) error {
 	return nil
 }
 
-func ImplicitTokenCommandRun(launcher func(string) error, scope string, clientId string, port int) {
+func ImplicitTokenCommandRun(doneRunning chan bool, launcher func(string) error, scope string, clientId string, port int) {
 	done := make(chan url.Values)
 	go startHttpServer(port, done)
 
@@ -107,6 +107,7 @@ func ImplicitTokenCommandRun(launcher func(string) error, scope string, clientId
 	launcher(authUrl.String())
 	params := <-done
 	addImplicitTokenToContext(clientId, params)
+	doneRunning <- true
 }
 
 var getImplicitToken = &cobra.Command{
@@ -117,7 +118,9 @@ var getImplicitToken = &cobra.Command{
 	},
 	Long: help.PasswordGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
-		ImplicitTokenCommandRun(open.Run, scope, args[0], port)
+		doneRunning := make(chan bool)
+		go ImplicitTokenCommandRun(doneRunning, open.Run, scope, args[0], port)
+		<-doneRunning
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		return ImplicitTokenArgumentValidation(args, port)

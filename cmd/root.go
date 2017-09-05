@@ -63,16 +63,9 @@ func initConfig() {
 	// Startup tasks
 }
 
-var configLoaded bool
-
 func GetSavedConfig() uaa.Config {
-	if configLoaded {
-		return cfgFile
-	}
-
 	cfgFile = config.ReadConfig()
 	cfgFile.Trace = trace
 	cfgFile.ZoneSubdomain = zoneSubdomain
-	configLoaded = true
 	return cfgFile
 }
