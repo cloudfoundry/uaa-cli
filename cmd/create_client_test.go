@@ -29,14 +29,14 @@ var _ = Describe("CreateClient", func() {
 	var c uaa.Config
 	var ctx uaa.UaaContext
 
-	Describe("and a target was previously set", func() {
-		BeforeEach(func() {
-			c = uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.UaaContext{AccessToken: "access_token"})
-			config.WriteConfig(c)
-			ctx = c.GetActiveContext()
-		})
+	BeforeEach(func() {
+		c = uaa.NewConfigWithServerURL(server.URL())
+		c.AddContext(uaa.UaaContext{AccessToken: "access_token"})
+		config.WriteConfig(c)
+		ctx = c.GetActiveContext()
+	})
 
+	Describe("and a target was previously set", func() {
 		Describe("when the --trace option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/clients",
@@ -341,8 +341,6 @@ var _ = Describe("CreateClient", func() {
 	Describe("Validations", func() {
 		Describe("when called with no client id", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
@@ -358,8 +356,6 @@ var _ = Describe("CreateClient", func() {
 
 		Describe("requires client_secret for all but implicit grant type", func() {
 			It("required for client_credentials", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"someclient",
 					"--authorized_grant_types", "client_credentials",
@@ -373,8 +369,6 @@ var _ = Describe("CreateClient", func() {
 			})
 
 			It("required for authorization_code", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"someclient",
 					"--authorized_grant_types", "authorization_code",
@@ -388,8 +382,6 @@ var _ = Describe("CreateClient", func() {
 			})
 
 			It("required for password", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"someclient",
 					"--authorized_grant_types", "password",
@@ -403,8 +395,6 @@ var _ = Describe("CreateClient", func() {
 			})
 
 			It("is required when multiple grant types even when implicit included", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"someclient",
 					"--authorized_grant_types", "implicit,authorization_code",
@@ -420,8 +410,6 @@ var _ = Describe("CreateClient", func() {
 
 		Describe("when called with no authorized_grant_type", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				config.WriteConfig(c)
 				session := runCommand("create-client",
 					"notifier",
 					"--client_secret", "secret",
@@ -451,6 +439,28 @@ var _ = Describe("CreateClient", func() {
 				)
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("You must set a target in order to use this command."))
+			})
+		})
+
+		Describe("when no context with token was previously set", func() {
+			BeforeEach(func() {
+				c := uaa.NewConfig()
+				t := uaa.NewTarget()
+				c.AddTarget(t)
+				config.WriteConfig(c)
+			})
+
+			It("tells the user to get a token", func() {
+				session := runCommand("create-client",
+					"notifier",
+					"--client_secret", "secret",
+					"--authorized_grant_types", "client_credentials",
+					"--scope", "notifications.write",
+					"--redirect_uri", "http://localhost:8080/*",
+					"--authorities", "notifications.write,notifications.read",
+				)
+				Eventually(session).Should(Exit(1))
+				Expect(session.Out).To(Say("You must have a token in your context to perform this command."))
 			})
 		})
 	})

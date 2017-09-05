@@ -93,7 +93,7 @@ var createClientCmd = &cobra.Command{
 
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		EnsureTarget()
+		EnsureContext()
 
 		if len(args) < 1 {
 			return MissingArgument("client_id")
