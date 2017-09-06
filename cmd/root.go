@@ -8,9 +8,11 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 var cfgFile uaa.Config
+var log utils.Logger
 
 // User flags
 var (
@@ -57,10 +59,16 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
+	log = logger()
 }
 
 func initConfig() {
 	// Startup tasks
+}
+
+func logger() utils.Logger {
+	return utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+	//return utils.NewLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
 }
 
 func GetSavedConfig() uaa.Config {
