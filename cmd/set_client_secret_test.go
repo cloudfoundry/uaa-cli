@@ -88,14 +88,14 @@ var _ = Describe("SetClientSecret", func() {
 	It("complains when no secret is provided", func() {
 		session := runCommand("set-client-secret", "shinyclient")
 
-		Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+		Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
 		Eventually(session).Should(Exit(1))
 	})
 
 	It("complains when no clientid is provided", func() {
 		session := runCommand("set-client-secret", "-s", "shinysecret")
 
-		Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+		Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 		Eventually(session).Should(Exit(1))
 	})
 })

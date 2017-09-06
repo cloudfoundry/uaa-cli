@@ -47,7 +47,7 @@ var updateClientCmd = &cobra.Command{
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return MissingArgument("client_id")
+			MissingArgument("client_id", cmd)
 		}
 		if clientSecret != "" {
 			log.Error(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)

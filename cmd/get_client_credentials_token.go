@@ -38,10 +38,10 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		EnsureTarget()
 
 		if len(args) < 1 {
-			return MissingArgument("client_id")
+			MissingArgument("client_id", cmd)
 		}
 		if clientSecret == "" {
-			return MissingArgument("client_secret")
+			MissingArgument("client_secret", cmd)
 		}
 		return nil
 	},

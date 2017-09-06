@@ -156,7 +156,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-p", "secret")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
 
@@ -169,7 +169,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-p", "secret")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
 			})
 		})
 
@@ -182,7 +182,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-p", "secret")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `username` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `username` must be specified."))
 			})
 		})
 
@@ -195,7 +195,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-u", "woodstock")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `password` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `password` must be specified."))
 			})
 		})
 

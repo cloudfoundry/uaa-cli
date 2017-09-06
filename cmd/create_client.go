@@ -98,7 +98,7 @@ var createClientCmd = &cobra.Command{
 		EnsureContext()
 
 		if len(args) < 1 {
-			return MissingArgument("client_id")
+			MissingArgument("client_id", cmd)
 		}
 
 		return nil

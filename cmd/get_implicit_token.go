@@ -76,12 +76,12 @@ func startHttpServer(port int, done chan url.Values) {
 	}
 }
 
-func ImplicitTokenArgumentValidation(args []string, port int) error {
+func ImplicitTokenArgumentValidation(args []string, port int, cmd *cobra.Command) error {
 	if len(args) < 1 {
-		return MissingArgument("client_id")
+		MissingArgument("client_id", cmd)
 	}
 	if port == 0 {
-		return MissingArgument("port")
+		MissingArgument("port", cmd)
 	}
 	return nil
 }
@@ -123,7 +123,7 @@ var getImplicitToken = &cobra.Command{
 		<-doneRunning
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
-		return ImplicitTokenArgumentValidation(args, port)
+		return ImplicitTokenArgumentValidation(args, port, cmd)
 	},
 }
 

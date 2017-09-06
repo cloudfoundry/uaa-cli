@@ -191,7 +191,7 @@ var _ = Describe("UpdateClient", func() {
 				)
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
 

@@ -48,16 +48,16 @@ var getPasswordToken = &cobra.Command{
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
-			return MissingArgument("client_id")
+			MissingArgument("client_id", cmd)
 		}
 		if clientSecret == "" {
-			return MissingArgument("client_secret")
+			MissingArgument("client_secret", cmd)
 		}
 		if password == "" {
-			return MissingArgument("password")
+			MissingArgument("password", cmd)
 		}
 		if username == "" {
-			return MissingArgument("username")
+			MissingArgument("username", cmd)
 		}
 		return nil
 	},

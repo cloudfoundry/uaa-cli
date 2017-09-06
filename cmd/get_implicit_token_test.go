@@ -68,18 +68,4 @@ var _ = Describe("GetImplicitToken", func() {
 		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
 	})
-
-	Describe("Argument validation", func() {
-		It("requires client_id", func() {
-			err := ImplicitTokenArgumentValidation([]string{}, 8080)
-
-			Expect(err.Error()).To(Equal("Missing argument `client_id` must be specified.\n"))
-		})
-
-		It("requires port", func() {
-			err := ImplicitTokenArgumentValidation([]string{"shinyclient"}, 0)
-
-			Expect(err.Error()).To(Equal("Missing argument `port` must be specified.\n"))
-		})
-	})
 })

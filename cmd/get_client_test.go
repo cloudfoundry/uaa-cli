@@ -126,7 +126,7 @@ var _ = Describe("GetClient", func() {
 			config.WriteConfig(c)
 			session := runCommand("get-client")
 
-			Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+			Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			Eventually(session).Should(Exit(1))
 		})
 	})

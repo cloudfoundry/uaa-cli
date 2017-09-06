@@ -26,10 +26,10 @@ var setClientSecretCmd = &cobra.Command{
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
-			return MissingArgument("client_id")
+			MissingArgument("client_id", cmd)
 		}
 		if clientSecret == "" {
-			return MissingArgument("client_secret")
+			MissingArgument("client_secret", cmd)
 		}
 		return nil
 	},

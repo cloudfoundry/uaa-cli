@@ -123,7 +123,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 				session := runCommand("get-client-credentials-token")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
 
@@ -134,7 +134,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 				session := runCommand("get-client-credentials-token", "admin")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_secret` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
 			})
 		})
 

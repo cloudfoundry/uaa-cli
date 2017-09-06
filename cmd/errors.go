@@ -1,17 +1,20 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
 	"os"
+	"github.com/spf13/cobra"
 )
 
-func MissingArgument(argName string) error {
-	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified.\n", argName))
+func MissingArgument(argName string, cmd *cobra.Command) {
+	log.Errorf("Missing argument `%v` must be specified.", argName)
+	cmd.Usage()
+	os.Exit(1)
 }
 
-func MissingArgumentForGrantType(argName, grantType string) error {
-	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified for %v grant type.\n", argName, grantType))
+func MissingArgumentForGrantType(argName, grantType string, cmd *cobra.Command) {
+	log.Errorf("Missing argument `%v` must be specified for %v grant type.", argName, grantType)
+	cmd.Usage()
+	os.Exit(1)
 }
 
 func EnsureTarget() {

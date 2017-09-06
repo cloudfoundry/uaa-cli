@@ -124,7 +124,7 @@ var _ = Describe("DeleteClient", func() {
 			config.WriteConfig(c)
 			session := runCommand("delete-client")
 
-			Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+			Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			Eventually(session).Should(Exit(1))
 		})
 	})
