@@ -68,8 +68,10 @@ const (
 type GrantType string
 
 const (
-	CLIENT_CREDENTIALS = GrantType("client_credentials")
+	AUTHCODE           = GrantType("authorization_code")
+	IMPLICIT           = GrantType("implicit")
 	PASSWORD           = GrantType("password")
+	CLIENT_CREDENTIALS = GrantType("client_credentials")
 )
 
 type TokenResponse struct {

@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"errors"
+	"strings"
 )
 
 type ClientManager struct {
@@ -24,6 +27,73 @@ type UaaClient struct {
 	DisplayName          string   `json:"name,omitempty"`
 	LastModified         int64    `json:"lastModified,omitempty"`
 	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+}
+
+func errorMissingValueForGrantType(value string, grantType GrantType) error {
+	return errors.New(fmt.Sprintf("%v must be specified for %v grant type.", value, grantType))
+}
+
+func errorMissingValue(value string) error {
+	return errors.New(fmt.Sprintf("%v must be specified in the client definition.", value))
+}
+
+func requireRedirectUriForGrantType(c *UaaClient, grantType GrantType) error {
+	if utils.Contains(c.AuthorizedGrantTypes, string(grantType)) {
+		if len(c.RedirectUri) == 0 {
+			return errorMissingValueForGrantType("redirect_uri", grantType)
+		}
+	}
+	return nil
+}
+
+func requireClientSecretForGrantType(c *UaaClient, grantType GrantType) error {
+	if utils.Contains(c.AuthorizedGrantTypes, string(grantType)) {
+		if c.ClientSecret == "" {
+			return errorMissingValueForGrantType("client_secret", grantType)
+		}
+	}
+	return nil
+}
+
+func knownGrantTypesStr() string {
+	grantTypeStrings := []string{}
+	KNOWN_GRANT_TYPES := []GrantType{ AUTHCODE, IMPLICIT, PASSWORD, CLIENT_CREDENTIALS }
+	for _, grant := range KNOWN_GRANT_TYPES {
+		grantTypeStrings = append(grantTypeStrings, string(grant))
+	}
+
+	return "[" + strings.Join(grantTypeStrings, ", ") + "]"
+}
+
+func (c *UaaClient) PreCreateValidation() error {
+	if len(c.AuthorizedGrantTypes) == 0 {
+		return errors.New(fmt.Sprintf("Grant type must be one of %v", knownGrantTypesStr()))
+	}
+
+	if c.ClientId == "" {
+		return errorMissingValue("client_id")
+	}
+
+	if err := requireRedirectUriForGrantType(c, AUTHCODE); err != nil {
+		return err
+	}
+	if err := requireClientSecretForGrantType(c, AUTHCODE); err != nil {
+		return err
+	}
+
+	if err := requireClientSecretForGrantType(c, PASSWORD); err != nil {
+		return err
+	}
+
+	if err := requireClientSecretForGrantType(c, CLIENT_CREDENTIALS); err != nil {
+		return err
+	}
+
+	if err := requireRedirectUriForGrantType(c, IMPLICIT); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type changeSecretBody struct {

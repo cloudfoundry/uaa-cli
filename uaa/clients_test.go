@@ -1,8 +1,7 @@
 package uaa_test
 
 import (
-	. "code.cloudfoundry.org/uaa-cli/uaa"
-
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
@@ -12,16 +11,153 @@ import (
 var _ = Describe("Clients", func() {
 	var (
 		server     *ghttp.Server
-		config     Config
+		config     uaa.Config
 		httpClient *http.Client
 	)
 
 	BeforeEach(func() {
 		server = ghttp.NewServer()
 		httpClient = &http.Client{}
-		config = NewConfigWithServerURL(server.URL())
-		ctx := UaaContext{AccessToken: "access_token"}
+		config = uaa.NewConfigWithServerURL(server.URL())
+		ctx := uaa.UaaContext{AccessToken: "access_token"}
 		config.AddContext(ctx)
+	})
+
+	Describe("UaaClient.PreCreateValidation()", func() {
+		It("rejects empty grant types", func() {
+			client := uaa.UaaClient{}
+
+			err := client.PreCreateValidation()
+
+			Expect(err.Error()).To(Equal(`Grant type must be one of [authorization_code, implicit, password, client_credentials]`))
+		})
+
+		Describe("when authorization_code", func() {
+			It("requires client_id", func() {
+				client := uaa.UaaClient{
+					AuthorizedGrantTypes: []string{"authorization_code"},
+					RedirectUri: []string{"http://localhost:8080"},
+					ClientSecret: "secret",
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("client_id must be specified in the client definition."))
+			})
+
+			It("requires redirect_uri", func() {
+				client := uaa.UaaClient{
+					ClientId: "myclient",
+					AuthorizedGrantTypes: []string{"authorization_code"},
+					ClientSecret: "secret",
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err.Error()).To(Equal("redirect_uri must be specified for authorization_code grant type."))
+			})
+
+			It("requires client_secret", func() {
+				client := uaa.UaaClient{
+					ClientId: "myclient",
+					AuthorizedGrantTypes: []string{"authorization_code"},
+					RedirectUri: []string{"http://localhost:8080"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err.Error()).To(Equal("client_secret must be specified for authorization_code grant type."))
+			})
+		})
+
+		Describe("when implicit", func() {
+			It("requires client_id", func() {
+				client := uaa.UaaClient{
+					AuthorizedGrantTypes: []string{"implicit"},
+					RedirectUri: []string{"http://localhost:8080"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("client_id must be specified in the client definition."))
+			})
+
+			It("requires redirect_uri", func() {
+				client := uaa.UaaClient{
+					ClientId: "myclient",
+					AuthorizedGrantTypes: []string{"implicit"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err.Error()).To(Equal("redirect_uri must be specified for implicit grant type."))
+			})
+
+			It("does not require client_secret", func() {
+				client := uaa.UaaClient{
+					ClientId: "someclient",
+					AuthorizedGrantTypes: []string{"implicit"},
+					RedirectUri: []string{"http://localhost:8080"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err).To(BeNil())
+			})
+		})
+
+		Describe("when client_credentials", func() {
+			It("requires client_id", func() {
+				client := uaa.UaaClient{
+					AuthorizedGrantTypes: []string{"client_credentials"},
+					ClientSecret: "secret",
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("client_id must be specified in the client definition."))
+			})
+
+			It("requires client_secret", func() {
+				client := uaa.UaaClient{
+					ClientId: "myclient",
+					AuthorizedGrantTypes: []string{"client_credentials"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err.Error()).To(Equal("client_secret must be specified for client_credentials grant type."))
+			})
+		})
+
+		Describe("when password", func() {
+			It("requires client_id", func() {
+				client := uaa.UaaClient{
+					AuthorizedGrantTypes: []string{"password"},
+					RedirectUri: []string{"http://localhost:8080"},
+					ClientSecret: "secret",
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err).NotTo(BeNil())
+				Expect(err.Error()).To(Equal("client_id must be specified in the client definition."))
+			})
+
+			It("requires client_secret", func() {
+				client := uaa.UaaClient{
+					ClientId: "myclient",
+					AuthorizedGrantTypes: []string{"password"},
+				}
+
+				err := client.PreCreateValidation()
+
+				Expect(err.Error()).To(Equal("client_secret must be specified for password grant type."))
+			})
+		})
 	})
 
 	Describe("Get", func() {
@@ -52,7 +188,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			clientResponse, _ := cm.Get("clientid")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -79,7 +215,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.Get("clientid")
 
 			Expect(err).NotTo(BeNil())
@@ -109,7 +245,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			clientResponse, err := cm.Get("clientid")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -137,7 +273,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.Get("clientid")
 
 			Expect(err).NotTo(BeNil())
@@ -174,7 +310,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			clientResponse, _ := cm.Delete("clientid")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -201,7 +337,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.Delete("clientid")
 
 			Expect(err).NotTo(BeNil())
@@ -216,7 +352,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.Delete("clientid")
 
 			Expect(err).NotTo(BeNil())
@@ -250,7 +386,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			toCreate := UaaClient{
+			toCreate := uaa.UaaClient{
 				ClientId:             "peanuts_client",
 				AuthorizedGrantTypes: []string{"client_credentials"},
 				Scope:                []string{"clients.read", "clients.write"},
@@ -260,7 +396,7 @@ var _ = Describe("Clients", func() {
 				DisplayName:          "The Peanuts Client",
 			}
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			createdClient, _ := cm.Create(toCreate)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -306,7 +442,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			toUpdate := UaaClient{
+			toUpdate := uaa.UaaClient{
 				ClientId:             "peanuts_client",
 				AuthorizedGrantTypes: []string{"client_credentials"},
 				Scope:                []string{"clients.read", "clients.write"},
@@ -316,7 +452,7 @@ var _ = Describe("Clients", func() {
 				DisplayName:          "The Peanuts Client",
 			}
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			updatedClient, _ := cm.Update(toUpdate)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -348,7 +484,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyJSON(`{"clientId": "peanuts_client", "secret": "new_secret"}`),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			cm.ChangeSecret("peanuts_client", "new_secret")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -364,7 +500,7 @@ var _ = Describe("Clients", func() {
 				ghttp.VerifyJSON(`{"clientId": "peanuts_client", "secret": "new_secret"}`),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			err := cm.ChangeSecret("peanuts_client", "new_secret")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -377,8 +513,8 @@ var _ = Describe("Clients", func() {
 			ghttp.RespondWith(200, "{unparsable}"),
 		))
 
-		cm := &ClientManager{httpClient, config}
-		_, err := cm.Update(UaaClient{ClientId: "peanuts_client"})
+		cm := &uaa.ClientManager{httpClient, config}
+		_, err := cm.Update(uaa.UaaClient{ClientId: "peanuts_client"})
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
 		Expect(err).NotTo(BeNil())
@@ -409,7 +545,7 @@ var _ = Describe("Clients", func() {
 				ghttp.RespondWith(http.StatusOK, ClientsListResponseJsonPage1),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			clientList, err := cm.List()
 
 			Expect(server.ReceivedRequests()).To(HaveLen(3))
@@ -424,7 +560,7 @@ var _ = Describe("Clients", func() {
 				ghttp.RespondWith(http.StatusInternalServerError, ""),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.List()
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -437,7 +573,7 @@ var _ = Describe("Clients", func() {
 				ghttp.RespondWith(http.StatusInternalServerError, "{garbage}"),
 			))
 
-			cm := &ClientManager{httpClient, config}
+			cm := &uaa.ClientManager{httpClient, config}
 			_, err := cm.List()
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
