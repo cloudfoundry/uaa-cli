@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"fmt"
+	"github.com/fatih/color"
 )
 
 type Logger struct {
@@ -37,14 +38,16 @@ func (l *Logger) Warn(msg string) {
 	if l.muted {
 		return
 	}
-	l.warnLog.Println(msg)
+	yellow := color.New(color.FgYellow).SprintFunc()
+	l.warnLog.Println(yellow(msg))
 }
 
 func (l *Logger) Error(msg string) {
 	if l.muted {
 		return
 	}
-	l.errorLog.Println(msg)
+	red := color.New(color.FgRed).SprintFunc()
+	l.errorLog.Println(red(msg))
 }
 func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.Error(fmt.Sprintf(format, a...))

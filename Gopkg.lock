@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/fatih/color"
+  packages = ["."]
+  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
+  version = "v1.5.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
@@ -12,6 +18,18 @@
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
+  version = "v0.0.9"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "fc9e8d8ef48496124e79ae0df75490096eccf6fe"
+  version = "v0.0.2"
 
 [[projects]]
   name = "github.com/mattn/go-runewidth"
@@ -82,6 +100,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6948f049527476353d6e1d4f693cf2838f3b9ba2be41186b27882371e009be59"
+  inputs-digest = "35095bdfc83978c83ef8f4017f99b4a50301bd00c048539341934f31a38b6230"
   solver-name = "gps-cdcl"
   solver-version = 1
