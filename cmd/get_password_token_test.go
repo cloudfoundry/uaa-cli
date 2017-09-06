@@ -13,8 +13,15 @@ import (
 
 var _ = Describe("GetPasswordToken", func() {
 
-	var tokenResponseJson = `{
+	var opaqueTokenResponseJson = `{
 	  "access_token" : "bc4885d950854fed9a938e96b13ca519",
+	  "token_type" : "bearer",
+	  "expires_in" : 43199,
+	  "scope" : "clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write",
+	  "jti" : "bc4885d950854fed9a938e96b13ca519"
+	}`
+	var jwtTokenResponseJson = `{
+	  "access_token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
 	  "token_type" : "bearer",
 	  "expires_in" : 43199,
 	  "scope" : "clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write",
@@ -34,7 +41,7 @@ var _ = Describe("GetPasswordToken", func() {
 		Describe("when the --trace option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/token",
-					RespondWith(http.StatusOK, tokenResponseJson),
+					RespondWith(http.StatusOK, jwtTokenResponseJson),
 				)
 
 				session := runCommand("get-password-token",
@@ -74,7 +81,7 @@ var _ = Describe("GetPasswordToken", func() {
 			BeforeEach(func() {
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-					RespondWith(http.StatusOK, tokenResponseJson),
+					RespondWith(http.StatusOK, jwtTokenResponseJson),
 					VerifyFormKV("client_id", "admin"),
 					VerifyFormKV("client_secret", "adminsecret"),
 					VerifyFormKV("grant_type", "password"),
@@ -100,11 +107,11 @@ var _ = Describe("GetPasswordToken", func() {
 					"-u", "woodstock",
 					"-p", "secret")
 
-				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
+				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 				Expect(config.ReadConfig().GetActiveContext().ClientId).To(Equal("admin"))
 				Expect(config.ReadConfig().GetActiveContext().Username).To(Equal("woodstock"))
 				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(uaa.PASSWORD))
-				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal(uaa.OPAQUE))
+				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal(uaa.JWT))
 				Expect(config.ReadConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
 				Expect(config.ReadConfig().GetActiveContext().Scope).To(Equal("clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write"))
 				Expect(config.ReadConfig().GetActiveContext().JTI).To(Equal("bc4885d950854fed9a938e96b13ca519"))
@@ -142,6 +149,71 @@ var _ = Describe("GetPasswordToken", func() {
 				"-u", "woodstock",
 				"-p", "secret")
 			Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("old-token"))
+		})
+	})
+
+	Describe("configuring token format", func() {
+		BeforeEach(func() {
+			c := uaa.NewConfig()
+			c.AddContext(uaa.UaaContext{AccessToken: "access_token"})
+			config.WriteConfig(c)
+		})
+
+		It("can request jwt token", func() {
+			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+				RespondWith(http.StatusOK, jwtTokenResponseJson),
+				VerifyFormKV("client_id", "admin"),
+				VerifyFormKV("client_secret", "adminsecret"),
+				VerifyFormKV("grant_type", "password"),
+				VerifyFormKV("token_format", "jwt"),
+			))
+
+			runCommand("get-password-token", "admin",
+											"-s", "adminsecret",
+											"-u", "woodstock",
+											"-p", "secret",
+											"--format", "jwt")
+		})
+
+		It("can request opaque token", func() {
+			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+				RespondWith(http.StatusOK, opaqueTokenResponseJson),
+				VerifyFormKV("client_id", "admin"),
+				VerifyFormKV("client_secret", "adminsecret"),
+				VerifyFormKV("grant_type", "password"),
+				VerifyFormKV("token_format", "opaque"),
+			))
+
+			runCommand("get-password-token", "admin",
+				"-s", "adminsecret",
+				"-u", "woodstock",
+				"-p", "secret",
+				"--format", "opaque")
+		})
+
+		It("uses jwt format by default", func() {
+			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+				RespondWith(http.StatusOK, jwtTokenResponseJson),
+				VerifyFormKV("client_id", "admin"),
+				VerifyFormKV("client_secret", "adminsecret"),
+				VerifyFormKV("grant_type", "password"),
+				VerifyFormKV("token_format", "jwt"),
+			))
+
+			runCommand("get-password-token", "admin",
+				"-s", "adminsecret",
+				"-u", "woodstock",
+				"-p", "secret")
+		})
+
+		It("displays error when unknown format is passed", func() {
+			session := runCommand("get-password-token", "admin",
+				"-s", "adminsecret",
+				"-u", "woodstock",
+				"-p", "secret",
+				"--format", "bogus")
+			Expect(session.Err).To(Say(`The token format "bogus" is unknown.`))
+			Expect(session).To(Exit(1))
 		})
 	})
 

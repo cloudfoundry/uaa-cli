@@ -6,6 +6,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 var getPasswordToken = &cobra.Command{
@@ -17,7 +18,7 @@ var getPasswordToken = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		clientId := args[0]
-		requestedType := uaa.OPAQUE
+		requestedType := uaa.TokenFormat(tokenFormat)
 
 		ccClient := uaa.ResourceOwnerPasswordClient{
 			ClientId:     clientId,
@@ -59,6 +60,11 @@ var getPasswordToken = &cobra.Command{
 		if username == "" {
 			MissingArgument("username", cmd)
 		}
+		if !utils.Contains(avalableFormats(), tokenFormat) {
+			log.Errorf(`The token format "%v" is unknown. Available formats: %v`, tokenFormat, availableFormatsStr())
+			cmd.Usage()
+			os.Exit(1)
+		}
 		return nil
 	},
 }
@@ -68,4 +74,5 @@ func init() {
 	getPasswordToken.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	getPasswordToken.Flags().StringVarP(&username, "username", "u", "", "username")
 	getPasswordToken.Flags().StringVarP(&password, "password", "p", "", "user password")
+	getPasswordToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
 }
