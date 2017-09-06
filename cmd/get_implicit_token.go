@@ -116,7 +116,7 @@ var getImplicitToken = &cobra.Command{
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},
-	Long: help.PasswordGrant(),
+	Long: help.ImplicitGrant(),
 	Run: func(cmd *cobra.Command, args []string) {
 		doneRunning := make(chan bool)
 		go ImplicitTokenCommandRun(doneRunning, open.Run, scope, args[0], port)
