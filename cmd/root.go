@@ -14,10 +14,11 @@ import (
 var cfgFile uaa.Config
 var log utils.Logger
 
-// User flags
+// Token flags
 var (
-	password string
-	username string
+	password    string
+	username    string
+	tokenFormat string
 )
 
 // Global flags

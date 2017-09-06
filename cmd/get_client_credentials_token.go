@@ -6,6 +6,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"strings"
 )
 
 var getClientCredentialsTokenCmd = &cobra.Command{
@@ -15,7 +17,7 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ccClient := uaa.ClientCredentialsClient{ClientId: args[0], ClientSecret: clientSecret}
 		c := GetSavedConfig()
-		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.OPAQUE)
+		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.TokenFormat(tokenFormat))
 		if err != nil {
 			log.Error("An error occurred while fetching token.")
 			TraceRetryMsg(c)
@@ -43,11 +45,26 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		if clientSecret == "" {
 			MissingArgument("client_secret", cmd)
 		}
+		if !utils.Contains(avalableFormats(), tokenFormat) {
+			log.Errorf(`The token format "%v" is unknown. Available formats: %v`, tokenFormat, availableFormatsStr())
+			cmd.Usage()
+			os.Exit(1)
+		}
+
 		return nil
 	},
+}
+
+func avalableFormats() []string {
+	return []string { "jwt", "opaque" }
+}
+
+func availableFormatsStr() string {
+	return "[" + strings.Join(avalableFormats(), ", ") + "]"
 }
 
 func init() {
 	RootCmd.AddCommand(getClientCredentialsTokenCmd)
 	getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
+	getClientCredentialsTokenCmd.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
 }
