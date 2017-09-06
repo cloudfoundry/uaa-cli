@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/help"
-	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"os"
@@ -16,14 +15,14 @@ var contextsCmd = cobra.Command{
 		c := GetSavedConfig()
 
 		if c.ActiveTargetName == "" {
-			fmt.Println("No contexts are currently available.")
-			fmt.Println(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`)
+			log.Error("No contexts are currently available.")
+			log.Error(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`)
 			os.Exit(1)
 		}
 
 		if len(c.GetActiveTarget().Contexts) == 0 {
-			fmt.Println("No contexts are currently available.")
-			fmt.Println(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token and create a context.`)
+			log.Error("No contexts are currently available.")
+			log.Error(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token and create a context.`)
 			os.Exit(1)
 		}
 

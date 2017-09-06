@@ -24,7 +24,7 @@ func addImplicitTokenToContext(clientId string, params url.Values) {
 	c := GetSavedConfig()
 	c.AddContext(ctx)
 	config.WriteConfig(c)
-	fmt.Println("Access token added to active context.")
+	log.Info("Access token added to active context.")
 }
 
 func implicitCallbackJS(port int) string {
@@ -62,17 +62,17 @@ func startHttpServer(port int, done chan url.Values) {
 		io.WriteString(w, implicitCallbackJS(port))
 		io.WriteString(w, ImplicitCallbackCSS)
 		io.WriteString(w, ImplicitCallbackHTML)
-		fmt.Printf("Local server received request to %v %v\n", r.Method, r.RequestURI)
+		log.Infof("Local server received request to %v %v", r.Method, r.RequestURI)
 		token := r.URL.Query().Get("access_token")
 		if token != "" {
 			done <- r.URL.Query()
 		}
 	})
 
-	fmt.Printf("Starting local HTTP server on port %v\n", port)
-	fmt.Println("Waiting for authorization redirect from UAA")
+	log.Infof("Starting local HTTP server on port %v", port)
+	log.Info("Waiting for authorization redirect from UAA...")
 	if err := srv.ListenAndServe(); err != nil {
-		fmt.Printf("Stopping local HTTP server on port %v\n", port)
+		log.Infof("Stopping local HTTP server on port %v", port)
 	}
 }
 
@@ -98,12 +98,12 @@ func ImplicitTokenCommandRun(doneRunning chan bool, launcher func(string) error,
 
 	authUrl, err := utils.BuildUrl(GetSavedConfig().GetActiveTarget().BaseUrl, "/oauth/authorize")
 	if err != nil {
-		fmt.Println("Something went wrong while building the authorization URL.")
+		log.Error("Something went wrong while building the authorization URL.")
 		os.Exit(1)
 	}
 	authUrl.RawQuery = requestValues.Encode()
 
-	fmt.Println("Launching browser window to " + authUrl.String())
+	log.Info("Launching browser window to " + authUrl.String())
 	launcher(authUrl.String())
 	params := <-done
 	addImplicitTokenToContext(clientId, params)

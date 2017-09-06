@@ -18,7 +18,7 @@ func EnsureTarget() {
 	c := GetSavedConfig()
 
 	if c.ActiveTargetName == "" {
-		fmt.Println("You must set a target in order to use this command.")
+		log.Error("You must set a target in order to use this command.")
 		os.Exit(1)
 	}
 }
@@ -28,7 +28,7 @@ func EnsureContext() {
 	c := GetSavedConfig()
 
 	if c.GetActiveTarget().ActiveContextName == "" {
-		fmt.Println("You must have a token in your context to perform this command.")
+		log.Error("You must have a token in your context to perform this command.")
 		os.Exit(1)
 	}
 }

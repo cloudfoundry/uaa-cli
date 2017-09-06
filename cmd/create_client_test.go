@@ -228,7 +228,7 @@ var _ = Describe("CreateClient", func() {
 					"--clone", "shiny",
 					"--client_secret", "secretsecret")
 
-				Expect(session.Out).To(Say("The client shiny could not be found."))
+				Expect(session.Err).To(Say("The client shiny could not be found."))
 				Expect(session).Should(Exit(1))
 			})
 
@@ -252,7 +252,7 @@ var _ = Describe("CreateClient", func() {
 					"--clone", "shiny",
 					"--client_secret", "secretsecret")
 
-				Expect(session.Out).To(Say("An error occurred while creating the client."))
+				Expect(session.Err).To(Say("An error occurred while creating the client."))
 				Expect(session).Should(Exit(1))
 			})
 
@@ -273,7 +273,7 @@ var _ = Describe("CreateClient", func() {
 
 				session := runCommand("create-client", "shinycopy", "--clone", "shiny")
 
-				Expect(session.Out).To(Say("client_secret must be specified"))
+				Expect(session.Err).To(Say("client_secret must be specified"))
 				Expect(session).Should(Exit(1))
 			})
 
@@ -333,7 +333,7 @@ var _ = Describe("CreateClient", func() {
 				"--authorities", "notifications.write,notifications.read",
 			)
 
-			Eventually(session).Should(Say("An error occurred while creating the client."))
+			Eventually(session.Err).Should(Say("An error occurred while creating the client."))
 			Eventually(session).Should(Exit(1))
 		})
 	})
@@ -350,7 +350,7 @@ var _ = Describe("CreateClient", func() {
 				)
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("Missing argument `client_id` must be specified."))
+				Expect(session.Err).To(Say("Missing argument `client_id` must be specified."))
 			})
 		})
 
@@ -369,7 +369,7 @@ var _ = Describe("CreateClient", func() {
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("You must set a target in order to use this command."))
+				Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			})
 		})
 
@@ -391,7 +391,7 @@ var _ = Describe("CreateClient", func() {
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("You must have a token in your context to perform this command."))
+				Expect(session.Err).To(Say("You must have a token in your context to perform this command."))
 			})
 		})
 	})

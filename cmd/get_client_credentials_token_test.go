@@ -106,7 +106,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 		It("displays help to the user", func() {
 			session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
 			Eventually(session).Should(Exit(1))
-			Eventually(session).Should(Say("An error occurred while fetching token."))
+			Eventually(session.Err).Should(Say("An error occurred while fetching token."))
 		})
 
 		It("does not update the previously saved context", func() {
@@ -147,7 +147,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 				session := runCommand("get-client-credentials-token")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("You must set a target in order to use this command."))
+				Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			})
 		})
 	})

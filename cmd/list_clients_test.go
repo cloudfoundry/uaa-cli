@@ -114,7 +114,7 @@ var _ = Describe("ListClients", func() {
 
 			session := runCommand("list-clients")
 
-			Expect(session.Out).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients"))
+			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients"))
 			Eventually(session).Should(Exit(1))
 		})
 	})
@@ -129,7 +129,7 @@ var _ = Describe("ListClients", func() {
 			session := runCommand("list-clients")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("You must set a target in order to use this command."))
+			Expect(session.Err).To(Say("You must set a target in order to use this command."))
 		})
 	})
 
@@ -143,7 +143,7 @@ var _ = Describe("ListClients", func() {
 			session := runCommand("list-clients")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("You must have a token in your context to perform this command."))
+			Expect(session.Err).To(Say("You must have a token in your context to perform this command."))
 		})
 	})
 })

@@ -3,7 +3,6 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -18,16 +17,16 @@ var getClientCmd = &cobra.Command{
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
 		client, err := cm.Get(args[0])
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			os.Exit(1)
 		}
 
 		j, err := json.MarshalIndent(&client, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			os.Exit(1)
 		}
-		fmt.Println(string(j))
+		log.Robots(string(j))
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {

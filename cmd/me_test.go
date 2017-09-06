@@ -55,7 +55,7 @@ var _ = Describe("Me", func() {
 			session := runCommand("me")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("An unknown error occurred while calling " + server.URL() + "/userinfo"))
+			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/userinfo"))
 		})
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("Me", func() {
 		It("tells the user to set a target", func() {
 			session := runCommand("me")
 
-			Expect(session.Out).To(Say("You must set a target in order to use this command."))
+			Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			Eventually(session).Should(Exit(1))
 		})
 	})

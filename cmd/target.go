@@ -3,21 +3,20 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
 
 func printTarget(target uaa.Target, status string, version string) {
-	fmt.Println("Target: " + target.BaseUrl)
-	fmt.Println("Status: " + status)
-	fmt.Println("UAA Version: " + version)
-	fmt.Printf("SkipSSLValidation: %v\n", target.SkipSSLValidation)
+	log.Info("Target: " + target.BaseUrl)
+	log.Info("Status: " + status)
+	log.Info("UAA Version: " + version)
+	log.Infof("SkipSSLValidation: %v", target.SkipSSLValidation)
 }
 
 func TraceRetryMsg(c uaa.Config) {
 	if !c.Trace {
-		fmt.Println("Retry with --trace for more information.")
+		log.Info("Retry with --trace for more information.")
 	}
 }
 
@@ -50,13 +49,13 @@ func updateTarget(newTarget string) {
 	c.AddTarget(target)
 	_, err := uaa.Info(GetHttpClientWithConfig(c), c)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("The target %s could not be set.", newTarget))
+		log.Errorf("The target %s could not be set.", newTarget)
 		TraceRetryMsg(c)
 		os.Exit(1)
 	}
 
 	config.WriteConfig(c)
-	fmt.Println("Target set to " + newTarget)
+	log.Info("Target set to " + newTarget)
 }
 
 var targetCmd = &cobra.Command{

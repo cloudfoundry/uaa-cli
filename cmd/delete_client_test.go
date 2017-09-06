@@ -113,7 +113,7 @@ var _ = Describe("DeleteClient", func() {
 
 			session := runCommand("delete-client", "clientid")
 
-			Expect(session.Out).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients/clientid"))
+			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients/clientid"))
 			Eventually(session).Should(Exit(1))
 		})
 	})
@@ -139,7 +139,7 @@ var _ = Describe("DeleteClient", func() {
 			session := runCommand("delete-client", "clientid")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("You must set a target in order to use this command."))
+			Expect(session.Err).To(Say("You must set a target in order to use this command."))
 		})
 	})
 })

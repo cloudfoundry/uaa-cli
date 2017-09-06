@@ -148,7 +148,7 @@ var _ = Describe("UpdateClient", func() {
 					"--client_secret", "newsecret",
 				)
 
-				Eventually(session).Should(Say(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`))
+				Eventually(session.Err).Should(Say(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`))
 				Eventually(session).Should(Exit(1))
 			})
 		})
@@ -173,7 +173,7 @@ var _ = Describe("UpdateClient", func() {
 				"--authorities", "notifications.write,notifications.read",
 			)
 
-			Eventually(session).Should(Say("An error occurred while updating the client."))
+			Eventually(session.Err).Should(Say("An error occurred while updating the client."))
 			Eventually(session).Should(Exit(1))
 		})
 	})
@@ -209,7 +209,7 @@ var _ = Describe("UpdateClient", func() {
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("You must set a target in order to use this command."))
+				Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			})
 		})
 	})

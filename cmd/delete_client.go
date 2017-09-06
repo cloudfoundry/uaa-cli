@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -17,12 +16,12 @@ var deleteClientCmd = &cobra.Command{
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
 		_, err := cm.Delete(args[0])
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			TraceRetryMsg(GetSavedConfig())
 			os.Exit(1)
 		}
 
-		fmt.Printf("Successfully deleted client %v.\n", args[0])
+		log.Infof("Successfully deleted client %v.", args[0])
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {

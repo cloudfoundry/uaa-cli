@@ -45,7 +45,7 @@ var _ = Describe("SetClientSecret", func() {
 
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
-		Expect(session.Out).To(Say("The secret for client shinyclient was not updated."))
+		Expect(session.Err).To(Say("The secret for client shinyclient was not updated."))
 		Expect(session.Out).To(Say("Retry with --trace for more information."))
 		Eventually(session).Should(Exit(1))
 	})
@@ -54,7 +54,7 @@ var _ = Describe("SetClientSecret", func() {
 		config.WriteConfig(uaa.NewConfig())
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
-		Expect(session.Out).To(Say("You must set a target in order to use this command."))
+		Expect(session.Err).To(Say("You must set a target in order to use this command."))
 		Eventually(session).Should(Exit(1))
 	})
 
@@ -65,7 +65,7 @@ var _ = Describe("SetClientSecret", func() {
 		config.WriteConfig(c)
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
-		Expect(session.Out).To(Say("You must have a token in your context to perform this command."))
+		Expect(session.Err).To(Say("You must have a token in your context to perform this command."))
 		Eventually(session).Should(Exit(1))
 	})
 

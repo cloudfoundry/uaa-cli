@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -19,11 +18,11 @@ var setClientSecretCmd = &cobra.Command{
 		cm := &uaa.ClientManager{GetHttpClient(), c}
 		err := cm.ChangeSecret(clientId, clientSecret)
 		if err != nil {
-			fmt.Printf("The secret for client %v was not updated.\n", clientId)
+			log.Errorf("The secret for client %v was not updated.", clientId)
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
-		fmt.Printf("The secret for client %v has been successfully updated.\n", clientId)
+		log.Infof("The secret for client %v has been successfully updated.", clientId)
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {

@@ -4,7 +4,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
@@ -37,7 +36,7 @@ var createClientCmd = &cobra.Command{
 		if clone != "" {
 			toCreate, err = cm.Get(clone)
 			if err != nil {
-				fmt.Printf("The client %v could not be found.\n", clone)
+				log.Errorf("The client %v could not be found.\n", clone)
 				TraceRetryMsg(c)
 				os.Exit(1)
 			}
@@ -72,27 +71,27 @@ var createClientCmd = &cobra.Command{
 
 		validationErr := toCreate.PreCreateValidation()
 		if validationErr != nil {
-			fmt.Println("Error: " + validationErr.Error())
+			log.Error("Error: " + validationErr.Error())
 			cmd.Usage()
 			os.Exit(1)
 		}
 
 		created, err := cm.Create(toCreate)
 		if err != nil {
-			fmt.Println("An error occurred while creating the client.")
+			log.Error("An error occurred while creating the client.")
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
 
 		j, err := json.MarshalIndent(&created, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
 
-		fmt.Printf("The client %v has been successfully created.\n", clientId)
-		fmt.Printf("%v\n", string(j))
+		log.Infof("The client %v has been successfully created.\n", clientId)
+		log.Robotsf("%v", string(j))
 
 	},
 	Args: func(cmd *cobra.Command, args []string) error {

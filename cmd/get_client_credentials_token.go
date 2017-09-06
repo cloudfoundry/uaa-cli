@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
@@ -19,7 +17,7 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		c := GetSavedConfig()
 		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.OPAQUE)
 		if err != nil {
-			fmt.Println("An error occurred while fetching token.")
+			log.Error("An error occurred while fetching token.")
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
@@ -34,7 +32,7 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		activeContext.Scope = token.Scope
 		c.AddContext(activeContext)
 		config.WriteConfig(c)
-		fmt.Println("Access token successfully fetched and added to context.")
+		log.Info("Access token successfully fetched and added to context.")
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		EnsureTarget()

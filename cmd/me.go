@@ -4,7 +4,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -20,16 +19,16 @@ var meCmd = cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		i, err := uaa.Me(GetHttpClient(), GetSavedConfig())
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			os.Exit(1)
 		}
 
 		j, err := json.MarshalIndent(&i, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			os.Exit(1)
 		}
-		fmt.Println(string(j))
+		log.Robots(string(j))
 	},
 }
 

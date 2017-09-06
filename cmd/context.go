@@ -3,7 +3,6 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -16,25 +15,24 @@ var contextCmd = &cobra.Command{
 		c := GetSavedConfig()
 
 		if c.ActiveTargetName == "" {
-			fmt.Println("No context is currently set.")
-			fmt.Println(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`)
+			log.Error("No context is currently set.")
+			log.Error(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`)
 			os.Exit(1)
 		}
 
 		if len(c.GetActiveTarget().Contexts) == 0 {
-			fmt.Println("No context is currently set.")
-			fmt.Println(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token.`)
+			log.Error("No context is currently set.")
+			log.Error(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token.`)
 			os.Exit(1)
 		}
 
 		activeContext := c.GetActiveContext()
 		j, err := json.MarshalIndent(&activeContext, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			os.Exit(1)
 		}
-		fmt.Println(string(j))
-
+		log.Robots(string(j))
 	},
 }
 

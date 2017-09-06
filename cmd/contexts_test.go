@@ -19,8 +19,8 @@ var _ = Describe("Contexts", func() {
 		It("tells the user to set a target", func() {
 			session := runCommand("contexts")
 
-			Expect(session.Out).To(Say("No contexts are currently available."))
-			Expect(session.Out).To(Say(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`))
+			Expect(session.Err).To(Say("No contexts are currently available."))
+			Expect(session.Err).To(Say(`To get started, target a UAA and fetch a token. See "uaa target -h" for details.`))
 			Eventually(session).Should(Exit(1))
 		})
 	})
@@ -34,8 +34,8 @@ var _ = Describe("Contexts", func() {
 		It("tells the user to set a context", func() {
 			session := runCommand("contexts")
 
-			Expect(session.Out).To(Say("No contexts are currently available."))
-			Expect(session.Out).To(Say(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token and create a context.`))
+			Expect(session.Err).To(Say("No contexts are currently available."))
+			Expect(session.Err).To(Say(`Use a token command such as "uaa get-password-token" or "uaa get-client-credentials-token" to fetch a token and create a context.`))
 			Eventually(session).Should(Exit(1))
 		})
 	})

@@ -3,7 +3,6 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
-	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -12,7 +11,7 @@ var updateClientCmd = &cobra.Command{
 	Use:   "update-client CLIENT_ID",
 	Short: "Update an OAuth client registration in the UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		EnsureContext()
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
@@ -30,20 +29,20 @@ var updateClientCmd = &cobra.Command{
 
 		updated, err := cm.Update(toUpdate)
 		if err != nil {
-			fmt.Println("An error occurred while updating the client.")
+			log.Error("An error occurred while updating the client.")
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
 
 		j, err := json.MarshalIndent(&updated, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
 
-		fmt.Printf("The client %v has been successfully updated.", clientId)
-		fmt.Printf("\n%v", string(j))
+		log.Infof("The client %v has been successfully updated.", clientId)
+		log.Robots(string(j))
 
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
@@ -51,7 +50,7 @@ var updateClientCmd = &cobra.Command{
 			return MissingArgument("client_id")
 		}
 		if clientSecret != "" {
-			fmt.Printf(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
+			log.Error(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
 			os.Exit(1)
 		}
 		return nil

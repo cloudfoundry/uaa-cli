@@ -144,7 +144,7 @@ var _ = Describe("Target", func() {
 				session := runCommand("target", server.URL())
 
 				Eventually(session).Should(Exit(1))
-				Eventually(session.Out).Should(Say("The target " + server.URL() + " could not be set."))
+				Eventually(session.Err).Should(Say("The target " + server.URL() + " could not be set."))
 			})
 		})
 	})
