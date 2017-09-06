@@ -43,10 +43,6 @@ var createClientCmd = &cobra.Command{
 			}
 
 			toCreate.ClientId = clientId
-			if !onlyImplicit(toCreate) && clientSecret == "" {
-				fmt.Println(MissingArgument("client_secret").Error())
-				os.Exit(1)
-			}
 			toCreate.ClientSecret = clientSecret
 			if displayName != "" {
 				toCreate.DisplayName = displayName
@@ -74,6 +70,13 @@ var createClientCmd = &cobra.Command{
 			toCreate.Scope = arrayify(scope)
 		}
 
+		validationErr := toCreate.PreCreateValidation()
+		if validationErr != nil {
+			fmt.Println("Error: " + validationErr.Error())
+			cmd.Usage()
+			os.Exit(1)
+		}
+
 		created, err := cm.Create(toCreate)
 		if err != nil {
 			fmt.Println("An error occurred while creating the client.")
@@ -97,22 +100,6 @@ var createClientCmd = &cobra.Command{
 
 		if len(args) < 1 {
 			return MissingArgument("client_id")
-		}
-		if clone != "" {
-			return nil
-		}
-
-		if authorizedGrantTypes == "" {
-			return MissingArgument("authorized_grant_types")
-		}
-		if authorizedGrantTypes != "implicit" && clientSecret == "" {
-			return MissingArgument("client_secret")
-		}
-		if strings.Contains(authorizedGrantTypes,"authorization_code") && redirectUri == "" {
-			return MissingArgumentForGrantType("redirect_uri","authorization_code")
-		}
-		if strings.Contains(authorizedGrantTypes,"implicit") && redirectUri == "" {
-			return MissingArgumentForGrantType("redirect_uri","implicit")
 		}
 
 		return nil
