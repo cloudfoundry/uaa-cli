@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 type TestLauncher struct {
@@ -22,11 +23,18 @@ func (tl *TestLauncher) Run(target string) error {
 var _ = Describe("GetImplicitToken", func() {
 	var c uaa.Config
 	var ctx uaa.UaaContext
+	var logger utils.Logger
 
 	BeforeEach(func() {
 		c = uaa.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
+		logger := GetLogger()
+		logger.Mute()
+	})
+
+	AfterEach(func() {
+		logger.Unmute()
 	})
 
 	It("launches a browser for the authorize page and gets the callback params", func() {

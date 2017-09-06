@@ -59,16 +59,15 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
-	log = logger()
+	log = utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 }
 
 func initConfig() {
 	// Startup tasks
 }
 
-func logger() utils.Logger {
-	return utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
-	//return utils.NewLogger(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+func GetLogger() *utils.Logger {
+	return &log
 }
 
 func GetSavedConfig() uaa.Config {
