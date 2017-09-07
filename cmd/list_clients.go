@@ -8,8 +8,8 @@ import (
 )
 
 var listClientsCmd = &cobra.Command{
-	Use:   "list-clients",
-	Short: "See all clients in the targeted UAA",
+	Use:     "list-clients",
+	Short:   "See all clients in the targeted UAA",
 	Aliases: []string{"clients"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureContext()

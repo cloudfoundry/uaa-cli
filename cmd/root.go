@@ -44,10 +44,10 @@ var (
 
 // Command categories
 const (
-	INTRO_CATEGORY = "Getting Started"
-	TOKEN_CATEGORY = "Getting Tokens"
+	INTRO_CATEGORY       = "Getting Started"
+	TOKEN_CATEGORY       = "Getting Tokens"
 	CLIENT_CRUD_CATEGORY = "Managing Clients"
-	MISC_CATEGORY = "Miscellaneous"
+	MISC_CATEGORY        = "Miscellaneous"
 )
 
 var RootCmd = cobra.Command{
@@ -84,7 +84,7 @@ Examples:
 {{.Example}}{{end}}{{if .HasAvailableSubCommands}}{{ $cmds := .Commands }}{{ range $category, $value := .Annotations }}
 
 {{ $category }}:  {{range $cmd := $cmds}}{{if (or (and $cmd.IsAvailableCommand (eq (index $cmd.Annotations $category) "true")) (and (eq $cmd.Name "help") (eq $category "Getting Started")))}}
-  {{rpad $cmd.Name $cmd.NamePadding }}  {{$cmd.Short}}{{end}}{{end}}{{ end }}
+  {{rpad $cmd.Name $cmd.NamePadding }}  {{$cmd.Short}}{{end}}{{end}}{{ end }}{{ end }}{{if .HasAvailableLocalFlags}}
 
 Flags:
 {{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
