@@ -1,11 +1,11 @@
 package uaa
 
 import (
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/utils"
-	"errors"
 	"strings"
 )
 
@@ -57,7 +57,7 @@ func requireClientSecretForGrantType(c *UaaClient, grantType GrantType) error {
 
 func knownGrantTypesStr() string {
 	grantTypeStrings := []string{}
-	KNOWN_GRANT_TYPES := []GrantType{ AUTHCODE, IMPLICIT, PASSWORD, CLIENT_CREDENTIALS }
+	KNOWN_GRANT_TYPES := []GrantType{AUTHCODE, IMPLICIT, PASSWORD, CLIENT_CREDENTIALS}
 	for _, grant := range KNOWN_GRANT_TYPES {
 		grantTypeStrings = append(grantTypeStrings, string(grant))
 	}

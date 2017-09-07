@@ -169,10 +169,10 @@ var _ = Describe("GetPasswordToken", func() {
 			))
 
 			runCommand("get-password-token", "admin",
-											"-s", "adminsecret",
-											"-u", "woodstock",
-											"-p", "secret",
-											"--format", "jwt")
+				"-s", "adminsecret",
+				"-u", "woodstock",
+				"-p", "secret",
+				"--format", "jwt")
 		})
 
 		It("can request opaque token", func() {

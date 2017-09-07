@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"os"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 func MissingArgument(argName string, cmd *cobra.Command) {

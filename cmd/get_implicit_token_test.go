@@ -5,10 +5,10 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 type TestLauncher struct {

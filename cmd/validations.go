@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"os"
 	"code.cloudfoundry.org/uaa-cli/utils"
-	"strings"
 	"github.com/spf13/cobra"
+	"os"
+	"strings"
 )
 
 func avalableFormats() []string {
-	return []string { "jwt", "opaque" }
+	return []string{"jwt", "opaque"}
 }
 
 func availableFormatsStr() string {

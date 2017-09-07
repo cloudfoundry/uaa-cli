@@ -36,8 +36,8 @@ var _ = Describe("Clients", func() {
 			It("requires client_id", func() {
 				client := uaa.UaaClient{
 					AuthorizedGrantTypes: []string{"authorization_code"},
-					RedirectUri: []string{"http://localhost:8080"},
-					ClientSecret: "secret",
+					RedirectUri:          []string{"http://localhost:8080"},
+					ClientSecret:         "secret",
 				}
 
 				err := client.PreCreateValidation()
@@ -48,9 +48,9 @@ var _ = Describe("Clients", func() {
 
 			It("requires redirect_uri", func() {
 				client := uaa.UaaClient{
-					ClientId: "myclient",
+					ClientId:             "myclient",
 					AuthorizedGrantTypes: []string{"authorization_code"},
-					ClientSecret: "secret",
+					ClientSecret:         "secret",
 				}
 
 				err := client.PreCreateValidation()
@@ -60,9 +60,9 @@ var _ = Describe("Clients", func() {
 
 			It("requires client_secret", func() {
 				client := uaa.UaaClient{
-					ClientId: "myclient",
+					ClientId:             "myclient",
 					AuthorizedGrantTypes: []string{"authorization_code"},
-					RedirectUri: []string{"http://localhost:8080"},
+					RedirectUri:          []string{"http://localhost:8080"},
 				}
 
 				err := client.PreCreateValidation()
@@ -75,7 +75,7 @@ var _ = Describe("Clients", func() {
 			It("requires client_id", func() {
 				client := uaa.UaaClient{
 					AuthorizedGrantTypes: []string{"implicit"},
-					RedirectUri: []string{"http://localhost:8080"},
+					RedirectUri:          []string{"http://localhost:8080"},
 				}
 
 				err := client.PreCreateValidation()
@@ -86,7 +86,7 @@ var _ = Describe("Clients", func() {
 
 			It("requires redirect_uri", func() {
 				client := uaa.UaaClient{
-					ClientId: "myclient",
+					ClientId:             "myclient",
 					AuthorizedGrantTypes: []string{"implicit"},
 				}
 
@@ -97,9 +97,9 @@ var _ = Describe("Clients", func() {
 
 			It("does not require client_secret", func() {
 				client := uaa.UaaClient{
-					ClientId: "someclient",
+					ClientId:             "someclient",
 					AuthorizedGrantTypes: []string{"implicit"},
-					RedirectUri: []string{"http://localhost:8080"},
+					RedirectUri:          []string{"http://localhost:8080"},
 				}
 
 				err := client.PreCreateValidation()
@@ -112,7 +112,7 @@ var _ = Describe("Clients", func() {
 			It("requires client_id", func() {
 				client := uaa.UaaClient{
 					AuthorizedGrantTypes: []string{"client_credentials"},
-					ClientSecret: "secret",
+					ClientSecret:         "secret",
 				}
 
 				err := client.PreCreateValidation()
@@ -123,7 +123,7 @@ var _ = Describe("Clients", func() {
 
 			It("requires client_secret", func() {
 				client := uaa.UaaClient{
-					ClientId: "myclient",
+					ClientId:             "myclient",
 					AuthorizedGrantTypes: []string{"client_credentials"},
 				}
 
@@ -137,8 +137,8 @@ var _ = Describe("Clients", func() {
 			It("requires client_id", func() {
 				client := uaa.UaaClient{
 					AuthorizedGrantTypes: []string{"password"},
-					RedirectUri: []string{"http://localhost:8080"},
-					ClientSecret: "secret",
+					RedirectUri:          []string{"http://localhost:8080"},
+					ClientSecret:         "secret",
 				}
 
 				err := client.PreCreateValidation()
@@ -149,7 +149,7 @@ var _ = Describe("Clients", func() {
 
 			It("requires client_secret", func() {
 				client := uaa.UaaClient{
-					ClientId: "myclient",
+					ClientId:             "myclient",
 					AuthorizedGrantTypes: []string{"password"},
 				}
 

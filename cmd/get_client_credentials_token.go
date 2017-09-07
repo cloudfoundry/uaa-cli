@@ -52,5 +52,5 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(getClientCredentialsTokenCmd)
 	getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
-	getClientCredentialsTokenCmd.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
+	getClientCredentialsTokenCmd.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include "+availableFormatsStr())
 }

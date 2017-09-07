@@ -20,8 +20,8 @@ func addImplicitTokenToContext(clientId string, requestParams url.Values, respon
 		ClientId:    clientId,
 		GrantType:   "implicit",
 		AccessToken: responseParams.Get("access_token"),
-		TokenType: uaa.TokenFormat(requestParams.Get("token_format")),
-		Scope: requestParams.Get("scope"),
+		TokenType:   uaa.TokenFormat(requestParams.Get("token_format")),
+		Scope:       requestParams.Get("scope"),
 	}
 	c := GetSavedConfig()
 	c.AddContext(ctx)
@@ -134,6 +134,6 @@ var getImplicitToken = &cobra.Command{
 func init() {
 	getImplicitToken.Flags().IntVarP(&port, "port", "", 0, "port on which to run local callback server")
 	getImplicitToken.Flags().StringVarP(&scope, "scope", "", "openid", "comma-separated scopes to request in token")
-	getImplicitToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
+	getImplicitToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include "+availableFormatsStr())
 	RootCmd.AddCommand(getImplicitToken)
 }

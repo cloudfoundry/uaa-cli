@@ -69,5 +69,5 @@ func init() {
 	getPasswordToken.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	getPasswordToken.Flags().StringVarP(&username, "username", "u", "", "username")
 	getPasswordToken.Flags().StringVarP(&password, "password", "p", "", "user password")
-	getPasswordToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
+	getPasswordToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include "+availableFormatsStr())
 }
