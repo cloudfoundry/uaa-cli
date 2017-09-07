@@ -5,11 +5,6 @@ import (
 	"net/http"
 )
 
-type ClientCredentialsClient struct {
-	ClientId     string
-	ClientSecret string
-}
-
 func postToOAuthToken(httpClient *http.Client, config Config, body map[string]string) (TokenResponse, error) {
 	bytes, err := UnauthenticatedRequester{}.PostForm(httpClient, config, "/oauth/token", "", body)
 	if err != nil {
@@ -25,9 +20,14 @@ func postToOAuthToken(httpClient *http.Client, config Config, body map[string]st
 	return tokenResponse, nil
 }
 
+type ClientCredentialsClient struct {
+	ClientId     string
+	ClientSecret string
+}
+
 func (cc ClientCredentialsClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
 	body := map[string]string{
-		"grant_type":    "client_credentials",
+		"grant_type":    string(CLIENT_CREDENTIALS),
 		"client_id":     cc.ClientId,
 		"client_secret": cc.ClientSecret,
 		"token_format":  string(format),
@@ -46,13 +46,32 @@ type ResourceOwnerPasswordClient struct {
 
 func (rop ResourceOwnerPasswordClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat) (TokenResponse, error) {
 	body := map[string]string{
-		"grant_type":    "password",
+		"grant_type":    string(PASSWORD),
 		"client_id":     rop.ClientId,
 		"client_secret": rop.ClientSecret,
 		"username":      rop.Username,
 		"password":      rop.Password,
 		"token_format":  string(format),
 		"response_type": "token",
+	}
+
+	return postToOAuthToken(httpClient, config, body)
+}
+
+type AuthorizationCodeClient struct {
+	ClientId     string
+	ClientSecret string
+}
+
+func (acc AuthorizationCodeClient) RequestToken(httpClient *http.Client, config Config, format TokenFormat, code string, redirectUri string) (TokenResponse, error) {
+	body := map[string]string{
+		"grant_type":    string(AUTHCODE),
+		"client_id":     acc.ClientId,
+		"client_secret": acc.ClientSecret,
+		"token_format":  string(format),
+		"response_type": "token",
+		"redirect_uri":  redirectUri,
+		"code": code,
 	}
 
 	return postToOAuthToken(httpClient, config, body)
