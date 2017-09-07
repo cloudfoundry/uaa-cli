@@ -44,7 +44,7 @@ var _ = Describe("GetImplicitToken", func() {
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
-		httpClient.Get("http://localhost:8080/?access_token=foo")
+		httpClient.Get("http://localhost:8080/?access_token=foo&scope=openid")
 
 		<-doneRunning
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
@@ -62,12 +62,15 @@ var _ = Describe("GetImplicitToken", func() {
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
-		httpClient.Get("http://localhost:8081/?access_token=foo")
+		httpClient.Get("http://localhost:8081/?access_token=foo&expires_in=43199&scope=openid%2Cuser_attributes&jti=abcde")
 
 		<-doneRunning
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8081&response_type=token&scope=openid%2Cuser_attributes&token_format=jwt"))
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("foo"))
 		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
+		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid,user_attributes"))
+		Expect(GetSavedConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
+		Expect(GetSavedConfig().GetActiveContext().JTI).To(Equal("abcde"))
 	})
 })

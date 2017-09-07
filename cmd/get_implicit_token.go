@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 )
 
 func addImplicitTokenToContext(clientId string, requestParams url.Values, responseParams url.Values) {
@@ -21,8 +22,14 @@ func addImplicitTokenToContext(clientId string, requestParams url.Values, respon
 		GrantType:   "implicit",
 		AccessToken: responseParams.Get("access_token"),
 		TokenType:   uaa.TokenFormat(requestParams.Get("token_format")),
-		Scope:       requestParams.Get("scope"),
+		Scope:       responseParams.Get("scope"),
+		JTI:         responseParams.Get("jti"),
 	}
+	expiry, err := strconv.Atoi(responseParams.Get("expires_in"))
+	if err == nil {
+		ctx.ExpiresIn = int32(expiry)
+	}
+
 	c := GetSavedConfig()
 	c.AddContext(ctx)
 	config.WriteConfig(c)
