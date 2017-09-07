@@ -73,4 +73,6 @@ var targetCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(targetCmd)
 	targetCmd.Flags().BoolVarP(&skipSSLValidation, "skip-ssl-validation", "k", false, "Disable security validation on requests to this target")
+	targetCmd.Annotations = make(map[string]string)
+	targetCmd.Annotations[INTRO_CATEGORY] = "true"
 }

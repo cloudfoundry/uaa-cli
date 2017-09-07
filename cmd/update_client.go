@@ -59,6 +59,8 @@ var updateClientCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(updateClientCmd)
+	updateClientCmd.Annotations = make(map[string]string)
+	updateClientCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	updateClientCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	updateClientCmd.Flag("client_secret").Hidden = true
 

@@ -142,5 +142,7 @@ func init() {
 	getImplicitToken.Flags().IntVarP(&port, "port", "", 0, "port on which to run local callback server")
 	getImplicitToken.Flags().StringVarP(&scope, "scope", "", "openid", "comma-separated scopes to request in token")
 	getImplicitToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include "+availableFormatsStr())
+	getImplicitToken.Annotations = make(map[string]string)
+	getImplicitToken.Annotations[TOKEN_CATEGORY] = "true"
 	RootCmd.AddCommand(getImplicitToken)
 }

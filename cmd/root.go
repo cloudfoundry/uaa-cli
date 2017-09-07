@@ -42,6 +42,14 @@ var (
 	port                 int
 )
 
+// Command categories
+const (
+	INTRO_CATEGORY = "Getting Started"
+	TOKEN_CATEGORY = "Getting Tokens"
+	CLIENT_CRUD_CATEGORY = "Managing Clients"
+	MISC_CATEGORY = "Miscellaneous"
+)
+
 var RootCmd = cobra.Command{
 	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
@@ -60,6 +68,36 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
+	RootCmd.Annotations = make(map[string]string)
+	RootCmd.Annotations[INTRO_CATEGORY] = "true"
+	RootCmd.Annotations[TOKEN_CATEGORY] = "true"
+	RootCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
+	RootCmd.Annotations[MISC_CATEGORY] = "true"
+	RootCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
+  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+
+Aliases:
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
+
+Examples:
+{{.Example}}{{end}}{{if .HasAvailableSubCommands}}{{ $cmds := .Commands }}{{ range $category, $value := .Annotations }}
+
+{{ $category }}:  {{range $cmd := $cmds}}{{if (or (and $cmd.IsAvailableCommand (eq (index $cmd.Annotations $category) "true")) (and (eq $cmd.Name "help") (eq $category "Getting Started")))}}
+  {{rpad $cmd.Name $cmd.NamePadding }}  {{$cmd.Short}}{{end}}{{end}}{{ end }}
+
+Flags:
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+Global Flags:
+{{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
+
+Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
+`)
+
 	log = utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 }
 

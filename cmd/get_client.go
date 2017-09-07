@@ -38,5 +38,7 @@ var getClientCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(getClientCmd)
+	getClientCmd.Annotations = make(map[string]string)
+	getClientCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	getClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to get the client")
 }

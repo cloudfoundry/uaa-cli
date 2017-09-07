@@ -10,7 +10,7 @@ import (
 
 var getClientCredentialsTokenCmd = &cobra.Command{
 	Use:   "get-client-credentials-token CLIENT_ID -s CLIENT_SECRET",
-	Short: "obtain a token as a client_credentials grant client",
+	Short: "Obtain a token as a client_credentials grant client",
 	Long:  help.ClientCredentials(),
 	Run: func(cmd *cobra.Command, args []string) {
 		ccClient := uaa.ClientCredentialsClient{ClientId: args[0], ClientSecret: clientSecret}
@@ -53,4 +53,6 @@ func init() {
 	RootCmd.AddCommand(getClientCredentialsTokenCmd)
 	getClientCredentialsTokenCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	getClientCredentialsTokenCmd.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include "+availableFormatsStr())
+	getClientCredentialsTokenCmd.Annotations = make(map[string]string)
+	getClientCredentialsTokenCmd.Annotations[TOKEN_CATEGORY] = "true"
 }

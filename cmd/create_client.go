@@ -107,6 +107,8 @@ var createClientCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(createClientCmd)
+	createClientCmd.Annotations = make(map[string]string)
+	createClientCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	createClientCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	createClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client.")
 	createClientCmd.Flags().StringVarP(&authorities, "authorities", "", "", "scopes requested by client during client_credentials grant")

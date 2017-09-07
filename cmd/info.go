@@ -31,4 +31,6 @@ var infoCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(infoCmd)
+	infoCmd.Annotations = make(map[string]string)
+	infoCmd.Annotations[INTRO_CATEGORY] = "true"
 }

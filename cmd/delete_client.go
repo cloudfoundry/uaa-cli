@@ -33,5 +33,7 @@ var deleteClientCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(deleteClientCmd)
+	deleteClientCmd.Annotations = make(map[string]string)
+	deleteClientCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	deleteClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to delete the client")
 }

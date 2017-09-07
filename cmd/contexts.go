@@ -37,5 +37,7 @@ var contextsCmd = cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(&contextsCmd)
+	contextsCmd.Annotations = make(map[string]string)
+	contextsCmd.Annotations[INTRO_CATEGORY] = "true"
 	contextsCmd.Hidden = true
 }

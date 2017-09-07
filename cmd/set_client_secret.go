@@ -37,6 +37,8 @@ var setClientSecretCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(setClientSecretCmd)
+	setClientSecretCmd.Annotations = make(map[string]string)
+	setClientSecretCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	setClientSecretCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "new client secret")
 	setClientSecretCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain where the client resides")
 }

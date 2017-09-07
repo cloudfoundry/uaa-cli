@@ -10,7 +10,7 @@ import (
 
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD",
-	Short: "obtain a token as a password grant client",
+	Short: "Obtain a token as a password grant client",
 	Long:  help.PasswordGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
@@ -66,6 +66,8 @@ var getPasswordToken = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(getPasswordToken)
+	getPasswordToken.Annotations = make(map[string]string)
+	getPasswordToken.Annotations[TOKEN_CATEGORY] = "true"
 	getPasswordToken.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
 	getPasswordToken.Flags().StringVarP(&username, "username", "u", "", "username")
 	getPasswordToken.Flags().StringVarP(&password, "password", "p", "", "user password")

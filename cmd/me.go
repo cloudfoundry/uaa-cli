@@ -34,4 +34,6 @@ var meCmd = cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(&meCmd)
+	meCmd.Annotations = make(map[string]string)
+	meCmd.Annotations[MISC_CATEGORY] = "true"
 }
