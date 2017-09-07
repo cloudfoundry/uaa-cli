@@ -84,11 +84,11 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			})
 
 			It("updates the saved context", func() {
-				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
+				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret", "--format", "jwt")
 				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
 				Expect(config.ReadConfig().GetActiveContext().ClientId).To(Equal("admin"))
 				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(CLIENT_CREDENTIALS))
-				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal(OPAQUE))
+				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal(JWT))
 				Expect(config.ReadConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
 				Expect(config.ReadConfig().GetActiveContext().Scope).To(Equal("clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write"))
 				Expect(config.ReadConfig().GetActiveContext().JTI).To(Equal("bc4885d950854fed9a938e96b13ca519"))
