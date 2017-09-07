@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-var _ = Describe("Me", func() {
+var _ = Describe("Userinfo", func() {
 	Describe("and a target was previously set", func() {
 		userinfoJson := `{
 		  "user_id": "d6ef6c2e-02f6-477a-a7c6-18e27f9a6e87",
@@ -40,7 +40,7 @@ var _ = Describe("Me", func() {
 				VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			session := runCommand("me")
+			session := runCommand("userinfo")
 
 			Eventually(session).Should(Exit(0))
 			outputBytes := session.Out.Contents()
@@ -52,7 +52,7 @@ var _ = Describe("Me", func() {
 				RespondWith(http.StatusBadRequest, ""),
 			)
 
-			session := runCommand("me")
+			session := runCommand("userinfo")
 
 			Eventually(session).Should(Exit(1))
 			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/userinfo"))
@@ -66,7 +66,7 @@ var _ = Describe("Me", func() {
 		})
 
 		It("tells the user to set a target", func() {
-			session := runCommand("me")
+			session := runCommand("userinfo")
 
 			Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			Eventually(session).Should(Exit(1))

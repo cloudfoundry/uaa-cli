@@ -8,10 +8,10 @@ import (
 	"os"
 )
 
-var meCmd = cobra.Command{
-	Use:     "me",
+var userinfoCmd = cobra.Command{
+	Use:     "userinfo",
 	Short:   "See claims about the authenticated user",
-	Aliases: []string{"userinfo"},
+	Aliases: []string{"me"},
 	Long:    help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureContext()
@@ -33,7 +33,7 @@ var meCmd = cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(&meCmd)
-	meCmd.Annotations = make(map[string]string)
-	meCmd.Annotations[MISC_CATEGORY] = "true"
+	RootCmd.AddCommand(&userinfoCmd)
+	userinfoCmd.Annotations = make(map[string]string)
+	userinfoCmd.Annotations[MISC_CATEGORY] = "true"
 }
