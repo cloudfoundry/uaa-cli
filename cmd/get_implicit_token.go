@@ -83,6 +83,7 @@ func ImplicitTokenArgumentValidation(args []string, port int, cmd *cobra.Command
 	if port == 0 {
 		MissingArgument("port", cmd)
 	}
+	validateTokenFormat(cmd, tokenFormat)
 	return nil
 }
 
@@ -94,6 +95,7 @@ func ImplicitTokenCommandRun(doneRunning chan bool, launcher func(string) error,
 	requestValues.Add("response_type", "token")
 	requestValues.Add("client_id", clientId)
 	requestValues.Add("scope", scope)
+	requestValues.Add("token_format", tokenFormat)
 	requestValues.Add("redirect_uri", fmt.Sprintf("http://localhost:%v", port))
 
 	authUrl, err := utils.BuildUrl(GetSavedConfig().GetActiveTarget().BaseUrl, "/oauth/authorize")
@@ -130,5 +132,6 @@ var getImplicitToken = &cobra.Command{
 func init() {
 	getImplicitToken.Flags().IntVarP(&port, "port", "", 0, "port on which to run local callback server")
 	getImplicitToken.Flags().StringVarP(&scope, "scope", "", "openid", "comma-separated scopes to request in token")
+	getImplicitToken.Flags().StringVarP(&tokenFormat, "format", "", "jwt", "available formats include " + availableFormatsStr())
 	RootCmd.AddCommand(getImplicitToken)
 }

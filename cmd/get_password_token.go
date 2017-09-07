@@ -6,7 +6,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
-	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 var getPasswordToken = &cobra.Command{
@@ -60,11 +59,7 @@ var getPasswordToken = &cobra.Command{
 		if username == "" {
 			MissingArgument("username", cmd)
 		}
-		if !utils.Contains(avalableFormats(), tokenFormat) {
-			log.Errorf(`The token format "%v" is unknown. Available formats: %v`, tokenFormat, availableFormatsStr())
-			cmd.Usage()
-			os.Exit(1)
-		}
+		validateTokenFormat(cmd, tokenFormat)
 		return nil
 	},
 }

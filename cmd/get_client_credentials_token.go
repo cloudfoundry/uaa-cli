@@ -6,8 +6,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
-	"code.cloudfoundry.org/uaa-cli/utils"
-	"strings"
 )
 
 var getClientCredentialsTokenCmd = &cobra.Command{
@@ -45,22 +43,10 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		if clientSecret == "" {
 			MissingArgument("client_secret", cmd)
 		}
-		if !utils.Contains(avalableFormats(), tokenFormat) {
-			log.Errorf(`The token format "%v" is unknown. Available formats: %v`, tokenFormat, availableFormatsStr())
-			cmd.Usage()
-			os.Exit(1)
-		}
+		validateTokenFormat(cmd, tokenFormat)
 
 		return nil
 	},
-}
-
-func avalableFormats() []string {
-	return []string { "jwt", "opaque" }
-}
-
-func availableFormatsStr() string {
-	return "[" + strings.Join(avalableFormats(), ", ") + "]"
 }
 
 func init() {
