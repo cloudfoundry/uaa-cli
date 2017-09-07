@@ -15,11 +15,13 @@ import (
 	"os"
 )
 
-func addImplicitTokenToContext(clientId string, params url.Values) {
+func addImplicitTokenToContext(clientId string, requestParams url.Values, responseParams url.Values) {
 	ctx := uaa.UaaContext{
 		ClientId:    clientId,
 		GrantType:   "implicit",
-		AccessToken: params.Get("access_token"),
+		AccessToken: responseParams.Get("access_token"),
+		TokenType: uaa.TokenFormat(requestParams.Get("token_format")),
+		Scope: requestParams.Get("scope"),
 	}
 	c := GetSavedConfig()
 	c.AddContext(ctx)
@@ -107,8 +109,8 @@ func ImplicitTokenCommandRun(doneRunning chan bool, launcher func(string) error,
 
 	log.Info("Launching browser window to " + authUrl.String())
 	launcher(authUrl.String())
-	params := <-done
-	addImplicitTokenToContext(clientId, params)
+	responseValues := <-done
+	addImplicitTokenToContext(clientId, requestValues, responseValues)
 	doneRunning <- true
 }
 

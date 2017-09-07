@@ -51,6 +51,8 @@ var _ = Describe("GetImplicitToken", func() {
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("foo"))
 		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
+		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal(uaa.TokenFormat("jwt")))
+		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))
 	})
 
 	It("handles multiple scopes", func() {
