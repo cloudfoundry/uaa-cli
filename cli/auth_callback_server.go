@@ -87,11 +87,13 @@ func (acs AuthCallbackServer) Start(done chan url.Values) {
 		go attemptHangup(r.URL.Query())
 	})
 
-	acs.log.Infof("Starting local HTTP server on port %v", acs.port)
-	acs.log.Info("Waiting for authorization redirect with code from UAA...")
-	if err := srv.ListenAndServe(); err != nil {
-		acs.log.Infof("Stopping local HTTP server on port %v", acs.port)
-	}
+	go func() {
+		acs.log.Infof("Starting local HTTP server on port %v", acs.port)
+		acs.log.Info("Waiting for authorization redirect with code from UAA...")
+		if err := srv.ListenAndServe(); err != nil {
+			acs.log.Infof("Stopping local HTTP server on port %v", acs.port)
+		}
+	}()
 }
 
 type FakeCallbackServer struct {

@@ -55,7 +55,7 @@ var _ = Describe("AuthCallbackServer", func() {
 				donedone <- url.Values{} // exit immediately after first call
 			})
 
-			go acs.Start(done)
+			acs.Start(done)
 
 			resp, err := httpClient.Get(serverUrl(randPort))
 			if err != nil {
@@ -77,7 +77,7 @@ var _ = Describe("AuthCallbackServer", func() {
 			}
 		})
 
-		go acs.Start(done)
+		acs.Start(done)
 
 		_, err := httpClient.Get(serverUrl(randPort))
 		Expect(err).NotTo(HaveOccurred())
