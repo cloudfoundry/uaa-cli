@@ -10,7 +10,7 @@ import (
 type Impersonator interface {
 	Start()
 	Authorize()
-	Done() chan string
+	Done() chan url.Values
 }
 
 type ImplicitClientImpersonator struct {
@@ -22,7 +22,7 @@ type ImplicitClientImpersonator struct {
 	Log                utils.Logger
 	AuthCallbackServer CallbackServer
 	BrowserLauncher    func(string) error
-	done               chan string
+	done               chan url.Values
 }
 
 const CallbackCSS = `<style>
@@ -62,14 +62,14 @@ func NewImplicitClientImpersonator(clientId,
 		Port:            port,
 		BrowserLauncher: launcher,
 		Log:             log,
-		done:            make(chan string),
+		done:            make(chan url.Values),
 	}
 
 	callbackServer := NewAuthCallbackServer(implicitCallbackHTML, CallbackCSS, implicitCallbackJS, log, port)
-	callbackServer.SetHangupFunc(func(done chan string, values url.Values) {
+	callbackServer.SetHangupFunc(func(done chan url.Values, values url.Values) {
 		token := values.Get("access_token")
 		if token != "" {
-			done <- token
+			done <- values
 		}
 	})
 	impersonator.AuthCallbackServer = callbackServer
@@ -98,6 +98,6 @@ func (ici ImplicitClientImpersonator) Authorize() {
 	ici.Log.Info("Launching browser window to " + authUrl.String())
 	ici.BrowserLauncher(authUrl.String())
 }
-func (ici ImplicitClientImpersonator) Done() chan string {
+func (ici ImplicitClientImpersonator) Done() chan url.Values {
 	return ici.done
 }

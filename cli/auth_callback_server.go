@@ -15,8 +15,8 @@ type CallbackServer interface {
 	Javascript() string
 	Port() int
 	Log() utils.Logger
-	Hangup(chan string, url.Values)
-	Start(chan string)
+	Hangup(chan url.Values, url.Values)
+	Start(chan url.Values)
 }
 
 type AuthCallbackServer struct {
@@ -25,12 +25,12 @@ type AuthCallbackServer struct {
 	javascript string
 	port       int
 	log        utils.Logger
-	hangupFunc func(chan string, url.Values)
+	hangupFunc func(chan url.Values, url.Values)
 }
 
 func NewAuthCallbackServer(html, css, js string, log utils.Logger, port int) AuthCallbackServer {
 	acs := AuthCallbackServer{html: html, css: css, javascript: js, log: log, port: port}
-	acs.SetHangupFunc(func(done chan string, vals url.Values) {})
+	acs.SetHangupFunc(func(done chan url.Values, vals url.Values) {})
 	return acs
 }
 
@@ -49,15 +49,15 @@ func (acs AuthCallbackServer) Port() int {
 func (acs AuthCallbackServer) Log() utils.Logger {
 	return acs.log
 }
-func (acs AuthCallbackServer) Hangup(done chan string, values url.Values) {
+func (acs AuthCallbackServer) Hangup(done chan url.Values, values url.Values) {
 	acs.hangupFunc(done, values)
 }
-func (acs *AuthCallbackServer) SetHangupFunc(hangupFunc func(chan string, url.Values)) {
+func (acs *AuthCallbackServer) SetHangupFunc(hangupFunc func(chan url.Values, url.Values)) {
 	acs.hangupFunc = hangupFunc
 }
 
-func (acs AuthCallbackServer) Start(done chan string) {
-	callbackValue := make(chan string)
+func (acs AuthCallbackServer) Start(done chan url.Values) {
+	callbackValues := make(chan url.Values)
 	serveMux := http.NewServeMux()
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", acs.port),
@@ -65,15 +65,15 @@ func (acs AuthCallbackServer) Start(done chan string) {
 	}
 
 	go func() {
-		value := <-callbackValue
-		close(callbackValue)
+		value := <-callbackValues
+		close(callbackValues)
 		srv.Close()
 		done <- value
 	}()
 
 	attemptHangup := func(queryParams url.Values) {
 		time.Sleep(10 * time.Millisecond)
-		acs.Hangup(callbackValue, queryParams)
+		acs.Hangup(callbackValues, queryParams)
 	}
 
 	serveMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +83,7 @@ func (acs AuthCallbackServer) Start(done chan string) {
 		acs.log.Infof("Local server received request to %v %v", r.Method, r.RequestURI)
 
 		// This is a goroutine because we want this handleFunc to complete before
-		// Server.Close is invoked by listeners on the callbackValue channel.
+		// Server.Close is invoked by listeners on the callbackValues channel.
 		go attemptHangup(r.URL.Query())
 	})
 
@@ -100,7 +100,7 @@ type FakeCallbackServer struct {
 	javascript string
 	port       int
 	log        utils.Logger
-	hangupFunc func(chan string, url.Values)
+	hangupFunc func(chan url.Values, url.Values)
 }
 
 func (fcs FakeCallbackServer) Html() string {
@@ -118,12 +118,14 @@ func (fcs FakeCallbackServer) Port() int {
 func (fcs FakeCallbackServer) Log() utils.Logger {
 	return fcs.log
 }
-func (fcs FakeCallbackServer) Hangup(done chan string, values url.Values) {
+func (fcs FakeCallbackServer) Hangup(done chan url.Values, values url.Values) {
 	fcs.hangupFunc(done, values)
 }
-func (fcs *FakeCallbackServer) SetHangupFunc(hangupFunc func(chan string, url.Values)) {
+func (fcs *FakeCallbackServer) SetHangupFunc(hangupFunc func(chan url.Values, url.Values)) {
 	fcs.hangupFunc = hangupFunc
 }
-func (fcs FakeCallbackServer) Start(done chan string) {
-	done <- "server was started"
+func (fcs FakeCallbackServer) Start(done chan url.Values) {
+	values := url.Values{}
+	values.Add("access_token", "a_fake_token")
+	done <- values
 }

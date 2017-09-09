@@ -21,7 +21,7 @@ var _ = Describe("AuthCallbackServer", func() {
 	var (
 		httpClient *http.Client
 		acs        AuthCallbackServer
-		done       chan string
+		done       chan url.Values
 		randPort   int
 		logger     utils.Logger
 	)
@@ -42,7 +42,7 @@ var _ = Describe("AuthCallbackServer", func() {
 			logger,
 			randPort)
 
-		done = make(chan string)
+		done = make(chan url.Values)
 	})
 
 	AfterEach(func() {
@@ -51,8 +51,8 @@ var _ = Describe("AuthCallbackServer", func() {
 
 	Describe("Start", func() {
 		It("serves static content on the configured port", func() {
-			acs.SetHangupFunc(func(donedone chan string, values url.Values) {
-				donedone <- "Yep, exit immediately after first call"
+			acs.SetHangupFunc(func(donedone chan url.Values, values url.Values) {
+				donedone <- url.Values{} // exit immediately after first call
 			})
 
 			go acs.Start(done)
@@ -71,9 +71,9 @@ var _ = Describe("AuthCallbackServer", func() {
 	})
 
 	It("uses the Hangup func to decide when to close the server", func() {
-		acs.SetHangupFunc(func(donedone chan string, values url.Values) {
+		acs.SetHangupFunc(func(donedone chan url.Values, values url.Values) {
 			if values.Get("code") != "" {
-				donedone <- values.Get("code")
+				donedone <- values
 			}
 		})
 
@@ -92,6 +92,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		_, err = httpClient.Get(serverUrl(randPort))
 		Expect(err).To(HaveOccurred())
 
-		Expect(<-done).To(Equal("secret_code"))
+		requestParams := <-done
+		Expect(requestParams.Get("code")).To(Equal("secret_code"))
 	})
 })

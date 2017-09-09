@@ -52,13 +52,13 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 			})
 
 			It("with hangup func that looks for access_token in query params", func() {
-				done := make(chan string)
+				done := make(chan url.Values)
 
 				urlParams := url.Values{}
 				urlParams.Add("access_token", "56575db17b164e568668c0085ed14ae1")
 				go impersonator.AuthCallbackServer.Hangup(done, urlParams)
 
-				Expect(<-done).To(Equal("56575db17b164e568668c0085ed14ae1"))
+				Expect(<-done).To(Equal(urlParams))
 			})
 		})
 	})
@@ -72,7 +72,8 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 
 		It("starts the AuthCallbackServer", func() {
 			go impersonator.Start()
-			Expect(<-impersonator.Done()).To(Equal("server was started"))
+			callbackParams := <-impersonator.Done()
+			Expect(callbackParams.Get("access_token")).To(Equal("a_fake_token"))
 		})
 	})
 
