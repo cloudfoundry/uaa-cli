@@ -89,7 +89,7 @@ func (acs AuthCallbackServer) Start(done chan url.Values) {
 
 	go func() {
 		acs.log.Infof("Starting local HTTP server on port %v", acs.port)
-		acs.log.Info("Waiting for authorization redirect with code from UAA...")
+		acs.log.Info("Waiting for authorization redirect from UAA...")
 		if err := srv.ListenAndServe(); err != nil {
 			acs.log.Infof("Stopping local HTTP server on port %v", acs.port)
 		}
@@ -129,5 +129,10 @@ func (fcs *FakeCallbackServer) SetHangupFunc(hangupFunc func(chan url.Values, ur
 func (fcs FakeCallbackServer) Start(done chan url.Values) {
 	values := url.Values{}
 	values.Add("access_token", "a_fake_token")
+	values.Add("expires_in", "4000")
+	values.Add("token_type", "bearer")
+	values.Add("scope", "openid")
+	values.Add("jti", "jti_value")
+
 	done <- values
 }

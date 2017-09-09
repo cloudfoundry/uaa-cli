@@ -8,8 +8,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
-	"net/url"
-	"strconv"
 )
 
 func SaveContext(ctx uaa.UaaContext, log *utils.Logger) {
@@ -19,18 +17,15 @@ func SaveContext(ctx uaa.UaaContext, log *utils.Logger) {
 	log.Info("Access token added to active context.")
 }
 
-func addImplicitTokenToContext(clientId string, format string, responseParams url.Values, log *utils.Logger) {
+func addImplicitTokenToContext(clientId string, format string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
 	ctx := uaa.UaaContext{
 		ClientId:    clientId,
 		GrantType:   "implicit",
-		AccessToken: responseParams.Get("access_token"),
+		AccessToken: tokenResponse.AccessToken,
 		TokenType:   uaa.TokenFormat(format),
-		Scope:       responseParams.Get("scope"),
-		JTI:         responseParams.Get("jti"),
-	}
-	expiry, err := strconv.Atoi(responseParams.Get("expires_in"))
-	if err == nil {
-		ctx.ExpiresIn = int32(expiry)
+		Scope:       tokenResponse.Scope,
+		JTI:         tokenResponse.JTI,
+		ExpiresIn:   tokenResponse.ExpiresIn,
 	}
 
 	SaveContext(ctx, log)
@@ -50,8 +45,8 @@ func ImplicitTokenArgumentValidation(args []string, port int, cmd *cobra.Command
 func ImplicitTokenCommandRun(doneRunning chan bool, clientId string, implicitImp cli.ClientImpersonator, log *utils.Logger) {
 	implicitImp.Start()
 	implicitImp.Authorize()
-	responseValues := <-implicitImp.Done()
-	addImplicitTokenToContext(clientId, "jwt", responseValues, log)
+	tokenResponse := <-implicitImp.Done()
+	addImplicitTokenToContext(clientId, "jwt", tokenResponse, log)
 	doneRunning <- true
 }
 

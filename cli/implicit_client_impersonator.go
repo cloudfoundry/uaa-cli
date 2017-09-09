@@ -1,16 +1,18 @@
 package cli
 
 import (
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 )
 
 type ClientImpersonator interface {
 	Start()
 	Authorize()
-	Done() chan url.Values
+	Done() chan uaa.TokenResponse
 }
 
 type ImplicitClientImpersonator struct {
@@ -22,7 +24,7 @@ type ImplicitClientImpersonator struct {
 	Log                utils.Logger
 	AuthCallbackServer CallbackServer
 	BrowserLauncher    func(string) error
-	done               chan url.Values
+	done               chan uaa.TokenResponse
 }
 
 const CallbackCSS = `<style>
@@ -62,7 +64,7 @@ func NewImplicitClientImpersonator(clientId,
 		Port:            port,
 		BrowserLauncher: launcher,
 		Log:             log,
-		done:            make(chan url.Values),
+		done:            make(chan uaa.TokenResponse),
 	}
 
 	callbackServer := NewAuthCallbackServer(implicitCallbackHTML, CallbackCSS, implicitCallbackJS, log, port)
@@ -78,7 +80,22 @@ func NewImplicitClientImpersonator(clientId,
 }
 
 func (ici ImplicitClientImpersonator) Start() {
-	ici.AuthCallbackServer.Start(ici.Done())
+	go func() {
+		urlValues := make(chan url.Values)
+		go ici.AuthCallbackServer.Start(urlValues)
+		values := <-urlValues
+		response := uaa.TokenResponse{
+			AccessToken: values.Get("access_token"),
+			TokenType:   values.Get("token_type"),
+			Scope:       values.Get("scope"),
+			JTI:         values.Get("jti"),
+		}
+		expiry, err := strconv.Atoi(values.Get("expires_in"))
+		if err == nil {
+			response.ExpiresIn = int32(expiry)
+		}
+		ici.Done() <- response
+	}()
 }
 func (ici ImplicitClientImpersonator) Authorize() {
 	requestValues := url.Values{}
@@ -98,6 +115,6 @@ func (ici ImplicitClientImpersonator) Authorize() {
 	ici.Log.Info("Launching browser window to " + authUrl.String())
 	ici.BrowserLauncher(authUrl.String())
 }
-func (ici ImplicitClientImpersonator) Done() chan url.Values {
+func (ici ImplicitClientImpersonator) Done() chan uaa.TokenResponse {
 	return ici.done
 }
