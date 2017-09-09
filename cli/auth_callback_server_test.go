@@ -23,6 +23,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		acs        AuthCallbackServer
 		done       chan string
 		randPort   int
+		logger     utils.Logger
 	)
 
 	BeforeSuite(func() {
@@ -33,13 +34,14 @@ var _ = Describe("AuthCallbackServer", func() {
 		randPort = rand.Intn(50000-8000) + 8000
 
 		httpClient = &http.Client{}
+		logger := utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
 		acs = NewAuthCallbackServer(
 			"<h1>Hello There</h1>",
 			"<style> h1 { background: #F00 } </style>",
 			"<script>console.log('Objective judgement, now, at this very moment.')</script>",
+			logger,
 			randPort)
-		logger := utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
-		acs.Log = logger
+
 		done = make(chan string)
 	})
 

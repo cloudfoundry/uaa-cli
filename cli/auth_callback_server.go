@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 )
 
@@ -20,9 +19,8 @@ type AuthCallbackServer struct {
 	srv        *http.Server
 }
 
-func NewAuthCallbackServer(html, css, js string, port int) AuthCallbackServer {
-	acs := AuthCallbackServer{Html: html, CSS: css, JavaScript: js, Port: port}
-	acs.Log = utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+func NewAuthCallbackServer(html, css, js string, log utils.Logger, port int) AuthCallbackServer {
+	acs := AuthCallbackServer{Html: html, CSS: css, JavaScript: js, Log: log, Port: port}
 	acs.Hangup = func(done chan string, vals url.Values) {}
 	return acs
 }
