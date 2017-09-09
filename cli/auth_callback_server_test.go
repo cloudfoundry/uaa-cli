@@ -34,7 +34,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		randPort = rand.Intn(50000-8000) + 8000
 
 		httpClient = &http.Client{}
-		logger := utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
+		logger = utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
 		acs = NewAuthCallbackServer(
 			"<h1>Hello There</h1>",
 			"<style> h1 { background: #F00 } </style>",
@@ -51,9 +51,9 @@ var _ = Describe("AuthCallbackServer", func() {
 
 	Describe("Start", func() {
 		It("serves static content on the configured port", func() {
-			acs.Hangup = func(donedone chan string, values url.Values) {
+			acs.SetHangupFunc(func(donedone chan string, values url.Values) {
 				donedone <- "Yep, exit immediately after first call"
-			}
+			})
 
 			go acs.Start(done)
 
@@ -71,11 +71,11 @@ var _ = Describe("AuthCallbackServer", func() {
 	})
 
 	It("uses the Hangup func to decide when to close the server", func() {
-		acs.Hangup = func(donedone chan string, values url.Values) {
+		acs.SetHangupFunc(func(donedone chan string, values url.Values) {
 			if values.Get("code") != "" {
 				donedone <- values.Get("code")
 			}
-		}
+		})
 
 		go acs.Start(done)
 
