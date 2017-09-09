@@ -60,7 +60,7 @@ var getImplicitToken = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
 		baseUrl := GetSavedConfig().GetActiveTarget().BaseUrl
-		implicitImp := cli.NewImplicitClientImpersonator(args[0], baseUrl, "jwt", scope, port, log, open.Run)
+		implicitImp := cli.NewImplicitClientImpersonator(args[0], baseUrl, tokenFormat, scope, port, log, open.Run)
 		go ImplicitTokenCommandRun(done, args[0], implicitImp, GetLogger())
 		<-done
 	},
