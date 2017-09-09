@@ -6,8 +6,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/url"
 	"io/ioutil"
+	"net/url"
 )
 
 type TestLauncher struct {

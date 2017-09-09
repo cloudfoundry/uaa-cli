@@ -3,6 +3,7 @@ package cmd_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/cmd"
 
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
@@ -29,18 +30,15 @@ var _ = Describe("GetImplicitToken", func() {
 		c = uaa.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
-		logger := GetLogger()
-		logger.Mute()
-	})
-
-	AfterEach(func() {
-		logger.Unmute()
+		logger = utils.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
 	It("launches a browser for the authorize page and gets the callback params", func() {
 		launcher := TestLauncher{}
 		doneRunning := make(chan bool)
-		go ImplicitTokenCommandRun(doneRunning, launcher.Run, "openid", "shinyclient", 8080)
+
+		imp := cli.NewImplicitClientImpersonator("shinyclient", server.URL(), "jwt", "openid", 8080, logger, launcher.Run)
+		go ImplicitTokenCommandRun(doneRunning, "shinyclient", imp, &logger)
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
@@ -53,24 +51,5 @@ var _ = Describe("GetImplicitToken", func() {
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
 		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal(uaa.TokenFormat("jwt")))
 		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))
-	})
-
-	It("handles multiple scopes", func() {
-		launcher := TestLauncher{}
-		doneRunning := make(chan bool)
-		go ImplicitTokenCommandRun(doneRunning, launcher.Run, "openid,user_attributes", "shinyclient", 8081)
-
-		httpClient := &http.Client{}
-		// UAA sends the user to this redirect_uri after they auth and grant approvals
-		httpClient.Get("http://localhost:8081/?access_token=foo&expires_in=43199&scope=openid%2Cuser_attributes&jti=abcde")
-
-		<-doneRunning
-		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8081&response_type=token&scope=openid%2Cuser_attributes&token_format=jwt"))
-		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("foo"))
-		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
-		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
-		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid,user_attributes"))
-		Expect(GetSavedConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
-		Expect(GetSavedConfig().GetActiveContext().JTI).To(Equal("abcde"))
 	})
 })

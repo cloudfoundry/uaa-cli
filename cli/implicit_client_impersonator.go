@@ -2,12 +2,12 @@ package cli
 
 import (
 	"code.cloudfoundry.org/uaa-cli/utils"
-	"net/url"
 	"fmt"
+	"net/url"
 	"os"
 )
 
-type Impersonator interface {
+type ClientImpersonator interface {
 	Start()
 	Authorize()
 	Done() chan url.Values
