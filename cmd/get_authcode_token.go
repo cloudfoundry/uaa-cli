@@ -10,8 +10,8 @@ import (
 
 func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
 	ctx := uaa.UaaContext{
-		GrantType:   uaa.AUTHCODE,
-		ClientId:    clientId,
+		GrantType:     uaa.AUTHCODE,
+		ClientId:      clientId,
 		TokenResponse: tokenResponse,
 	}
 

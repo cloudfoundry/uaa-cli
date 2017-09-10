@@ -19,8 +19,8 @@ func SaveContext(ctx uaa.UaaContext, log *utils.Logger) {
 
 func addImplicitTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
 	ctx := uaa.UaaContext{
-		GrantType:   uaa.IMPLICIT,
-		ClientId:    clientId,
+		GrantType:     uaa.IMPLICIT,
+		ClientId:      clientId,
 		TokenResponse: tokenResponse,
 	}
 
