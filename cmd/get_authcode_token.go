@@ -27,7 +27,7 @@ func AuthcodeTokenArgumentValidation(args []string, port int, cmd *cobra.Command
 		MissingArgument("client_id", cmd)
 	}
 	if port == 0 {
-		MissingArgument("port", cmd)
+		MissingArgumentWithExplanation("port", cmd, `The port number must correspond to a localhost redirect_uri specified in the client configuration.`)
 	}
 	if clientSecret == "" {
 		MissingArgument("client_secret", cmd)
@@ -46,7 +46,7 @@ func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp
 
 var getAuthcodeToken = &cobra.Command{
 	Use:   "get-authcode-token CLIENT_ID -s CLIENT_SECRET --port REDIRECT_URI_PORT",
-	Short: "Obtain a token as an authcode grant client",
+	Short: "Obtain a token using the authorization_code grant type",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},

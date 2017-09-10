@@ -10,7 +10,7 @@ import (
 
 var getClientCredentialsTokenCmd = &cobra.Command{
 	Use:   "get-client-credentials-token CLIENT_ID -s CLIENT_SECRET",
-	Short: "Obtain a token as a client_credentials grant client",
+	Short: "Obtain a token using the client_credentials grant type",
 	Long:  help.ClientCredentials(),
 	Run: func(cmd *cobra.Command, args []string) {
 		ccClient := uaa.ClientCredentialsClient{ClientId: args[0], ClientSecret: clientSecret}

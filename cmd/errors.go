@@ -5,10 +5,14 @@ import (
 	"os"
 )
 
-func MissingArgument(argName string, cmd *cobra.Command) {
-	log.Errorf("Missing argument `%v` must be specified.", argName)
+func MissingArgumentWithExplanation(argName string, cmd *cobra.Command, explanation string) {
+	log.Errorf("Missing argument `%v` must be specified. %v", argName, explanation)
 	cmd.Usage()
 	os.Exit(1)
+}
+
+func MissingArgument(argName string, cmd *cobra.Command) {
+	MissingArgumentWithExplanation(argName, cmd, "")
 }
 
 func MissingArgumentForGrantType(argName, grantType string, cmd *cobra.Command) {

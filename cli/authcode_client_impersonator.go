@@ -73,9 +73,11 @@ func (aci AuthcodeClientImpersonator) Start() {
 		values := <-urlValues
 		code := values.Get("code")
 		tokenRequester := uaa.AuthorizationCodeClient{ClientId: aci.ClientId, ClientSecret: aci.ClientSecret}
+		aci.Log.Infof("Calling UAA /oauth/token to exchange code %v for an access token", code)
 		resp, err := tokenRequester.RequestToken(aci.httpClient, aci.config, uaa.TokenFormat(aci.TokenFormat), code, aci.redirectUri())
 		if err != nil {
 			aci.Log.Error(err.Error())
+			aci.Log.Info("Retry with --trace for more information.")
 			os.Exit(1)
 		}
 		aci.Done() <- resp
@@ -94,7 +96,7 @@ func (aci AuthcodeClientImpersonator) Authorize() {
 	}
 	authUrl.RawQuery = requestValues.Encode()
 
-	aci.Log.Info("Launching browser window to " + authUrl.String())
+	aci.Log.Info("Launching browser window to " + authUrl.String() + " where the user should login and grant approvals")
 	aci.BrowserLauncher(authUrl.String())
 }
 func (aci AuthcodeClientImpersonator) Done() chan uaa.TokenResponse {
