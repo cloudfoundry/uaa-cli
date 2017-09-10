@@ -18,10 +18,7 @@ var _ = Describe("Config", func() {
 
 	BeforeEach(func() {
 		cfg = uaa.Config{}
-		ctx := uaa.UaaContext{
-			AccessToken: "foo",
-		}
-		cfg.AddContext(ctx)
+		cfg.AddContext(uaa.NewContextWithToken("foo"))
 	})
 
 	It("set appropriate permissions for persisted files", func() {

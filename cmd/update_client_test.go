@@ -26,13 +26,12 @@ var _ = Describe("UpdateClient", func() {
 	  "name" : "Notifier Client"
 	}`
 
-	var c uaa.Config
 	var ctx uaa.UaaContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c = uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.UaaContext{AccessToken: "access_token"})
+			c := uaa.NewConfigWithServerURL(server.URL())
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 			ctx = c.GetActiveContext()
 		})
@@ -77,8 +76,7 @@ var _ = Describe("UpdateClient", func() {
 		Describe("using the --zone flag", func() {
 			BeforeEach(func() {
 				c := uaa.NewConfigWithServerURL(server.URL())
-				ctx := uaa.UaaContext{AccessToken: "access_token"}
-				c.AddContext(ctx)
+				c.AddContext(uaa.NewContextWithToken("access_token"))
 				config.WriteConfig(c)
 			})
 
@@ -97,6 +95,8 @@ var _ = Describe("UpdateClient", func() {
 
 		Describe("when successful", func() {
 			BeforeEach(func() {
+				c := uaa.NewConfigWithServerURL(server.URL())
+				c.AddContext(uaa.NewContextWithToken("access_token"))
 				config.WriteConfig(c)
 			})
 
@@ -157,7 +157,7 @@ var _ = Describe("UpdateClient", func() {
 	Describe("when the client update fails", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfig()
-			c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
+			c.AddContext(uaa.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),

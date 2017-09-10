@@ -46,7 +46,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 		))
 
-		config.AddContext(UaaContext{AccessToken: "access_token"})
+		config.AddContext(NewContextWithToken("access_token"))
 		userinfo, _ := Me(client, config)
 
 		Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -66,7 +66,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		config.AddContext(UaaContext{AccessToken: "access_token"})
+		config.AddContext(NewContextWithToken("access_token"))
 		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())
@@ -80,7 +80,7 @@ var _ = Describe("Me", func() {
 			ghttp.VerifyRequest("GET", "/userinfo"),
 		))
 
-		config.AddContext(UaaContext{AccessToken: "access_token"})
+		config.AddContext(NewContextWithToken("access_token"))
 		_, err := Me(client, config)
 
 		Expect(err).NotTo(BeNil())

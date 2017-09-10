@@ -15,7 +15,7 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		ccClient := uaa.ClientCredentialsClient{ClientId: args[0], ClientSecret: clientSecret}
 		c := GetSavedConfig()
-		token, err := ccClient.RequestToken(GetHttpClient(), c, uaa.TokenFormat(tokenFormat))
+		tokenResponse, err := ccClient.RequestToken(GetHttpClient(), c, uaa.TokenFormat(tokenFormat))
 		if err != nil {
 			log.Error("An error occurred while fetching token.")
 			TraceRetryMsg(c)
@@ -23,13 +23,10 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 		}
 
 		activeContext := c.GetActiveContext()
-		activeContext.AccessToken = token.AccessToken
-		activeContext.ClientId = args[0]
 		activeContext.GrantType = uaa.CLIENT_CREDENTIALS
-		activeContext.TokenType = uaa.TokenFormat(tokenFormat)
-		activeContext.JTI = token.JTI
-		activeContext.ExpiresIn = token.ExpiresIn
-		activeContext.Scope = token.Scope
+		activeContext.ClientId = args[0]
+		activeContext.TokenResponse = tokenResponse
+
 		c.AddContext(activeContext)
 		config.WriteConfig(c)
 		log.Info("Access token successfully fetched and added to context.")

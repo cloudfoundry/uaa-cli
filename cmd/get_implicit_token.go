@@ -17,15 +17,11 @@ func SaveContext(ctx uaa.UaaContext, log *utils.Logger) {
 	log.Info("Access token added to active context.")
 }
 
-func addImplicitTokenToContext(clientId string, format string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
+func addImplicitTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
 	ctx := uaa.UaaContext{
+		GrantType:   uaa.IMPLICIT,
 		ClientId:    clientId,
-		GrantType:   "implicit",
-		AccessToken: tokenResponse.AccessToken,
-		TokenType:   uaa.TokenFormat(format),
-		Scope:       tokenResponse.Scope,
-		JTI:         tokenResponse.JTI,
-		ExpiresIn:   tokenResponse.ExpiresIn,
+		TokenResponse: tokenResponse,
 	}
 
 	SaveContext(ctx, log)
@@ -46,7 +42,7 @@ func ImplicitTokenCommandRun(doneRunning chan bool, clientId string, implicitImp
 	implicitImp.Start()
 	implicitImp.Authorize()
 	tokenResponse := <-implicitImp.Done()
-	addImplicitTokenToContext(clientId, "jwt", tokenResponse, log)
+	addImplicitTokenToContext(clientId, tokenResponse, log)
 	doneRunning <- true
 }
 

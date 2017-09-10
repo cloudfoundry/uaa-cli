@@ -49,8 +49,18 @@ var _ = Describe("Context", func() {
 		})
 
 		It("displays the context", func() {
-			activeContextJson := `{ "ClientId": "admin", "GrantType": "", "Username": "woodstock", "AccessToken": "",
-				   "TokenType": "", "ExpiresIn": 0, "Scope": "", "JTI": "" }`
+			activeContextJson := `{
+			  "client_id": "admin",
+			  "grant_type": "",
+			  "username": "woodstock",
+			  "access_token": "",
+			  "refresh_token": "",
+			  "id_token": "",
+			  "token_type": "",
+			  "expires_in": 0,
+			  "scope": "",
+			  "jti": ""
+			}`
 			session := runCommand("context")
 
 			Expect(session.Out.Contents()).To(MatchJSON(activeContextJson))

@@ -19,15 +19,10 @@ type Target struct {
 }
 
 type UaaContext struct {
-	ClientId  string
-	GrantType GrantType
-	Username  string
-
-	AccessToken string
-	TokenType   TokenFormat
-	ExpiresIn   int32
-	Scope       string
-	JTI         string
+	ClientId  string    `json:"client_id"`
+	GrantType GrantType `json:"grant_type"`
+	Username  string    `json:"username"`
+	TokenResponse
 }
 
 func NewConfigWithServerURL(url string) Config {
@@ -36,6 +31,12 @@ func NewConfigWithServerURL(url string) Config {
 	t.BaseUrl = url
 	c.AddTarget(t)
 	return c
+}
+
+func NewContextWithToken(accessToken string) UaaContext {
+	ctx := UaaContext{}
+	ctx.AccessToken = accessToken
+	return ctx
 }
 
 func NewConfig() Config {

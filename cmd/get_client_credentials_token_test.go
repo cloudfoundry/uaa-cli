@@ -88,7 +88,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
 				Expect(config.ReadConfig().GetActiveContext().ClientId).To(Equal("admin"))
 				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(CLIENT_CREDENTIALS))
-				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal(JWT))
+				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal("bearer"))
 				Expect(config.ReadConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
 				Expect(config.ReadConfig().GetActiveContext().Scope).To(Equal("clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write"))
 				Expect(config.ReadConfig().GetActiveContext().JTI).To(Equal("bc4885d950854fed9a938e96b13ca519"))
@@ -142,8 +142,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 
 	Describe("when the token request fails", func() {
 		BeforeEach(func() {
-			c := NewConfig()
-			c.AddContext(UaaContext{AccessToken: "old-token"})
+			c := NewConfigWithServerURL(server.URL())
+			c.AddContext(NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),

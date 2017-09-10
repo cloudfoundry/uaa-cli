@@ -31,7 +31,7 @@ var _ = Describe("CreateClient", func() {
 
 	BeforeEach(func() {
 		c = uaa.NewConfigWithServerURL(server.URL())
-		c.AddContext(uaa.UaaContext{AccessToken: "access_token"})
+		c.AddContext(uaa.NewContextWithToken("access_token"))
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
 	})
@@ -315,8 +315,8 @@ var _ = Describe("CreateClient", func() {
 
 	Describe("when the client creation fails", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfig()
-			c.AddContext(uaa.UaaContext{AccessToken: "old-token"})
+			c = uaa.NewConfigWithServerURL(server.URL())
+			c.AddContext(uaa.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),

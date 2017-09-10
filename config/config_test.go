@@ -18,7 +18,10 @@ var _ = Describe("Config", func() {
 		target.BaseUrl = "http://nowhere.com"
 		target.SkipSSLValidation = true
 
-		ctx := uaa.UaaContext{AccessToken: "foo-token", ClientId:"cid", Username: "woodstock", GrantType:"client_credentials"}
+		ctx := uaa.NewContextWithToken("foo-token")
+		ctx.ClientId = "cid"
+		ctx.Username = "woodstock"
+		ctx.GrantType = "client_credentials"
 
 		cfg.AddTarget(target)
 		cfg.AddContext(ctx)
@@ -34,16 +37,19 @@ var _ = Describe("Config", func() {
 
 	It("can accept a context without previously setting target", func() {
 		cfg = uaa.NewConfig()
-		ctx := uaa.UaaContext{AccessToken: "foo-token", ClientId:"cid", Username: "woodstock", GrantType:"client_credentials"}
+		ctx := uaa.NewContextWithToken("foo-token")
+		ctx.ClientId = "cid"
+		ctx.Username = "woodstock"
+		ctx.GrantType = "client_credentials"
 		cfg.AddContext(ctx)
 
 		config.WriteConfig(cfg)
 
-		Expect(cfg.GetActiveContext().AccessToken).To(Equal("foo-token"))
+		Expect(cfg.GetActiveContext().TokenResponse.AccessToken).To(Equal("foo-token"))
 
 		cfg2 := config.ReadConfig()
 		Expect(cfg2.ActiveTargetName).To(Equal("url:"))
-		Expect(cfg2.GetActiveContext().AccessToken).To(Equal("foo-token"))
+		Expect(cfg2.GetActiveContext().TokenResponse.AccessToken).To(Equal("foo-token"))
 	})
 
 	It("places the config file in .uaa in the home directory", func() {

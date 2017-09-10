@@ -60,7 +60,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			config.AddContext(UaaContext{AccessToken: "access_token"})
+			config.AddContext(NewContextWithToken("access_token"))
 			keys, _ := TokenKeys(client, config)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -81,7 +81,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			config.AddContext(UaaContext{AccessToken: "access_token"})
+			config.AddContext(NewContextWithToken("access_token"))
 			_, err := TokenKeys(client, config)
 
 			Expect(err).NotTo(BeNil())
@@ -112,7 +112,7 @@ var _ = Describe("TokenKeys", func() {
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 			))
 
-			config.AddContext(UaaContext{AccessToken: "access_token"})
+			config.AddContext(NewContextWithToken("access_token"))
 			keys, _ := TokenKeys(client, config)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(2))

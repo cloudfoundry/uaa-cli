@@ -8,15 +8,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func addAuthcodeTokenToContext(clientId string, format string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
+func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
 	ctx := uaa.UaaContext{
+		GrantType:   uaa.AUTHCODE,
 		ClientId:    clientId,
-		GrantType:   "authorization_code", // only difference?
-		AccessToken: tokenResponse.AccessToken,
-		TokenType:   uaa.TokenFormat(format),
-		Scope:       tokenResponse.Scope,
-		JTI:         tokenResponse.JTI,
-		ExpiresIn:   tokenResponse.ExpiresIn,
+		TokenResponse: tokenResponse,
 	}
 
 	SaveContext(ctx, log)
@@ -40,7 +36,7 @@ func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp
 	authcodeImp.Start()
 	authcodeImp.Authorize()
 	tokenResponse := <-authcodeImp.Done()
-	addAuthcodeTokenToContext(clientId, "jwt", tokenResponse, log)
+	addAuthcodeTokenToContext(clientId, tokenResponse, log)
 	doneRunning <- true
 }
 

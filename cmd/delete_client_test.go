@@ -30,8 +30,7 @@ var _ = Describe("DeleteClient", func() {
 	Describe("--trace flag support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
@@ -66,8 +65,7 @@ var _ = Describe("DeleteClient", func() {
 	Describe("using the --zone flag", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
@@ -87,8 +85,7 @@ var _ = Describe("DeleteClient", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
@@ -121,6 +118,7 @@ var _ = Describe("DeleteClient", func() {
 	Describe("when no client_id is supplied", func() {
 		It("displays and error message to the user", func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 			session := runCommand("delete-client")
 

@@ -292,7 +292,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -305,7 +305,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				config.ZoneSubdomain = "twilight-zone"
 				AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
@@ -319,7 +319,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				_, err := AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -328,7 +328,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.AddContext(UaaContext{AccessToken: ""})
+				config.AddContext(NewContextWithToken(""))
 				_, err := AuthenticatedRequester{}.Get(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
@@ -346,7 +346,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -359,7 +359,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				config.ZoneSubdomain = "twilight-zone"
 				AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
@@ -373,7 +373,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				_, err := AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -382,7 +382,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.AddContext(UaaContext{AccessToken: ""})
+				config.AddContext(NewContextWithToken(""))
 				_, err := AuthenticatedRequester{}.Delete(client, config, "/testPath", "someQueryParam=true")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
@@ -411,7 +411,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				body := map[string]string{"hello": "world"}
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 
 				returnedBytes, _ := AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", body)
 				parsedResponse := string(returnedBytes)
@@ -426,7 +426,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				config.ZoneSubdomain = "twilight-zone"
 
 				AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
@@ -439,7 +439,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyRequest("POST", "/oauth/token", ""),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				_, err := AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
@@ -448,7 +448,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.AddContext(UaaContext{AccessToken: ""})
+				config.AddContext(NewContextWithToken(""))
 				_, err := AuthenticatedRequester{}.PostForm(client, config, "/oauth/token", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
@@ -471,7 +471,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 
 				returnedBytes, _ := AuthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
 				parsedResponse := string(returnedBytes)
@@ -486,7 +486,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyRequest("POST", "/foo", ""),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				_, err := AuthenticatedRequester{}.PostJson(client, config, "/foo", "", bodyObj)
 
@@ -496,7 +496,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.AddContext(UaaContext{AccessToken: ""})
+				config.AddContext(NewContextWithToken(""))
 				_, err := AuthenticatedRequester{}.PostJson(client, config, "/foo", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))
@@ -519,7 +519,7 @@ var _ = Describe("HttpGetter", func() {
 				))
 
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 
 				returnedBytes, _ := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
 				parsedResponse := string(returnedBytes)
@@ -534,7 +534,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyRequest("PUT", "/foo", ""),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				bodyObj := TestData{Field1: "hello", Field2: "world"}
 				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", bodyObj)
 
@@ -550,7 +550,7 @@ var _ = Describe("HttpGetter", func() {
 					ghttp.VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
 				))
 
-				config.AddContext(UaaContext{AccessToken: "access_token"})
+				config.AddContext(NewContextWithToken("access_token"))
 				config.ZoneSubdomain = "twilight-zone"
 				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", TestData{Field1: "hello", Field2: "world"})
 				Expect(err).To(BeNil())
@@ -558,7 +558,7 @@ var _ = Describe("HttpGetter", func() {
 			})
 
 			It("returns a helpful error when no token in context", func() {
-				config.AddContext(UaaContext{AccessToken: ""})
+				config.AddContext(NewContextWithToken(""))
 				_, err := AuthenticatedRequester{}.PutJson(client, config, "/foo", "", map[string]string{})
 
 				Expect(server.ReceivedRequests()).To(HaveLen(0))

@@ -27,8 +27,7 @@ var _ = Describe("Userinfo", func() {
 
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 

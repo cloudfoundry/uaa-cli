@@ -29,8 +29,7 @@ var _ = Describe("GetClient", func() {
 	Describe("--trace flag support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
@@ -65,8 +64,7 @@ var _ = Describe("GetClient", func() {
 	Describe("zone switching support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
@@ -88,8 +86,7 @@ var _ = Describe("GetClient", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.UaaContext{AccessToken: "access_token"}
-			c.AddContext(ctx)
+			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 

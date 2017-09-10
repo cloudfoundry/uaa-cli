@@ -26,7 +26,7 @@ var getPasswordToken = &cobra.Command{
 			Password:     password,
 		}
 		c := GetSavedConfig()
-		token, err := ccClient.RequestToken(GetHttpClient(), c, requestedType)
+		tokenResponse, err := ccClient.RequestToken(GetHttpClient(), c, requestedType)
 		if err != nil {
 			log.Error("An error occurred while fetching token.")
 			TraceRetryMsg(c)
@@ -34,14 +34,10 @@ var getPasswordToken = &cobra.Command{
 		}
 
 		activeContext := c.GetActiveContext()
-		activeContext.AccessToken = token.AccessToken
 		activeContext.ClientId = clientId
-		activeContext.Username = username
 		activeContext.GrantType = uaa.PASSWORD
-		activeContext.TokenType = requestedType
-		activeContext.JTI = token.JTI
-		activeContext.ExpiresIn = token.ExpiresIn
-		activeContext.Scope = token.Scope
+		activeContext.Username = username
+		activeContext.TokenResponse = tokenResponse
 		c.AddContext(activeContext)
 		config.WriteConfig(c)
 		log.Info("Access token successfully fetched and added to context.")

@@ -19,7 +19,7 @@ var _ = Describe("Clients", func() {
 		server = ghttp.NewServer()
 		httpClient = &http.Client{}
 		config = uaa.NewConfigWithServerURL(server.URL())
-		ctx := uaa.UaaContext{AccessToken: "access_token"}
+		ctx := uaa.NewContextWithToken("access_token")
 		config.AddContext(ctx)
 	})
 

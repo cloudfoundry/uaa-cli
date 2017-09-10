@@ -6,6 +6,7 @@ import (
 
 	"testing"
 	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 )
 
 func TestClient(t *testing.T) {
@@ -20,3 +21,9 @@ var _ = BeforeEach(func() {
 var _ = AfterEach(func() {
 	config.RemoveConfig()
 })
+
+func NewContextWithToken(accessToken string) uaa.UaaContext {
+	ctx := uaa.UaaContext{}
+	ctx.AccessToken = accessToken
+	return ctx
+}

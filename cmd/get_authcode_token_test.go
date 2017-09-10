@@ -63,7 +63,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("authorization_code")))
-		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal(uaa.TokenFormat("jwt")))
+		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal("bearer"))
 		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))
 	})
 })
