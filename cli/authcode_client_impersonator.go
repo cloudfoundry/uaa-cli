@@ -35,7 +35,6 @@ func NewAuthcodeClientImpersonator(
 	config uaa.Config,
 	clientId,
 	clientSecret,
-	uaaBaseUrl,
 	tokenFormat,
 	scope string,
 	port int,
@@ -47,7 +46,6 @@ func NewAuthcodeClientImpersonator(
 		config:          config,
 		ClientId:        clientId,
 		ClientSecret:    clientSecret,
-		UaaBaseUrl:      uaaBaseUrl,
 		TokenFormat:     tokenFormat,
 		Scope:           scope,
 		Port:            port,
@@ -77,7 +75,6 @@ func (aci AuthcodeClientImpersonator) Start() {
 		tokenRequester := uaa.AuthorizationCodeClient{ClientId: aci.ClientId, ClientSecret: aci.ClientSecret}
 		resp, err := tokenRequester.RequestToken(aci.httpClient, aci.config, uaa.TokenFormat(aci.TokenFormat), code, aci.redirectUri())
 		if err != nil {
-			fmt.Println(err.Error())
 			aci.Log.Error(err.Error())
 			os.Exit(1)
 		}
@@ -90,7 +87,7 @@ func (aci AuthcodeClientImpersonator) Authorize() {
 	requestValues.Add("client_id", aci.ClientId)
 	requestValues.Add("redirect_uri", aci.redirectUri())
 
-	authUrl, err := utils.BuildUrl(aci.UaaBaseUrl, "/oauth/authorize")
+	authUrl, err := utils.BuildUrl(aci.config.GetActiveTarget().BaseUrl, "/oauth/authorize")
 	if err != nil {
 		aci.Log.Error("Something went wrong while building the authorization URL.")
 		os.Exit(1)

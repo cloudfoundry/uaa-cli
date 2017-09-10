@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -19,18 +18,22 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 		logger       utils.Logger
 		httpClient   *http.Client
 		config       uaa.Config
+		launcher     TestLauncher
+		uaaServer    *Server
 	)
 
 	BeforeEach(func() {
 		httpClient = &http.Client{}
-		config = uaa.NewConfig()
-		logger = utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
+		launcher = TestLauncher{}
+		uaaServer = NewServer()
+		config = uaa.NewConfigWithServerURL(uaaServer.URL())
+		logger = utils.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
 	Describe("NewAuthcodeClientImpersonator", func() {
 		BeforeEach(func() {
 			launcher := TestLauncher{}
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeClientId", "authcodesecret", "http://uaa.com", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeClientId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 		})
 
 		Describe("configures an AuthCallbackListener", func() {
@@ -62,10 +65,6 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 
 	Describe("#Start", func() {
 		It("starts the AuthCallbackServer", func() {
-			httpClient := &http.Client{}
-			launcher := TestLauncher{}
-			uaaServer := NewServer()
-			config = uaa.NewConfigWithServerURL(uaaServer.URL())
 			uaaServer.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 				VerifyRequest("POST", "/oauth/token"),
 				RespondWith(http.StatusOK, `{
@@ -83,7 +82,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 				VerifyFormKV("code", "secretcode"),
 				VerifyFormKV("redirect_uri", "http://localhost:8080")),
 			)
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", uaaServer.URL(), "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 
 			// Start the callback server
 			go impersonator.Start()
@@ -103,12 +102,11 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 
 	Describe("#Authorize", func() {
 		It("launches a browser to the authorize page", func() {
-			launcher := TestLauncher{}
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", "http://uaa.com", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 
 			impersonator.Authorize()
 
-			Expect(launcher.TargetUrl).To(Equal("http://uaa.com/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
+			Expect(launcher.TargetUrl).To(Equal(uaaServer.URL() + "/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
 		})
 	})
 })
