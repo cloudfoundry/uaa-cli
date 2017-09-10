@@ -108,7 +108,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 
 			impersonator.Authorize()
 
-			Expect(launcher.TargetUrl).To(Equal("http://uaa.com/oauth/authorize?client_id=authcodeId&client_secret=authcodesecret&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code&scope=openid"))
+			Expect(launcher.TargetUrl).To(Equal("http://uaa.com/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
 		})
 	})
 })

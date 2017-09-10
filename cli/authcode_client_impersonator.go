@@ -88,8 +88,6 @@ func (aci AuthcodeClientImpersonator) Authorize() {
 	requestValues := url.Values{}
 	requestValues.Add("response_type", "code")
 	requestValues.Add("client_id", aci.ClientId)
-	requestValues.Add("client_secret", aci.ClientSecret)
-	requestValues.Add("scope", aci.Scope)
 	requestValues.Add("redirect_uri", aci.redirectUri())
 
 	authUrl, err := utils.BuildUrl(aci.UaaBaseUrl, "/oauth/authorize")
