@@ -3,14 +3,15 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"errors"
 	"github.com/spf13/cobra"
 	"os"
+	"code.cloudfoundry.org/uaa-cli/help"
 )
 
 var refreshTokenCmd = &cobra.Command{
 	Use:   "refresh-token -s CLIENT_SECRET",
 	Short: "Obtain an access token using the refresh_token grant type",
+	Long: help.RefreshToken(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 		ctx := c.GetActiveContext()
@@ -18,6 +19,7 @@ var refreshTokenCmd = &cobra.Command{
 			ClientId:     ctx.ClientId,
 			ClientSecret: clientSecret,
 		}
+		log.Info("Using the refresh_token and client_id from the active context to request new access token.")
 		tokenResponse, err := refreshClient.RequestToken(GetHttpClient(), c, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
 		if err != nil {
 			log.Error(err.Error())
@@ -36,12 +38,15 @@ var refreshTokenCmd = &cobra.Command{
 		if clientSecret == "" {
 			MissingArgument("client_secret", cmd)
 		}
-
 		if GetSavedConfig().GetActiveContext().ClientId == "" {
-			return errors.New("A client_id was not found in the active context.")
+			log.Error("A client_id was not found in the active context.")
+			cmd.Help()
+			os.Exit(1)
 		}
 		if GetSavedConfig().GetActiveContext().RefreshToken == "" {
-			return errors.New("A refresh_token was not found in the active context.")
+			log.Error("A refresh_token was not found in the active context.")
+			cmd.Help()
+			os.Exit(1)
 		}
 
 		validateTokenFormat(cmd, tokenFormat)

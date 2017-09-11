@@ -10,7 +10,7 @@ import (
 
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD",
-	Short: "Obtain a token using the password grant type",
+	Short: "Obtain an access token using the password grant type",
 	Long:  help.PasswordGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()

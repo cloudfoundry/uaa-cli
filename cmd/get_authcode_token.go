@@ -42,7 +42,7 @@ func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp
 
 var getAuthcodeToken = &cobra.Command{
 	Use:   "get-authcode-token CLIENT_ID -s CLIENT_SECRET --port REDIRECT_URI_PORT",
-	Short: "Obtain a token using the authorization_code grant type",
+	Short: "Obtain an access token using the authorization_code grant type",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},

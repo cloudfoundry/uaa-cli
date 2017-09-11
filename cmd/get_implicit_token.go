@@ -48,7 +48,7 @@ func ImplicitTokenCommandRun(doneRunning chan bool, clientId string, implicitImp
 
 var getImplicitToken = &cobra.Command{
 	Use:   "get-implicit-token CLIENT_ID --port REDIRECT_URI_PORT",
-	Short: "Obtain a token using the implicit grant type",
+	Short: "Obtain an access token using the implicit grant type",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		EnsureTarget()
 	},
