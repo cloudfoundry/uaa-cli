@@ -119,7 +119,7 @@ func (cm *ClientManager) Get(clientId string) (UaaClient, error) {
 	uaaClient := UaaClient{}
 	err = json.Unmarshal(bytes, &uaaClient)
 	if err != nil {
-		return UaaClient{}, parseError("", bytes)
+		return UaaClient{}, parseError(url, bytes)
 	}
 
 	return uaaClient, err
@@ -135,7 +135,7 @@ func (cm *ClientManager) Delete(clientId string) (UaaClient, error) {
 	uaaClient := UaaClient{}
 	err = json.Unmarshal(bytes, &uaaClient)
 	if err != nil {
-		return UaaClient{}, parseError("", bytes)
+		return UaaClient{}, parseError(url, bytes)
 	}
 
 	return uaaClient, err
@@ -151,7 +151,7 @@ func (cm *ClientManager) Create(toCreate UaaClient) (UaaClient, error) {
 	uaaClient := UaaClient{}
 	err = json.Unmarshal(bytes, &uaaClient)
 	if err != nil {
-		return UaaClient{}, parseError("", bytes)
+		return UaaClient{}, parseError(url, bytes)
 	}
 
 	return uaaClient, err
@@ -167,7 +167,7 @@ func (cm *ClientManager) Update(toUpdate UaaClient) (UaaClient, error) {
 	uaaClient := UaaClient{}
 	err = json.Unmarshal(bytes, &uaaClient)
 	if err != nil {
-		return UaaClient{}, parseError("", bytes)
+		return UaaClient{}, parseError(url, bytes)
 	}
 
 	return uaaClient, err
