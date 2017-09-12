@@ -5,58 +5,65 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
+	"net/http"
+	"errors"
 )
+
+func GetPasswordTokenValidations(cfg uaa.Config, args []string, clientSecret, username, password string) error {
+	if err := EnsureTargetInConfig(cfg); err != nil {
+		return err
+	}
+	if len(args) < 1 {
+		return MissingArgumentError("client_id")
+	}
+	if clientSecret == "" {
+		return MissingArgumentError("client_secret")
+	}
+	if password == "" {
+		return MissingArgumentError("password")
+	}
+	if username == "" {
+		return MissingArgumentError("username")
+	}
+	return validateTokenFormatError(tokenFormat)
+}
+
+func GetPasswordTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clientSecret, username, password, tokenFormat string) error {
+	requestedType := uaa.TokenFormat(tokenFormat)
+
+	ccClient := uaa.ResourceOwnerPasswordClient{
+		ClientId:     clientId,
+		ClientSecret: clientSecret,
+		Username:     username,
+		Password:     password,
+	}
+	tokenResponse, err := ccClient.RequestToken(httpClient, cfg, requestedType)
+	if err != nil {
+		return errors.New("An error occurred while fetching token.")
+	}
+
+	activeContext := cfg.GetActiveContext()
+	activeContext.ClientId = clientId
+	activeContext.GrantType = uaa.PASSWORD
+	activeContext.Username = username
+	activeContext.TokenResponse = tokenResponse
+	cfg.AddContext(activeContext)
+	config.WriteConfig(cfg)
+	log.Info("Access token successfully fetched and added to context.")
+	return nil
+}
 
 var getPasswordToken = &cobra.Command{
 	Use:   "get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD",
 	Short: "Obtain an access token using the password grant type",
 	Long:  help.PasswordGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(GetPasswordTokenValidations(cfg, args, clientSecret, username, password), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		clientId := args[0]
-		requestedType := uaa.TokenFormat(tokenFormat)
-
-		ccClient := uaa.ResourceOwnerPasswordClient{
-			ClientId:     clientId,
-			ClientSecret: clientSecret,
-			Username:     username,
-			Password:     password,
-		}
-		c := GetSavedConfig()
-		tokenResponse, err := ccClient.RequestToken(GetHttpClient(), c, requestedType)
-		if err != nil {
-			log.Error("An error occurred while fetching token.")
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
-
-		activeContext := c.GetActiveContext()
-		activeContext.ClientId = clientId
-		activeContext.GrantType = uaa.PASSWORD
-		activeContext.Username = username
-		activeContext.TokenResponse = tokenResponse
-		c.AddContext(activeContext)
-		config.WriteConfig(c)
-		log.Info("Access token successfully fetched and added to context.")
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			MissingArgument("client_id", cmd)
-		}
-		if clientSecret == "" {
-			MissingArgument("client_secret", cmd)
-		}
-		if password == "" {
-			MissingArgument("password", cmd)
-		}
-		if username == "" {
-			MissingArgument("username", cmd)
-		}
-		validateTokenFormat(cmd, tokenFormat)
-		return nil
+		cfg := GetSavedConfig()
+		NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, GetHttpClient(), args[0], clientSecret, username, password, tokenFormat), cfg, log)
 	},
 }
 
