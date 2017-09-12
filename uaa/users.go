@@ -1,8 +1,8 @@
 package uaa
 
 import (
-	"net/http"
 	"encoding/json"
+	"net/http"
 )
 
 type ScimMetaInfo struct {
@@ -60,12 +60,16 @@ type ScimUser struct {
 	Schemas              []string        `json:"schemas"`
 }
 
+type Crud interface {
+	Get(string) (ScimUser, error)
+}
+
 type UserManager struct {
 	HttpClient *http.Client
 	Config     Config
 }
 
-func (um *UserManager) Get(userId string) (ScimUser, error) {
+func (um UserManager) Get(userId string) (ScimUser, error) {
 	url := "/Users/" + userId
 	bytes, err := AuthenticatedRequester{}.Get(um.HttpClient, um.Config, url, "")
 	if err != nil {
@@ -81,4 +85,16 @@ func (um *UserManager) Get(userId string) (ScimUser, error) {
 	return user, err
 }
 
+type TestUserCrud struct {
+	CallData map[string]string
+}
 
+func (tc TestUserCrud) Get(id string) (ScimUser, error) {
+	tc.CallData["GetId"] = id
+	return ScimUser{Id: id}, nil
+}
+func NewTestUserCrud() TestUserCrud {
+	tc := TestUserCrud{}
+	tc.CallData = make(map[string]string)
+	return tc
+}

@@ -2,16 +2,16 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
+	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
 	"os"
-	"code.cloudfoundry.org/uaa-cli/help"
 )
 
 var refreshTokenCmd = &cobra.Command{
 	Use:   "refresh-token -s CLIENT_SECRET",
 	Short: "Obtain an access token using the refresh_token grant type",
-	Long: help.RefreshToken(),
+	Long:  help.RefreshToken(),
 	Run: func(cmd *cobra.Command, args []string) {
 		c := GetSavedConfig()
 		ctx := c.GetActiveContext()

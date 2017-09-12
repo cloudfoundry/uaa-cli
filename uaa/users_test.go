@@ -11,7 +11,7 @@ import (
 
 var _ = Describe("Users", func() {
 	var (
-		um UserManager
+		um        UserManager
 		uaaServer *ghttp.Server
 	)
 

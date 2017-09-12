@@ -47,6 +47,7 @@ const (
 	INTRO_CATEGORY       = "Getting Started"
 	TOKEN_CATEGORY       = "Getting Tokens"
 	CLIENT_CRUD_CATEGORY = "Managing Clients"
+	USER_CRUD_CATEGORY   = "Managing Users"
 	MISC_CATEGORY        = "Miscellaneous"
 )
 
@@ -72,6 +73,7 @@ func init() {
 	RootCmd.Annotations[INTRO_CATEGORY] = "true"
 	RootCmd.Annotations[TOKEN_CATEGORY] = "true"
 	RootCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
+	RootCmd.Annotations[USER_CRUD_CATEGORY] = "true"
 	RootCmd.Annotations[MISC_CATEGORY] = "true"
 	RootCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
