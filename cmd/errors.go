@@ -6,10 +6,19 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"errors"
 	"code.cloudfoundry.org/uaa-cli/utils"
+	"fmt"
 )
 
 const MISSING_TARGET = "You must set a target in order to use this command."
 const MISSING_CONTEXT = "You must have a token in your context to perform this command."
+
+func MissingArgumentError(argName string) error {
+	return MissingArgumentWithExplanationError(argName, "")
+}
+
+func MissingArgumentWithExplanationError(argName string, explanation string) error {
+	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified. %v", argName, explanation))
+}
 
 func MissingArgumentWithExplanation(argName string, cmd *cobra.Command, explanation string) {
 	log.Errorf("Missing argument `%v` must be specified. %v", argName, explanation)

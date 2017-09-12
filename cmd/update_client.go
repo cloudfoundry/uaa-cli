@@ -3,53 +3,53 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"errors"
 )
+
+func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	if len(args) < 1 {
+		return MissingArgumentError("client_id")
+	}
+	if clientSecret != "" {
+		return errors.New(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
+	}
+	return nil
+}
+
+func UpdateClientCmd(cm *uaa.ClientManager, clientId string) error {
+	toUpdate := uaa.UaaClient{
+		ClientId:             clientId,
+		DisplayName:          displayName,
+		AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
+		Authorities:          arrayify(authorities),
+		RedirectUri:          arrayify(redirectUri),
+		Scope:                arrayify(scope),
+	}
+
+	updated, err := cm.Update(toUpdate)
+	if err != nil {
+		return errors.New("An error occurred while updating the client.")
+	}
+
+	log.Infof("The client %v has been successfully updated.", clientId)
+	return cli.NewJsonPrinter(log).Print(updated)
+
+}
 
 var updateClientCmd = &cobra.Command{
 	Use:   "update-client CLIENT_ID",
 	Short: "Update an OAuth client registration in the UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureContext()
+		NotifyValidationErrors(UpdateClientValidations(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		c := GetSavedConfig()
-		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-
-		clientId := args[0]
-		toUpdate := uaa.UaaClient{
-			ClientId:             clientId,
-			DisplayName:          displayName,
-			AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
-			Authorities:          arrayify(authorities),
-			RedirectUri:          arrayify(redirectUri),
-			Scope:                arrayify(scope),
-		}
-
-		updated, err := cm.Update(toUpdate)
-		if err != nil {
-			log.Error("An error occurred while updating the client.")
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
-
-		log.Infof("The client %v has been successfully updated.", clientId)
-		err = cli.NewJsonPrinter(log).Print(updated)
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			MissingArgument("client_id", cmd)
-		}
-		if clientSecret != "" {
-			log.Error(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
-			os.Exit(1)
-		}
-		return nil
+		cfg := GetSavedConfig()
+		cm := &uaa.ClientManager{GetHttpClient(), cfg}
+		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0]), cfg, log)
 	},
 }
 

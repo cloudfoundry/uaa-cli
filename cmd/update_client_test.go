@@ -182,6 +182,7 @@ var _ = Describe("UpdateClient", func() {
 		Describe("when called with no client id", func() {
 			It("displays help and does not panic", func() {
 				c := uaa.NewConfigWithServerURL("http://localhost")
+				c.AddContext(uaa.NewContextWithToken("access_token"))
 				config.WriteConfig(c)
 				session := runCommand("update-client",
 					"--authorized_grant_types", "client_credentials",
