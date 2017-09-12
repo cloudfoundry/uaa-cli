@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"encoding/json"
 	"github.com/spf13/cobra"
 	"os"
+	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
 var infoCmd = &cobra.Command{
@@ -20,12 +20,11 @@ var infoCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		j, err := json.MarshalIndent(&i, "", "  ")
+		err = cli.NewJsonPrinter(log).Print(i)
 		if err != nil {
 			log.Error(err.Error())
 			os.Exit(1)
 		}
-		log.Robots(string(j))
 	},
 }
 

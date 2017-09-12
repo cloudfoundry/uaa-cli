@@ -3,10 +3,10 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"encoding/json"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
+	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
 func arrayify(commaSeparatedStr string) []string {
@@ -83,16 +83,13 @@ var createClientCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		j, err := json.MarshalIndent(&created, "", "  ")
+		log.Infof("The client %v has been successfully created.", clientId)
+		err = cli.NewJsonPrinter(log).Print(created)
 		if err != nil {
 			log.Error(err.Error())
 			TraceRetryMsg(c)
 			os.Exit(1)
 		}
-
-		log.Infof("The client %v has been successfully created.\n", clientId)
-		log.Robotsf("%v", string(j))
-
 	},
 	Args: func(cmd *cobra.Command, args []string) error {
 		EnsureContext()
