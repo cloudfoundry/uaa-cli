@@ -21,7 +21,7 @@ var infoCmd = &cobra.Command{
 	Short: "See version and global configurations for the targeted UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(EnsureTargetInConfig(cfg), cfg, log)
+		NotifyValidationErrors(EnsureTargetInConfig(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
