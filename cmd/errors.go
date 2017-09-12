@@ -87,3 +87,9 @@ func NotifyErrorsWithRetry(err error, cfg uaa.Config, log utils.Logger) {
 		os.Exit(1)
 	}
 }
+
+func TraceRetryMsg(c uaa.Config) {
+	if !c.Trace {
+		log.Info("Retry with --trace for more information.")
+	}
+}

@@ -20,7 +20,7 @@ func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string)
 	return nil
 }
 
-func UpdateClientCmd(cm *uaa.ClientManager, clientId string) error {
+func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string) error {
 	toUpdate := uaa.UaaClient{
 		ClientId:             clientId,
 		DisplayName:          displayName,
@@ -49,7 +49,7 @@ var updateClientCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), cfg}
-		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0]), cfg, log)
+		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope), cfg, log)
 	},
 }
 

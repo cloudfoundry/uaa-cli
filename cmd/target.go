@@ -4,68 +4,66 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
+	"errors"
+	"fmt"
+	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
-func printTarget(target uaa.Target, status string, version string) {
-	log.Info("Target: " + target.BaseUrl)
-	log.Info("Status: " + status)
-	log.Info("UAA Version: " + version)
-	log.Infof("SkipSSLValidation: %v", target.SkipSSLValidation)
+type TargetStatus struct {
+	Target string
+	Status string
+	UaaVersion string
+	SkipSSLValidation bool
 }
 
-func TraceRetryMsg(c uaa.Config) {
-	if !c.Trace {
-		log.Info("Retry with --trace for more information.")
-	}
+func printTarget(log utils.Logger, target uaa.Target, status string, version string) error {
+	return cli.NewJsonPrinter(log).Print(TargetStatus{target.BaseUrl, status, version, target.SkipSSLValidation})
 }
 
-func showTarget() {
-	c := GetSavedConfig()
-	target := c.GetActiveTarget()
+func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger) error {
+	target := cfg.GetActiveTarget()
 
 	if target.BaseUrl == "" {
-		printTarget(target, "", "")
-		return
+		return printTarget(log, target, "", "")
 	}
 
-	info, err := uaa.Info(GetHttpClient(), c)
+	info, err := uaa.Info(httpClient, cfg)
 	if err != nil {
-		printTarget(target, "ERROR", "unknown")
-		os.Exit(1)
+		_ = printTarget(log, target, "ERROR", "unknown")
+		return errors.New("There was an error while fetching status info about the current target.")
 	}
 
-	printTarget(target, "OK", info.App.Version)
+	return printTarget(log, target, "OK", info.App.Version)
 }
 
-func updateTarget(newTarget string) {
-	c := GetSavedConfig()
-
+func UpdateTargetCmd(cfg uaa.Config, newTarget string, log utils.Logger) error {
 	target := uaa.Target{
 		SkipSSLValidation: skipSSLValidation,
 		BaseUrl:           newTarget,
 	}
 
-	c.AddTarget(target)
-	_, err := uaa.Info(GetHttpClientWithConfig(c), c)
+	cfg.AddTarget(target)
+	_, err := uaa.Info(GetHttpClientWithConfig(cfg), cfg)
 	if err != nil {
-		log.Errorf("The target %s could not be set.", newTarget)
-		TraceRetryMsg(c)
-		os.Exit(1)
+		return errors.New(fmt.Sprintf("The target %s could not be set.", newTarget))
 	}
 
-	config.WriteConfig(c)
+	config.WriteConfig(cfg)
 	log.Info("Target set to " + newTarget)
+	return nil
 }
 
 var targetCmd = &cobra.Command{
 	Use:   "target UAA_URL",
 	Short: "Set the url of the UAA you'd like to target",
 	Run: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
 		if len(args) == 0 {
-			showTarget()
+			NotifyErrorsWithRetry(ShowTargetCmd(cfg, GetHttpClient(), log), cfg, log)
 		} else {
-			updateTarget(args[0])
+			NotifyErrorsWithRetry(UpdateTargetCmd(cfg, args[0], log), cfg, log)
 		}
 	},
 }

@@ -56,10 +56,8 @@ var _ = Describe("Target", func() {
 				session := runCommand("target")
 
 				Eventually(session).Should(Exit(0))
-				Eventually(session.Out).Should(Say("Target: " + server.URL()))
-				Eventually(session.Out).Should(Say("Status: OK"))
-				Eventually(session.Out).Should(Say("UAA Version: 4.5.0"))
-				Eventually(session.Out).Should(Say("SkipSSLValidation: false"))
+				expectedJson := `{ "Target": "` + server.URL() + `", "Status": "OK", "UaaVersion": "4.5.0", "SkipSSLValidation": false }`
+				Eventually(session.Out.Contents()).Should(MatchJSON(expectedJson))
 			})
 
 			It("shows <unknown version> when UAA can't be reached", func() {
@@ -69,10 +67,9 @@ var _ = Describe("Target", func() {
 
 				session := runCommand("target")
 
+				Eventually(session.Out).Should(Say(`"Status": "ERROR"`))
+				Eventually(session.Out).Should(Say(`"UaaVersion": "unknown"`))
 				Eventually(session).Should(Exit(1))
-				Eventually(session.Out).Should(Say("Target: " + server.URL()))
-				Eventually(session.Out).Should(Say("Status: ERROR"))
-				Eventually(session.Out).Should(Say("UAA Version: unknown"))
 			})
 		})
 
@@ -81,9 +78,8 @@ var _ = Describe("Target", func() {
 				session := runCommand("target")
 
 				Eventually(session).Should(Exit(0))
-				Eventually(session.Out).Should(Say("Target:"))
-				Eventually(session.Out).Should(Say("Status:"))
-				Eventually(session.Out).Should(Say("UAA Version:"))
+				expectedJson := `{ "Target": "", "Status": "", "UaaVersion": "", "SkipSSLValidation": false }`
+				Eventually(session.Out.Contents()).Should(MatchJSON(expectedJson))
 			})
 		})
 	})
