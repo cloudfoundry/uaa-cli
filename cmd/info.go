@@ -3,28 +3,29 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"net/http"
 )
+
+func InfoCmd(cfg uaa.Config, httpClient *http.Client) error {
+	i, err := uaa.Info(httpClient, cfg)
+	if err != nil {
+		return err
+	}
+
+	return cli.NewJsonPrinter(log).Print(i)
+}
 
 var infoCmd = &cobra.Command{
 	Use:   "info",
 	Short: "See version and global configurations for the targeted UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		cfg := GetSavedConfig()
+		NotifyErrorsWithRetry(EnsureTargetInConfig(cfg), cfg, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Info(GetHttpClient(), GetSavedConfig())
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
-
-		err = cli.NewJsonPrinter(log).Print(i)
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
+		cfg := GetSavedConfig()
+		NotifyErrorsWithRetry(InfoCmd(cfg, GetHttpClient()), cfg, log)
 	},
 }
 
