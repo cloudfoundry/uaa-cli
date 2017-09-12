@@ -3,35 +3,43 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
+	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"errors"
 )
+
+func SetClientSecretValidation(cfg uaa.Config, args []string, clientSecret string) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		return MissingArgumentError("client_id")
+	}
+	if clientSecret == "" {
+		return MissingArgumentError("client_secret")
+	}
+	return nil	
+}
+
+func SetClientSecretCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger, clientId, clientSecret string) error {
+	cm := &uaa.ClientManager{httpClient, cfg}
+	err := cm.ChangeSecret(clientId, clientSecret)
+	if err != nil {
+		return errors.New("The secret for client " + clientId + " was not updated.")
+	}
+	log.Infof("The secret for client %v has been successfully updated.", clientId)
+	return nil
+}
 
 var setClientSecretCmd = &cobra.Command{
 	Use:   "set-client-secret CLIENT_ID -s CLIENT_SECRET",
 	Short: "Update secret for a client",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureContext()
+		NotifyValidationErrors(SetClientSecretValidation(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		clientId := args[0]
-		c := GetSavedConfig()
-		cm := &uaa.ClientManager{GetHttpClient(), c}
-		err := cm.ChangeSecret(clientId, clientSecret)
-		if err != nil {
-			log.Errorf("The secret for client %v was not updated.", clientId)
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
-		log.Infof("The secret for client %v has been successfully updated.", clientId)
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			MissingArgument("client_id", cmd)
-		}
-		if clientSecret == "" {
-			MissingArgument("client_secret", cmd)
-		}
-		return nil
+		cfg := GetSavedConfig()
+		NotifyErrorsWithRetry(SetClientSecretCmd(cfg, GetHttpClient(), log, args[0], clientSecret), cfg, log)
 	},
 }
 
