@@ -4,9 +4,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"errors"
-	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 func GetUserCmd(userId string, um uaa.Crud, printer cli.Printer) error {
@@ -27,22 +25,6 @@ func GetUserValidations(cfg uaa.Config, args []string) error {
 		return errors.New("The positional argument USER_ID must be specified.")
 	}
 	return nil
-}
-
-func NotifyValidationErrors(err error, cmd *cobra.Command, log utils.Logger) {
-	if err != nil {
-		log.Error(err.Error())
-		cmd.Usage()
-		os.Exit(1)
-	}
-}
-
-func NotifyErrorsWithRetry(err error, cfg uaa.Config, log utils.Logger) {
-	if err != nil {
-		log.Error(err.Error())
-		TraceRetryMsg(GetSavedConfig())
-		os.Exit(1)
-	}
 }
 
 var getUserCmd = &cobra.Command{

@@ -5,6 +5,7 @@ import (
 	"os"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"errors"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 const MISSING_TARGET = "You must set a target in order to use this command."
@@ -60,4 +61,20 @@ func EnsureContextInConfig(cfg uaa.Config) error {
 		return errors.New(MISSING_CONTEXT)
 	}
 	return nil
+}
+
+func NotifyValidationErrors(err error, cmd *cobra.Command, log utils.Logger) {
+	if err != nil {
+		log.Error(err.Error())
+		cmd.Usage()
+		os.Exit(1)
+	}
+}
+
+func NotifyErrorsWithRetry(err error, cfg uaa.Config, log utils.Logger) {
+	if err != nil {
+		log.Error(err.Error())
+		TraceRetryMsg(GetSavedConfig())
+		os.Exit(1)
+	}
 }

@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/cmd"
 )
 
 var _ = Describe("Userinfo", func() {
@@ -58,17 +59,19 @@ var _ = Describe("Userinfo", func() {
 		})
 	})
 
-	Describe("when no target was previously set", func() {
-		BeforeEach(func() {
-			c := uaa.Config{}
-			config.WriteConfig(c)
+	Describe("Validations", func() {
+		It("requires a target", func() {
+			err := cmd.UserinfoValidations(uaa.Config{})
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("You must set a target in order to use this command."))
 		})
 
-		It("tells the user to set a target", func() {
-			session := runCommand("userinfo")
+		It("requires a context", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
 
-			Expect(session.Err).To(Say("You must set a target in order to use this command."))
-			Eventually(session).Should(Exit(1))
+			err := cmd.UserinfoValidations(cfg)
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(Equal("You must have a token in your context to perform this command."))
 		})
 	})
 })

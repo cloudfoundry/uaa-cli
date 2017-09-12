@@ -4,9 +4,22 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"net/http"
 )
+
+func UserinfoValidations(cfg uaa.Config) error {
+	return EnsureContextInConfig(cfg)
+}
+
+func UserinfoCmd(client *http.Client, cfg uaa.Config, printer cli.Printer) error {
+	i, err := uaa.Me(GetHttpClient(), GetSavedConfig())
+	if err != nil {
+		return err
+	}
+
+	return cli.NewJsonPrinter(log).Print(i)
+}
 
 var userinfoCmd = cobra.Command{
 	Use:     "userinfo",
@@ -14,20 +27,13 @@ var userinfoCmd = cobra.Command{
 	Aliases: []string{"me"},
 	Long:    help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureContext()
+		NotifyValidationErrors(UserinfoValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		i, err := uaa.Me(GetHttpClient(), GetSavedConfig())
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
-
-		err = cli.NewJsonPrinter(log).Print(i)
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
+		cfg := GetSavedConfig()
+		printer := cli.NewJsonPrinter(log)
+		err := UserinfoCmd(GetHttpClient(), cfg, printer)
+		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
 
