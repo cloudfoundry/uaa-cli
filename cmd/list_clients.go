@@ -3,31 +3,35 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"code.cloudfoundry.org/uaa-cli/cli"
 )
+
+func ListClientsValidations(cfg uaa.Config) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	return nil
+}
+
+func ListClientsCmd(cm *uaa.ClientManager) error {
+	clients, err := cm.List()
+	if err != nil {
+		return err
+	}
+
+	return cli.NewJsonPrinter(log).Print(clients)
+}
 
 var listClientsCmd = &cobra.Command{
 	Use:     "list-clients",
 	Short:   "See all clients in the targeted UAA",
 	Aliases: []string{"clients"},
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureContext()
+		NotifyValidationErrors(ListClientsValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-		clients, err := cm.List()
-		if err != nil {
-			log.Error(err.Error())
-			TraceRetryMsg(GetSavedConfig())
-			os.Exit(1)
-		}
-
-		err = cli.NewJsonPrinter(log).Print(clients)
-		if err != nil {
-			log.Error(err.Error())
-			os.Exit(1)
-		}
+		NotifyErrorsWithRetry(ListClientsCmd(cm), GetSavedConfig(), log)
 	},
 }
 
