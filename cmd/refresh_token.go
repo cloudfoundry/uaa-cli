@@ -5,52 +5,58 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
+	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"errors"
 )
+
+func RefreshTokenCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger, tokenFormat string) error {
+	ctx := cfg.GetActiveContext()
+	refreshClient := uaa.RefreshTokenClient{
+		ClientId:     ctx.ClientId,
+		ClientSecret: clientSecret,
+	}
+	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", ctx.ClientId)
+	tokenResponse, err := refreshClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
+	if err != nil {
+		return err
+	}
+
+	ctx.TokenResponse = tokenResponse
+	cfg.AddContext(ctx)
+	config.WriteConfig(cfg)
+	log.Info("Access token successfully fetched and added to active context.")
+	return nil
+}
+
+func RefreshTokenValidations(cfg uaa.Config, clientSecret string) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	if clientSecret == "" {
+		return MissingArgumentError("client_secret")
+	}
+	if cfg.GetActiveContext().ClientId == "" {
+		return errors.New("A client_id was not found in the active context.")
+	}
+	if GetSavedConfig().GetActiveContext().RefreshToken == "" {
+		return errors.New("A refresh_token was not found in the active context.")
+	}
+
+	return validateTokenFormatError(tokenFormat)
+}
 
 var refreshTokenCmd = &cobra.Command{
 	Use:   "refresh-token -s CLIENT_SECRET",
 	Short: "Obtain an access token using the refresh_token grant type",
 	Long:  help.RefreshToken(),
-	Run: func(cmd *cobra.Command, args []string) {
-		c := GetSavedConfig()
-		ctx := c.GetActiveContext()
-		refreshClient := uaa.RefreshTokenClient{
-			ClientId:     ctx.ClientId,
-			ClientSecret: clientSecret,
-		}
-		log.Info("Using the refresh_token and client_id from the active context to request new access token.")
-		tokenResponse, err := refreshClient.RequestToken(GetHttpClient(), c, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
-		if err != nil {
-			log.Error(err.Error())
-			log.Error("An error occurred while fetching token.")
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
-
-		ctx.TokenResponse = tokenResponse
-		c.AddContext(ctx)
-		config.WriteConfig(c)
-		log.Info("Access token successfully fetched and added to active context.")
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(RefreshTokenValidations(cfg, clientSecret), cmd, log)
 	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		EnsureContext()
-		if clientSecret == "" {
-			MissingArgument("client_secret", cmd)
-		}
-		if GetSavedConfig().GetActiveContext().ClientId == "" {
-			log.Error("A client_id was not found in the active context.")
-			cmd.Help()
-			os.Exit(1)
-		}
-		if GetSavedConfig().GetActiveContext().RefreshToken == "" {
-			log.Error("A refresh_token was not found in the active context.")
-			cmd.Help()
-			os.Exit(1)
-		}
-
-		validateTokenFormat(cmd, tokenFormat)
-		return nil
+	Run: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
+		NotifyErrorsWithRetry(RefreshTokenCmd(cfg, GetHttpClient(), log, tokenFormat), cfg, log)
 	},
 }
 

@@ -133,7 +133,7 @@ var _ = Describe("ResfrehToken", func() {
 			session := runCommand("refresh-token", "-s", "secretsecret")
 
 			Eventually(session).Should(Exit(1))
-			Eventually(session.Err).Should(Say("An error occurred while fetching token."))
+			Eventually(session.Err).Should(Say("An unknown error occurred while calling"))
 		})
 
 		It("does not update the previously saved context", func() {
