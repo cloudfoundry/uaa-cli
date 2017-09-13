@@ -3,31 +3,38 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 )
+
+func DeleteClientValidations(cfg uaa.Config, args []string) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	if len(args) == 0 {
+		return MissingArgumentError("client_id")
+	}
+	return nil
+}
+
+func DeleteClientCmd(cm *uaa.ClientManager, clientId string) error {
+	_, err := cm.Delete(clientId)
+	if err != nil {
+		return err
+	}
+
+	log.Infof("Successfully deleted client %v.", clientId)
+	return nil
+}
 
 var deleteClientCmd = &cobra.Command{
 	Use:   "delete-client CLIENT_ID",
 	Short: "Delete a client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureContext()
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(DeleteClientValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-		_, err := cm.Delete(args[0])
-		if err != nil {
-			log.Error(err.Error())
-			TraceRetryMsg(GetSavedConfig())
-			os.Exit(1)
-		}
-
-		log.Infof("Successfully deleted client %v.", args[0])
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) == 0 {
-			MissingArgument("client_id", cmd)
-		}
-		return nil
+		NotifyErrorsWithRetry(DeleteClientCmd(cm, args[0]), GetSavedConfig(), log)
 	},
 }
 

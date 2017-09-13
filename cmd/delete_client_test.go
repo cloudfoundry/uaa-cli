@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/cmd"
 )
 
 var _ = Describe("DeleteClient", func() {
@@ -138,6 +139,26 @@ var _ = Describe("DeleteClient", func() {
 
 			Eventually(session).Should(Exit(1))
 			Expect(session.Err).To(Say("You must set a target in order to use this command."))
+		})
+	})
+
+	Describe("Validations", func() {
+		It("requires a client id", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+			cfg.AddContext(uaa.NewContextWithToken("access_token"))
+
+			err := cmd.DeleteClientValidations(cfg, []string{})
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Missing argument `client_id` must be specified."))
+		})
+
+		It("requires token in context to have been set", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+			err := cmd.DeleteClientValidations(cfg, []string{"clientid"})
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(cmd.MISSING_CONTEXT))
 		})
 	})
 })
