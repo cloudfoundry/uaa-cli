@@ -4,9 +4,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
-	"os"
 	"strings"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"errors"
+	"fmt"
 )
 
 func arrayify(commaSeparatedStr string) []string {
@@ -17,88 +18,80 @@ func arrayify(commaSeparatedStr string) []string {
 	}
 }
 
-func onlyImplicit(toCreate uaa.UaaClient) bool {
-	return len(toCreate.AuthorizedGrantTypes) == 1 && toCreate.AuthorizedGrantTypes[0] == "implicit"
+func CreateClientPreRunValidations(cfg uaa.Config, args []string) error {
+	if err := EnsureContextInConfig(cfg); err != nil {
+		return err
+	}
+	if len(args) < 1 {
+		return MissingArgumentError("client_id")
+	}
+	return nil
+}
+
+func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string) error {
+	var toCreate uaa.UaaClient
+	var err error
+	if clone != "" {
+		toCreate, err = cm.Get(clone)
+		if err != nil {
+			return errors.New(fmt.Sprintf("The client %v could not be found.", clone))
+		}
+
+		toCreate.ClientId = clientId
+		toCreate.ClientSecret = clientSecret
+		if displayName != "" {
+			toCreate.DisplayName = displayName
+		}
+		if authorizedGrantTypes != "" {
+			toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
+		}
+		if authorities != "" {
+			toCreate.Authorities = arrayify(authorities)
+		}
+		if redirectUri != "" {
+			toCreate.RedirectUri = arrayify(redirectUri)
+		}
+		if scope != "" {
+			toCreate.Scope = arrayify(scope)
+		}
+	} else {
+		toCreate = uaa.UaaClient{}
+		toCreate.ClientId = clientId
+		toCreate.ClientSecret = clientSecret
+		toCreate.DisplayName = displayName
+		toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
+		toCreate.Authorities = arrayify(authorities)
+		toCreate.RedirectUri = arrayify(redirectUri)
+		toCreate.Scope = arrayify(scope)
+	}
+
+	validationErr := toCreate.PreCreateValidation()
+	if validationErr != nil {
+		return validationErr
+	}
+
+	created, err := cm.Create(toCreate)
+	if err != nil {
+		return err
+	}
+
+	log.Infof("The client %v has been successfully created.", clientId)
+	return cli.NewJsonPrinter(log).Print(created)
 }
 
 var createClientCmd = &cobra.Command{
 	Use:   "create-client CLIENT_ID -s CLIENT_SECRET --authorized_grant_types GRANT_TYPES",
 	Short: "Create an OAuth client registration in the UAA",
 	Long:  help.CreateClient(),
-	Run: func(cmd *cobra.Command, args []string) {
-		c := GetSavedConfig()
-		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-
-		clientId := args[0]
-
-		var toCreate uaa.UaaClient
-		var err error
-		if clone != "" {
-			toCreate, err = cm.Get(clone)
-			if err != nil {
-				log.Errorf("The client %v could not be found.\n", clone)
-				TraceRetryMsg(c)
-				os.Exit(1)
-			}
-
-			toCreate.ClientId = clientId
-			toCreate.ClientSecret = clientSecret
-			if displayName != "" {
-				toCreate.DisplayName = displayName
-			}
-			if authorizedGrantTypes != "" {
-				toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
-			}
-			if authorities != "" {
-				toCreate.Authorities = arrayify(authorities)
-			}
-			if redirectUri != "" {
-				toCreate.RedirectUri = arrayify(redirectUri)
-			}
-			if scope != "" {
-				toCreate.Scope = arrayify(scope)
-			}
-		} else {
-			toCreate = uaa.UaaClient{}
-			toCreate.ClientId = clientId
-			toCreate.ClientSecret = clientSecret
-			toCreate.DisplayName = displayName
-			toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
-			toCreate.Authorities = arrayify(authorities)
-			toCreate.RedirectUri = arrayify(redirectUri)
-			toCreate.Scope = arrayify(scope)
-		}
-
-		validationErr := toCreate.PreCreateValidation()
-		if validationErr != nil {
-			log.Error("Error: " + validationErr.Error())
-			cmd.Usage()
-			os.Exit(1)
-		}
-
-		created, err := cm.Create(toCreate)
-		if err != nil {
-			log.Error("An error occurred while creating the client.")
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
-
-		log.Infof("The client %v has been successfully created.", clientId)
-		err = cli.NewJsonPrinter(log).Print(created)
-		if err != nil {
-			log.Error(err.Error())
-			TraceRetryMsg(c)
-			os.Exit(1)
-		}
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(CreateClientPreRunValidations(cfg, args), cmd, log)
 	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		EnsureContext()
-
-		if len(args) < 1 {
-			MissingArgument("client_id", cmd)
-		}
-
-		return nil
+	Run: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
+		cm := &uaa.ClientManager{GetHttpClient(), cfg}
+		err := CreateClientCmd(cm, clone, args[0], clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope)
+		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
 
