@@ -27,15 +27,17 @@ func addImplicitTokenToContext(clientId string, tokenResponse uaa.TokenResponse,
 	SaveContext(ctx, log)
 }
 
-func ImplicitTokenArgumentValidation(args []string, port int, cmd *cobra.Command) error {
+func ImplicitTokenArgumentValidation(cfg uaa.Config, args []string, port int) error {
+	if err := EnsureTargetInConfig(cfg); err != nil {
+		return err
+	}
 	if len(args) < 1 {
-		MissingArgument("client_id", cmd)
+		return MissingArgumentError("client_id")
 	}
 	if port == 0 {
-		MissingArgument("port", cmd)
+		return MissingArgumentError("port")
 	}
-	validateTokenFormat(cmd, tokenFormat)
-	return nil
+	return validateTokenFormatError(tokenFormat)
 }
 
 func ImplicitTokenCommandRun(doneRunning chan bool, clientId string, implicitImp cli.ClientImpersonator, log *utils.Logger) {
@@ -49,19 +51,17 @@ func ImplicitTokenCommandRun(doneRunning chan bool, clientId string, implicitImp
 var getImplicitToken = &cobra.Command{
 	Use:   "get-implicit-token CLIENT_ID --port REDIRECT_URI_PORT",
 	Short: "Obtain an access token using the implicit grant type",
-	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
-	},
 	Long: help.ImplicitGrant(),
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(ImplicitTokenArgumentValidation(cfg, args, port), cmd, log)
+	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
 		baseUrl := GetSavedConfig().GetActiveTarget().BaseUrl
 		implicitImp := cli.NewImplicitClientImpersonator(args[0], baseUrl, tokenFormat, scope, port, log, open.Run)
 		go ImplicitTokenCommandRun(done, args[0], implicitImp, GetLogger())
 		<-done
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		return ImplicitTokenArgumentValidation(args, port, cmd)
 	},
 }
 
