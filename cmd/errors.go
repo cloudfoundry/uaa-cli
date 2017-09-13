@@ -20,41 +20,6 @@ func MissingArgumentWithExplanationError(argName string, explanation string) err
 	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified. %v", argName, explanation))
 }
 
-func MissingArgumentWithExplanation(argName string, cmd *cobra.Command, explanation string) {
-	log.Errorf("Missing argument `%v` must be specified. %v", argName, explanation)
-	cmd.Usage()
-	os.Exit(1)
-}
-
-func MissingArgument(argName string, cmd *cobra.Command) {
-	MissingArgumentWithExplanation(argName, cmd, "")
-}
-
-func MissingArgumentForGrantType(argName, grantType string, cmd *cobra.Command) {
-	log.Errorf("Missing argument `%v` must be specified for %v grant type.", argName, grantType)
-	cmd.Usage()
-	os.Exit(1)
-}
-
-func EnsureTarget() {
-	c := GetSavedConfig()
-
-	if c.ActiveTargetName == "" {
-		log.Error(MISSING_TARGET)
-		os.Exit(1)
-	}
-}
-
-func EnsureContext() {
-	EnsureTarget()
-	c := GetSavedConfig()
-
-	if c.GetActiveTarget().ActiveContextName == "" {
-		log.Error(MISSING_CONTEXT)
-		os.Exit(1)
-	}
-}
-
 func EnsureTargetInConfig(cfg uaa.Config) error {
 	if cfg.ActiveTargetName == "" {
 		return errors.New(MISSING_TARGET)
