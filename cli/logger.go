@@ -1,26 +1,26 @@
-package utils
+package cli
 
 import (
-	"io"
-	"log"
 	"fmt"
 	"github.com/fatih/color"
+	"io"
+	"log"
 )
 
 type Logger struct {
 	infoLog *log.Logger
 	// robots is like info, but should only receive machine-parsable output
 	robotLog *log.Logger
-	warnLog *log.Logger
+	warnLog  *log.Logger
 	errorLog *log.Logger
-	muted bool
+	muted    bool
 }
 
 func NewLogger(infoHandle, robotsHandle, warningHandle, errorHandle io.Writer) Logger {
-	infoLog := log.New(infoHandle,"",0)
-	robotLog := log.New(robotsHandle,"",0)
-	warnLog := log.New(warningHandle,"",0)
-	errorLog := log.New(errorHandle,"",0)
+	infoLog := log.New(infoHandle, "", 0)
+	robotLog := log.New(robotsHandle, "", 0)
+	warnLog := log.New(warningHandle, "", 0)
+	errorLog := log.New(errorHandle, "", 0)
 	return Logger{infoLog, robotLog, warnLog, errorLog, false}
 }
 

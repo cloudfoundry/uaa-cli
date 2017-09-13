@@ -1,28 +1,27 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"github.com/spf13/cobra"
 	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/utils"
-	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
 type TargetStatus struct {
-	Target string
-	Status string
-	UaaVersion string
+	Target            string
+	Status            string
+	UaaVersion        string
 	SkipSSLValidation bool
 }
 
-func printTarget(log utils.Logger, target uaa.Target, status string, version string) error {
+func printTarget(log cli.Logger, target uaa.Target, status string, version string) error {
 	return cli.NewJsonPrinter(log).Print(TargetStatus{target.BaseUrl, status, version, target.SkipSSLValidation})
 }
 
-func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger) error {
+func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger) error {
 	target := cfg.GetActiveTarget()
 
 	if target.BaseUrl == "" {
@@ -38,7 +37,7 @@ func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger) er
 	return printTarget(log, target, "OK", info.App.Version)
 }
 
-func UpdateTargetCmd(cfg uaa.Config, newTarget string, log utils.Logger) error {
+func UpdateTargetCmd(cfg uaa.Config, newTarget string, log cli.Logger) error {
 	target := uaa.Target{
 		SkipSSLValidation: skipSSLValidation,
 		BaseUrl:           newTarget,

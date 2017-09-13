@@ -18,7 +18,7 @@ type AuthcodeClientImpersonator struct {
 	Scope              string
 	UaaBaseUrl         string
 	Port               int
-	Log                utils.Logger
+	Log                Logger
 	AuthCallbackServer CallbackServer
 	BrowserLauncher    func(string) error
 	done               chan uaa.TokenResponse
@@ -38,7 +38,7 @@ func NewAuthcodeClientImpersonator(
 	tokenFormat,
 	scope string,
 	port int,
-	log utils.Logger,
+	log Logger,
 	launcher func(string) error) AuthcodeClientImpersonator {
 
 	impersonator := AuthcodeClientImpersonator{

@@ -4,9 +4,9 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
-	"errors"
 )
 
 func GetClientCredentialsTokenValidations(cfg uaa.Config, args []string, clientSecret string) error {

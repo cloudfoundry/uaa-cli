@@ -1,12 +1,12 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"os"
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"errors"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"fmt"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 const MISSING_TARGET = "You must set a target in order to use this command."
@@ -72,7 +72,7 @@ func EnsureContextInConfig(cfg uaa.Config) error {
 	return nil
 }
 
-func NotifyValidationErrors(err error, cmd *cobra.Command, log utils.Logger) {
+func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
 	if err != nil {
 		log.Error(err.Error())
 		cmd.Usage()
@@ -80,7 +80,7 @@ func NotifyValidationErrors(err error, cmd *cobra.Command, log utils.Logger) {
 	}
 }
 
-func NotifyErrorsWithRetry(err error, cfg uaa.Config, log utils.Logger) {
+func NotifyErrorsWithRetry(err error, cfg uaa.Config, log cli.Logger) {
 	if err != nil {
 		log.Error(err.Error())
 		TraceRetryMsg(GetSavedConfig())

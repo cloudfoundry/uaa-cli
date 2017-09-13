@@ -1,10 +1,10 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/spf13/cobra"
 	"os"
-	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
 var contextCmd = &cobra.Command{

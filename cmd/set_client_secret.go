@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/utils"
-	"errors"
 )
 
 func SetClientSecretValidation(cfg uaa.Config, args []string, clientSecret string) error {
@@ -18,10 +18,10 @@ func SetClientSecretValidation(cfg uaa.Config, args []string, clientSecret strin
 	if clientSecret == "" {
 		return MissingArgumentError("client_secret")
 	}
-	return nil	
+	return nil
 }
 
-func SetClientSecretCmd(cfg uaa.Config, httpClient *http.Client, log utils.Logger, clientId, clientSecret string) error {
+func SetClientSecretCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger, clientId, clientSecret string) error {
 	cm := &uaa.ClientManager{httpClient, cfg}
 	err := cm.ChangeSecret(clientId, clientSecret)
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
@@ -17,7 +16,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 	var (
 		c          uaa.Config
 		ctx        uaa.UaaContext
-		logger     utils.Logger
+		logger     cli.Logger
 		launcher   TestLauncher
 		httpClient *http.Client
 	)
@@ -27,7 +26,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
 		launcher = TestLauncher{}
-		logger = utils.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
+		logger = cli.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 		httpClient = &http.Client{}
 	})
 

@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"github.com/spf13/cobra"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/uaa"
 	"errors"
+	"github.com/spf13/cobra"
 )
 
 func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string) error {

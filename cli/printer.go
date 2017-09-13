@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"encoding/json"
 )
 
@@ -10,10 +9,10 @@ type Printer interface {
 }
 
 type JsonPrinter struct {
-	Log utils.Logger
+	Log Logger
 }
 
-func NewJsonPrinter(log utils.Logger) JsonPrinter {
+func NewJsonPrinter(log Logger) JsonPrinter {
 	return JsonPrinter{log}
 }
 func (jp JsonPrinter) Print(obj interface{}) error {

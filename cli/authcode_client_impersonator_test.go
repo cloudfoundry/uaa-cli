@@ -4,7 +4,6 @@ import (
 	. "code.cloudfoundry.org/uaa-cli/cli"
 
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
@@ -15,7 +14,7 @@ import (
 var _ = Describe("AuthcodeClientImpersonator", func() {
 	var (
 		impersonator AuthcodeClientImpersonator
-		logger       utils.Logger
+		logger       Logger
 		httpClient   *http.Client
 		config       uaa.Config
 		launcher     TestLauncher
@@ -27,7 +26,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 		launcher = TestLauncher{}
 		uaaServer = NewServer()
 		config = uaa.NewConfigWithServerURL(uaaServer.URL())
-		logger = utils.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
+		logger = NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
 	Describe("NewAuthcodeClientImpersonator", func() {
@@ -47,7 +46,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 			})
 
 			It("with its logger", func() {
-				Expect(impersonator.AuthCallbackServer.Log()).NotTo(Equal(utils.Logger{}))
+				Expect(impersonator.AuthCallbackServer.Log()).NotTo(Equal(Logger{}))
 				Expect(impersonator.AuthCallbackServer.Log()).To(Equal(logger))
 			})
 

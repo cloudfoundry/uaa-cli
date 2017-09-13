@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/spf13/cobra"
 )
 
 var cfgFile uaa.Config
-var log utils.Logger
+var log cli.Logger
 
 // Token flags
 var (
@@ -100,14 +100,14 @@ Additional help topics:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
 `)
 
-	log = utils.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+	log = cli.NewLogger(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 }
 
 func initConfig() {
 	// Startup tasks
 }
 
-func GetLogger() *utils.Logger {
+func GetLogger() *cli.Logger {
 	return &log
 }
 

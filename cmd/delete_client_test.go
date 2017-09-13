@@ -1,6 +1,7 @@
 package cmd_test
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
@@ -9,7 +10,6 @@ import (
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/cmd"
 )
 
 var _ = Describe("DeleteClient", func() {

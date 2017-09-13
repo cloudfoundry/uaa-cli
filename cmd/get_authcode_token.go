@@ -3,12 +3,11 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
 
-func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *utils.Logger) {
+func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *cli.Logger) {
 	ctx := uaa.UaaContext{
 		GrantType:     uaa.AUTHCODE,
 		ClientId:      clientId,
@@ -34,7 +33,7 @@ func AuthcodeTokenArgumentValidation(cfg uaa.Config, args []string, clientSecret
 	return validateTokenFormatError(tokenFormat)
 }
 
-func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp cli.ClientImpersonator, log *utils.Logger) {
+func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp cli.ClientImpersonator, log *cli.Logger) {
 	authcodeImp.Start()
 	authcodeImp.Authorize()
 	tokenResponse := <-authcodeImp.Done()

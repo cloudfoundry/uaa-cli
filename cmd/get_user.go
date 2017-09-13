@@ -3,8 +3,8 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"github.com/spf13/cobra"
 	"errors"
+	"github.com/spf13/cobra"
 )
 
 func GetUserCmd(userId string, um uaa.Crud, printer cli.Printer) error {

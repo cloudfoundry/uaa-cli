@@ -3,7 +3,6 @@ package cli_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/cli"
 
-	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"io/ioutil"
@@ -22,11 +21,11 @@ func (tl *TestLauncher) Run(target string) error {
 var _ = Describe("ImplicitClientImpersonator", func() {
 	var (
 		impersonator ImplicitClientImpersonator
-		logger       utils.Logger
+		logger       Logger
 	)
 
 	BeforeEach(func() {
-		logger = utils.NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
+		logger = NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard)
 	})
 
 	Describe("NewImplicitClientImpersonator", func() {
@@ -47,7 +46,7 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 			})
 
 			It("with its logger", func() {
-				Expect(impersonator.AuthCallbackServer.Log()).NotTo(Equal(utils.Logger{}))
+				Expect(impersonator.AuthCallbackServer.Log()).NotTo(Equal(Logger{}))
 				Expect(impersonator.AuthCallbackServer.Log()).To(Equal(logger))
 			})
 

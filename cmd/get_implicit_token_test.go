@@ -6,7 +6,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -24,13 +23,13 @@ func (tl *TestLauncher) Run(target string) error {
 var _ = Describe("GetImplicitToken", func() {
 	var c uaa.Config
 	var ctx uaa.UaaContext
-	var logger utils.Logger
+	var logger cli.Logger
 
 	BeforeEach(func() {
 		c = uaa.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
-		logger = utils.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
+		logger = cli.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
 	It("launches a browser for the authorize page and gets the callback params", func() {

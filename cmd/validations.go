@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/utils"
+	"errors"
+	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 	"strings"
-	"errors"
-	"fmt"
 )
 
 func avalableFormats() []string {

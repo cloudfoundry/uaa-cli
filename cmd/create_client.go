@@ -1,13 +1,13 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"github.com/spf13/cobra"
-	"strings"
-	"code.cloudfoundry.org/uaa-cli/cli"
 	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
+	"strings"
 )
 
 func arrayify(commaSeparatedStr string) []string {

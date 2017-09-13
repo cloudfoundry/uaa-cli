@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,7 +13,7 @@ type CallbackServer interface {
 	CSS() string
 	Javascript() string
 	Port() int
-	Log() utils.Logger
+	Log() Logger
 	Hangup(chan url.Values, url.Values)
 	Start(chan url.Values)
 }
@@ -24,11 +23,11 @@ type AuthCallbackServer struct {
 	css        string
 	javascript string
 	port       int
-	log        utils.Logger
+	log        Logger
 	hangupFunc func(chan url.Values, url.Values)
 }
 
-func NewAuthCallbackServer(html, css, js string, log utils.Logger, port int) AuthCallbackServer {
+func NewAuthCallbackServer(html, css, js string, log Logger, port int) AuthCallbackServer {
 	acs := AuthCallbackServer{html: html, css: css, javascript: js, log: log, port: port}
 	acs.SetHangupFunc(func(done chan url.Values, vals url.Values) {})
 	return acs
@@ -46,7 +45,7 @@ func (acs AuthCallbackServer) Javascript() string {
 func (acs AuthCallbackServer) Port() int {
 	return acs.port
 }
-func (acs AuthCallbackServer) Log() utils.Logger {
+func (acs AuthCallbackServer) Log() Logger {
 	return acs.log
 }
 func (acs AuthCallbackServer) Hangup(done chan url.Values, values url.Values) {
@@ -101,7 +100,7 @@ type FakeCallbackServer struct {
 	css        string
 	javascript string
 	port       int
-	log        utils.Logger
+	log        Logger
 	hangupFunc func(chan url.Values, url.Values)
 }
 
@@ -117,7 +116,7 @@ func (fcs FakeCallbackServer) Javascript() string {
 func (fcs FakeCallbackServer) Port() int {
 	return fcs.port
 }
-func (fcs FakeCallbackServer) Log() utils.Logger {
+func (fcs FakeCallbackServer) Log() Logger {
 	return fcs.log
 }
 func (fcs FakeCallbackServer) Hangup(done chan url.Values, values url.Values) {
