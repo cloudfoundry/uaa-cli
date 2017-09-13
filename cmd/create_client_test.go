@@ -104,7 +104,7 @@ var _ = Describe("CreateClient", func() {
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					RespondWith(http.StatusOK, notifierClient),
 					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "client_secret" : "secret", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name" }`),
+					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "client_secret" : "secret", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
 				))
 
 				session := runCommand("create-client",
@@ -193,7 +193,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client", "access_token_validity": 3600, "refresh_token_validity": 4500}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusOK, shinyCopy),
@@ -210,6 +210,8 @@ var _ = Describe("CreateClient", func() {
 					"--display_name", "foo client",
 					"--redirect_uri", "http://localhost:8001/*",
 					"--authorities", "shiny.read",
+					"--access_token_validity", "3600",
+					"--refresh_token_validity", "4500",
 				)
 
 				Expect(session.Out).To(Say("The client shinycopy has been successfully created."))

@@ -20,7 +20,7 @@ func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string)
 	return nil
 }
 
-func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string) error {
+func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity, refreshTokenValidity int64) error {
 	toUpdate := uaa.UaaClient{
 		ClientId:             clientId,
 		DisplayName:          displayName,
@@ -28,6 +28,8 @@ func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGra
 		Authorities:          arrayify(authorities),
 		RedirectUri:          arrayify(redirectUri),
 		Scope:                arrayify(scope),
+		AccessTokenValidity:  accessTokenValidity,
+		RefreshTokenValidity: refreshTokenValidity,
 	}
 
 	updated, err := cm.Update(toUpdate)
@@ -49,7 +51,7 @@ var updateClientCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), cfg}
-		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope), cfg, log)
+		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope, accessTokenValidity, refreshTokenValidity), cfg, log)
 	},
 }
 
@@ -63,8 +65,8 @@ func init() {
 	updateClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client.")
 	updateClientCmd.Flags().StringVarP(&authorities, "authorities", "", "", "scopes requested by client during client_credentials grant")
 	updateClientCmd.Flags().StringVarP(&scope, "scope", "", "", "scopes requested by client during authorization_code, implicit, or password grants")
-	updateClientCmd.Flags().Int32VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
-	updateClientCmd.Flags().Int32VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
+	updateClientCmd.Flags().Int64VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
+	updateClientCmd.Flags().Int64VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
 	updateClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
 	updateClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 	updateClientCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to update the client")

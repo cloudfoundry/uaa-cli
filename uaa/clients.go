@@ -27,6 +27,8 @@ type UaaClient struct {
 	DisplayName          string   `json:"name,omitempty"`
 	LastModified         int64    `json:"lastModified,omitempty"`
 	RequiredUserGroups   []string `json:"required_user_groups,omitempty"`
+	AccessTokenValidity  int64    `json:"access_token_validity,omitempty"`
+	RefreshTokenValidity int64    `json:"refresh_token_validity,omitempty"`
 }
 
 func errorMissingValueForGrantType(value string, grantType GrantType) error {

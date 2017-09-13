@@ -28,7 +28,7 @@ func CreateClientPreRunValidations(cfg uaa.Config, args []string) error {
 	return nil
 }
 
-func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string) error {
+func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
 	var toCreate uaa.UaaClient
 	var err error
 	if clone != "" {
@@ -54,6 +54,12 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 		if scope != "" {
 			toCreate.Scope = arrayify(scope)
 		}
+		if refreshTokenValidity != 0 {
+			toCreate.RefreshTokenValidity = refreshTokenValidity
+		}
+		if accessTokenValidity != 0 {
+			toCreate.AccessTokenValidity = accessTokenValidity
+		}
 	} else {
 		toCreate = uaa.UaaClient{}
 		toCreate.ClientId = clientId
@@ -63,6 +69,8 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 		toCreate.Authorities = arrayify(authorities)
 		toCreate.RedirectUri = arrayify(redirectUri)
 		toCreate.Scope = arrayify(scope)
+		toCreate.AccessTokenValidity = accessTokenValidity
+		toCreate.RefreshTokenValidity = refreshTokenValidity
 	}
 
 	validationErr := toCreate.PreCreateValidation()
@@ -90,7 +98,18 @@ var createClientCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		cm := &uaa.ClientManager{GetHttpClient(), cfg}
-		err := CreateClientCmd(cm, clone, args[0], clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope)
+		err := CreateClientCmd(
+			cm,
+			clone,
+			args[0],
+			clientSecret,
+			displayName,
+			authorizedGrantTypes,
+			authorities,
+			redirectUri,
+			scope,
+			accessTokenValidity,
+			refreshTokenValidity)
 		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
@@ -103,8 +122,8 @@ func init() {
 	createClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client.")
 	createClientCmd.Flags().StringVarP(&authorities, "authorities", "", "", "scopes requested by client during client_credentials grant")
 	createClientCmd.Flags().StringVarP(&scope, "scope", "", "", "scopes requested by client during authorization_code, implicit, or password grants")
-	createClientCmd.Flags().Int32VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
-	createClientCmd.Flags().Int32VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
+	createClientCmd.Flags().Int64VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
+	createClientCmd.Flags().Int64VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
 	createClientCmd.Flags().StringVarP(&displayName, "display_name", "", "", "a friendly human-readable name for this client")
 	createClientCmd.Flags().StringVarP(&redirectUri, "redirect_uri", "", "", "callback urls allowed for use in authorization_code and implicit grants")
 	createClientCmd.Flags().StringVarP(&clone, "clone", "", "", "client_id of client configuration to clone")

@@ -32,8 +32,8 @@ var (
 	clientSecret         string
 	authorizedGrantTypes string
 	authorities          string
-	accessTokenValidity  int32
-	refreshTokenValidity int32
+	accessTokenValidity  int64
+	refreshTokenValidity int64
 	displayName          string
 	scope                string
 	redirectUri          string
