@@ -118,8 +118,9 @@ var _ = Describe("GetClient", func() {
 	})
 
 	Describe("when no client_id is supplied", func() {
-		It("displays and error message to the user", func() {
+		It("displays an error message to the user", func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
+			c.AddContext(uaa.NewContextWithToken("sometoken"))
 			config.WriteConfig(c)
 			session := runCommand("get-client")
 
