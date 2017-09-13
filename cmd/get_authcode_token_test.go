@@ -68,4 +68,49 @@ var _ = Describe("GetAuthcodeToken", func() {
 		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal("bearer"))
 		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))
 	})
+
+	Describe("Validations", func() {
+		It("requires a client id", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+
+			err := AuthcodeTokenArgumentValidation(cfg, []string{}, "secret", "jwt", 8001)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Missing argument `client_id` must be specified."))
+		})
+
+		It("requires a client secret", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+
+			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "", "jwt", 8001)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Missing argument `client_secret` must be specified."))
+		})
+
+		It("requires a port", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+
+			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "secret", "jwt", 0)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("Missing argument `port` must be specified."))
+		})
+
+		It("rejects invalid token formats", func() {
+			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+
+			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "secret", "bogus-format", 8001)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(`The token format "bogus-format" is unknown. Available formats: [jwt, opaque]`))
+		})
+
+		It("requires a target to have been set", func() {
+			err := AuthcodeTokenArgumentValidation(uaa.NewConfig(), []string{"clientid"}, "secret", "jwt", 8001)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring(MISSING_TARGET))
+		})
+	})
 })

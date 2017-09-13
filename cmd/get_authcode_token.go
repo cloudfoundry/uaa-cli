@@ -18,18 +18,20 @@ func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse,
 	SaveContext(ctx, log)
 }
 
-func AuthcodeTokenArgumentValidation(args []string, port int, cmd *cobra.Command) error {
+func AuthcodeTokenArgumentValidation(cfg uaa.Config, args []string, clientSecret string, tokenFormat string, port int) error {
+	if err := EnsureTargetInConfig(cfg); err != nil {
+		return err
+	}
 	if len(args) < 1 {
-		MissingArgument("client_id", cmd)
+		return MissingArgumentError("client_id")
 	}
 	if port == 0 {
-		MissingArgumentWithExplanation("port", cmd, `The port number must correspond to a localhost redirect_uri specified in the client configuration.`)
+		return MissingArgumentWithExplanationError("port", `The port number must correspond to a localhost redirect_uri specified in the client configuration.`)
 	}
 	if clientSecret == "" {
-		MissingArgument("client_secret", cmd)
+		return MissingArgumentError("client_secret")
 	}
-	validateTokenFormat(cmd, tokenFormat)
-	return nil
+	return validateTokenFormatError(tokenFormat)
 }
 
 func AuthcodeTokenCommandRun(doneRunning chan bool, clientId string, authcodeImp cli.ClientImpersonator, log *utils.Logger) {
@@ -44,16 +46,14 @@ var getAuthcodeToken = &cobra.Command{
 	Use:   "get-authcode-token CLIENT_ID -s CLIENT_SECRET --port REDIRECT_URI_PORT",
 	Short: "Obtain an access token using the authorization_code grant type",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		EnsureTarget()
+		cfg := GetSavedConfig()
+		NotifyValidationErrors(AuthcodeTokenArgumentValidation(cfg, args, clientSecret, tokenFormat, port), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
 		authcodeImp := cli.NewAuthcodeClientImpersonator(GetHttpClient(), GetSavedConfig(), args[0], clientSecret, tokenFormat, scope, port, log, open.Run)
 		go AuthcodeTokenCommandRun(done, args[0], authcodeImp, GetLogger())
 		<-done
-	},
-	Args: func(cmd *cobra.Command, args []string) error {
-		return AuthcodeTokenArgumentValidation(args, port, cmd)
 	},
 }
 
