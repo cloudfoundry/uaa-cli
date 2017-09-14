@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type ScimMetaInfo struct {
@@ -72,11 +73,11 @@ type UserManager struct {
 }
 
 type PaginatedUserResponse struct {
-	Resources []ScimUser `json:"resources"`
-	StartIndex int32 `json:"startIndex"`
-	ItemsPerPage int32 `json:"itemsPerPage"`
-	TotalResults int32 `json:"totalResults"`
-	Schemas []string `json:"schemas"`
+	Resources    []ScimUser `json:"resources"`
+	StartIndex   int32      `json:"startIndex"`
+	ItemsPerPage int32      `json:"itemsPerPage"`
+	TotalResults int32      `json:"totalResults"`
+	Schemas      []string   `json:"schemas"`
 }
 
 func (um UserManager) Get(userId string) (ScimUser, error) {
@@ -95,26 +96,48 @@ func (um UserManager) Get(userId string) (ScimUser, error) {
 	return user, err
 }
 
-func (um UserManager) List(filter string) ([]ScimUser, error) {
+type ScimSortOrder string
+
+const (
+	SORT_ASCENDING  = ScimSortOrder("ascending")
+	SORT_DESCENDING = ScimSortOrder("descending")
+)
+
+func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserResponse, error) {
 	endpoint := "/Users"
-	filterQ := ""
+
+	query := url.Values{}
 	if filter != "" {
-		filterQ = "filter=" + url.PathEscape(filter)
+		query.Add("filter", filter)
+	}
+	if attributes != "" {
+		query.Add("attributes", attributes)
+	}
+	if sortBy != "" {
+		query.Add("sortBy", sortBy)
+	}
+	if count != 0 {
+		query.Add("count", strconv.Itoa(count))
+	}
+	if startIdx != 0 {
+		query.Add("startIndex", strconv.Itoa(startIdx))
+	}
+	if sortOrder != "" {
+		query.Add("sortOrder", string(sortOrder))
 	}
 
-
-	bytes, err := AuthenticatedRequester{}.Get(um.HttpClient, um.Config, endpoint, filterQ)
+	bytes, err := AuthenticatedRequester{}.Get(um.HttpClient, um.Config, endpoint, query.Encode())
 	if err != nil {
-		return []ScimUser{}, err
+		return PaginatedUserResponse{}, err
 	}
 
 	usersResp := PaginatedUserResponse{}
 	err = json.Unmarshal(bytes, &usersResp)
 	if err != nil {
-		return []ScimUser{}, parseError(endpoint, bytes)
+		return PaginatedUserResponse{}, parseError(endpoint, bytes)
 	}
 
-	return usersResp.Resources, err
+	return usersResp, err
 }
 
 type TestUserCrud struct {

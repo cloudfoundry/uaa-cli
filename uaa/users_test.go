@@ -3,11 +3,11 @@ package uaa_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/uaa"
 
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	"net/http"
-	"fmt"
 )
 
 var _ = Describe("Users", func() {
@@ -225,28 +225,78 @@ var _ = Describe("Users", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			resp, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`)
+			resp, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "", "", 0, 0)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp[0].Username).To(Equal("marcus@stoicism.com"))
-			Expect(resp[1].Username).To(Equal("drseuss@whoville.com"))
+			Expect(resp.Resources[0].Username).To(Equal("marcus@stoicism.com"))
+			Expect(resp.Resources[1].Username).To(Equal("drseuss@whoville.com"))
 		})
 
 		It("gets all users when no filter is passed", func() {
 			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusOK, userListResponse),
 				ghttp.VerifyRequest("GET", "/Users", ""),
-				ghttp.VerifyHeaderKV("Accept", "application/json"),
-				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			resp, err := um.List("")
+			resp, err := um.List("", "", "", "", 0, 0)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp[0].Username).To(Equal("marcus@stoicism.com"))
-			Expect(resp[1].Username).To(Equal("drseuss@whoville.com"))
+			Expect(resp.Resources[0].Username).To(Equal("marcus@stoicism.com"))
+			Expect(resp.Resources[1].Username).To(Equal("drseuss@whoville.com"))
 		})
-		
+
+		It("can accept an attributes list", func() {
+			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, userListResponse),
+				ghttp.VerifyRequest("GET", "/Users", "filter=id+eq+%22fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7%22&attributes=userName%2Cemails"),
+			))
+
+			resp, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "userName,emails", "", 0, 0)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(resp.Resources[0].Username).To(Equal("marcus@stoicism.com"))
+			Expect(resp.Resources[1].Username).To(Equal("drseuss@whoville.com"))
+		})
+
+		It("can accept sortBy", func() {
+			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, userListResponse),
+				ghttp.VerifyRequest("GET", "/Users", "sortBy=userName"),
+			))
+
+			_, err := um.List("", "userName", "", "", 0, 0)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("can accept count", func() {
+			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, userListResponse),
+				ghttp.VerifyRequest("GET", "/Users", "count=10"),
+			))
+
+			_, err := um.List("", "", "", "", 0, 10)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("can accept sort order ascending/descending", func() {
+			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, userListResponse),
+				ghttp.VerifyRequest("GET", "/Users", "sortOrder=ascending"),
+			))
+
+			_, err := um.List("", "", "", "ascending", 0, 0)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("can accept startIndex", func() {
+			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusOK, userListResponse),
+				ghttp.VerifyRequest("GET", "/Users", "startIndex=10"),
+			))
+
+			_, err := um.List("", "", "", "", 10, 0)
+			Expect(err).NotTo(HaveOccurred())
+		})
+
 		It("returns an error when /Users doesn't respond", func() {
 			uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusInternalServerError, ""),
@@ -255,7 +305,7 @@ var _ = Describe("Users", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			_, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`)
+			_, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "", "", 0, 0)
 
 			Expect(err).To(HaveOccurred())
 		})
@@ -268,7 +318,7 @@ var _ = Describe("Users", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			_, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`)
+			_, err := um.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "", "", 0, 0)
 
 			Expect(err).To(HaveOccurred())
 		})
