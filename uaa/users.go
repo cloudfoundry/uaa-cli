@@ -8,34 +8,34 @@ import (
 )
 
 type ScimMetaInfo struct {
-	Version      int    `json:"version"`
-	Created      string `json:"created"`
-	LastModified string `json:"lastModified"`
+	Version      int    `json:"version,omitempty"`
+	Created      string `json:"created,omitempty"`
+	LastModified string `json:"lastModified,omitempty"`
 }
 
 type ScimUserName struct {
-	FamilyName string `json:"familyName"`
-	GivenName  string `json:"givenName"`
+	FamilyName string `json:"familyName,omitempty"`
+	GivenName  string `json:"givenName,omitempty"`
 }
 
 type ScimUserEmail struct {
-	Value   string `json:"value"`
-	Primary bool   `json:"primary"`
+	Value   string `json:"value,omitempty"`
+	Primary bool   `json:"primary,omitempty"`
 }
 
 type ScimGroup struct {
-	Value   string `json:"value"`
-	Display string `json:"display"`
-	Type    string `json:"type"`
+	Value   string `json:"value,omitempty"`
+	Display string `json:"display,omitempty"`
+	Type    string `json:"type,omitempty"`
 }
 
 type Approval struct {
-	UserId        string `json:"userId"`
-	ClientId      string `json:"clientId"`
-	Scope         string `json:"scope"`
-	Status        string `json:"status"`
-	LastUpdatedAt string `json:"lastUpdatedAt"`
-	ExpiresAt     string `json:"expiresAt"`
+	UserId        string `json:"userId,omitempty"`
+	ClientId      string `json:"clientId,omitempty"`
+	Scope         string `json:"scope,omitempty"`
+	Status        string `json:"status,omitempty"`
+	LastUpdatedAt string `json:"lastUpdatedAt,omitempty"`
+	ExpiresAt     string `json:"expiresAt,omitempty"`
 }
 
 type PhoneNumber struct {
@@ -43,28 +43,28 @@ type PhoneNumber struct {
 }
 
 type ScimUser struct {
-	Id                   string          `json:"id"`
-	ExternalId           string          `json:"externalId"`
-	Meta                 ScimMetaInfo    `json:"meta"`
-	Username             string          `json:"userName"`
-	Name                 ScimUserName    `json:"name"`
-	Emails               []ScimUserEmail `json:"emails"`
-	Groups               []ScimGroup     `json:"groups"`
-	Approvals            []Approval      `json:"approvals"`
-	PhoneNumbers         []PhoneNumber   `json:"phoneNumbers"`
-	Active               bool            `json:"active"`
-	Verified             bool            `json:"verified"`
-	Origin               string          `json:"origin"`
-	ZoneId               string          `json:"zoneId"`
-	PasswordLastModified string          `json:"passwordLastModified"`
-	PreviousLogonTime    int             `json:"previousLogonTime"`
-	LastLogonTime        int             `json:"lastLogonTime"`
-	Schemas              []string        `json:"schemas"`
+	Id                   string          `json:"id,omitempty"`
+	ExternalId           string          `json:"externalId,omitempty"`
+	Meta                 *ScimMetaInfo   `json:"meta,omitempty"`
+	Username             string          `json:"userName,omitempty"`
+	Name                 *ScimUserName   `json:"name,omitempty"`
+	Emails               []ScimUserEmail `json:"emails,omitempty"`
+	Groups               []ScimGroup     `json:"groups,omitempty"`
+	Approvals            []Approval      `json:"approvals,omitempty"`
+	PhoneNumbers         []PhoneNumber   `json:"phoneNumbers,omitempty"`
+	Active               bool            `json:"active,omitempty"`
+	Verified             bool            `json:"verified,omitempty"`
+	Origin               string          `json:"origin,omitempty"`
+	ZoneId               string          `json:"zoneId,omitempty"`
+	PasswordLastModified string          `json:"passwordLastModified,omitempty"`
+	PreviousLogonTime    int             `json:"previousLogonTime,omitempty"`
+	LastLogonTime        int             `json:"lastLogonTime,omitempty"`
+	Schemas              []string        `json:"schemas,omitempty"`
 }
 
 type Crud interface {
 	Get(string) (ScimUser, error)
-	List(string) ([]ScimUser, error)
+	List(string, string, string, ScimSortOrder, int, int) (PaginatedUserList, error)
 }
 
 type UserManager struct {
@@ -72,7 +72,7 @@ type UserManager struct {
 	Config     Config
 }
 
-type PaginatedUserResponse struct {
+type PaginatedUserList struct {
 	Resources    []ScimUser `json:"resources"`
 	StartIndex   int32      `json:"startIndex"`
 	ItemsPerPage int32      `json:"itemsPerPage"`
@@ -103,7 +103,7 @@ const (
 	SORT_DESCENDING = ScimSortOrder("descending")
 )
 
-func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserResponse, error) {
+func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserList, error) {
 	endpoint := "/Users"
 
 	query := url.Values{}
@@ -128,13 +128,13 @@ func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSort
 
 	bytes, err := AuthenticatedRequester{}.Get(um.HttpClient, um.Config, endpoint, query.Encode())
 	if err != nil {
-		return PaginatedUserResponse{}, err
+		return PaginatedUserList{}, err
 	}
 
-	usersResp := PaginatedUserResponse{}
+	usersResp := PaginatedUserList{}
 	err = json.Unmarshal(bytes, &usersResp)
 	if err != nil {
-		return PaginatedUserResponse{}, parseError(endpoint, bytes)
+		return PaginatedUserList{}, parseError(endpoint, bytes)
 	}
 
 	return usersResp, err

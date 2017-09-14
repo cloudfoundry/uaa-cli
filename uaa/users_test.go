@@ -283,7 +283,7 @@ var _ = Describe("Users", func() {
 				ghttp.VerifyRequest("GET", "/Users", "sortOrder=ascending"),
 			))
 
-			_, err := um.List("", "", "", "ascending", 0, 0)
+			_, err := um.List("", "", "", SORT_ASCENDING, 0, 0)
 			Expect(err).NotTo(HaveOccurred())
 		})
 
