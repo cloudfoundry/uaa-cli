@@ -42,6 +42,16 @@ var (
 	port                 int
 )
 
+// SCIM filters
+var (
+	filter     string
+	sortBy     string
+	sortOrder  string
+	attributes string
+	count      int
+	startIndex int
+)
+
 // Command categories
 const (
 	INTRO_CATEGORY       = "Getting Started"
