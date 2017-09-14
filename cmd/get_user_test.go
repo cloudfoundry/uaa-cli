@@ -7,16 +7,13 @@ import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"io"
 )
 
 var _ = Describe("GetUser", func() {
-	var stdOut io.Writer
 	var userManager uaa.TestUserCrud
 	var printer cli.TestPrinter
 
 	BeforeEach(func() {
-		stdOut = GinkgoWriter
 		printer = cli.NewTestPrinter()
 		userManager = uaa.NewTestUserCrud()
 	})

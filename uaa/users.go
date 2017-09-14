@@ -148,6 +148,10 @@ func (tc TestUserCrud) Get(id string) (ScimUser, error) {
 	tc.CallData["GetId"] = id
 	return ScimUser{Id: id}, nil
 }
+func (tc TestUserCrud) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserList, error) {
+	return PaginatedUserList{}, nil
+}
+
 func NewTestUserCrud() TestUserCrud {
 	tc := TestUserCrud{}
 	tc.CallData = make(map[string]string)
