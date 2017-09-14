@@ -3,6 +3,7 @@ package uaa
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 type ScimMetaInfo struct {
@@ -62,11 +63,20 @@ type ScimUser struct {
 
 type Crud interface {
 	Get(string) (ScimUser, error)
+	List(string) ([]ScimUser, error)
 }
 
 type UserManager struct {
 	HttpClient *http.Client
 	Config     Config
+}
+
+type PaginatedUserResponse struct {
+	Resources []ScimUser `json:"resources"`
+	StartIndex int32 `json:"startIndex"`
+	ItemsPerPage int32 `json:"itemsPerPage"`
+	TotalResults int32 `json:"totalResults"`
+	Schemas []string `json:"schemas"`
 }
 
 func (um UserManager) Get(userId string) (ScimUser, error) {
@@ -83,6 +93,28 @@ func (um UserManager) Get(userId string) (ScimUser, error) {
 	}
 
 	return user, err
+}
+
+func (um UserManager) List(filter string) ([]ScimUser, error) {
+	endpoint := "/Users"
+	filterQ := ""
+	if filter != "" {
+		filterQ = "filter=" + url.PathEscape(filter)
+	}
+
+
+	bytes, err := AuthenticatedRequester{}.Get(um.HttpClient, um.Config, endpoint, filterQ)
+	if err != nil {
+		return []ScimUser{}, err
+	}
+
+	usersResp := PaginatedUserResponse{}
+	err = json.Unmarshal(bytes, &usersResp)
+	if err != nil {
+		return []ScimUser{}, parseError(endpoint, bytes)
+	}
+
+	return usersResp.Resources, err
 }
 
 type TestUserCrud struct {
