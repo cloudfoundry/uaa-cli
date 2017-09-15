@@ -1,5 +1,10 @@
 package fixtures
 
+import (
+	"fmt"
+	"encoding/json"
+)
+
 const MarcusUserResponse = `{
 	  "id" : "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70",
 	  "externalId" : "marcus-user",
@@ -116,3 +121,14 @@ const PaginatedResponseTmpl = `{
 		"schemas" : [ "urn:scim:schemas:core:1.0"]
 	}`
 
+func PaginatedResponse(resources ...interface{}) string {
+	bytes, _ := json.Marshal(resources)
+
+	return fmt.Sprintf(`{
+		"resources": %v,
+		"startIndex" : 1,
+		"itemsPerPage" : 50,
+		"totalResults" : %v,
+		"schemas" : [ "urn:scim:schemas:core:1.0"]
+	}`, string(bytes), len(resources))
+}

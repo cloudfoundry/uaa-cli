@@ -3,12 +3,12 @@ package uaa_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/uaa"
 
+	. "code.cloudfoundry.org/uaa-cli/fixtures"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 	"net/http"
-	. "code.cloudfoundry.org/uaa-cli/fixtures"
 )
 
 var _ = Describe("Users", func() {
@@ -27,7 +27,7 @@ var _ = Describe("Users", func() {
 	var userListResponse = fmt.Sprintf(PaginatedResponseTmpl, MarcusUserResponse, DrSeussUserResponse)
 
 	Describe("UserManager#Get", func() {
-		It("gets a user from the UAA", func() {
+		It("gets a user from the UAA by id", func() {
 			uaaServer.RouteToHandler("GET", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("GET", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
@@ -98,6 +98,124 @@ var _ = Describe("Users", func() {
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))
 			Expect(err.Error()).To(ContainSubstring("Response was {unparsable-json-response}"))
+		})
+	})
+
+	Describe("UserManager#GetUserByUsername", func() {
+		Context("when no username is specified", func() {
+			It("returns an error", func() {
+				_, err := um.GetUserByUsername("", "")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("Username may not be blank."))
+			})
+		})
+
+		Context("when an origin is specified", func() {
+			It("looks up a user with SCIM filter", func() {
+				user := ScimUser{Username: "marcus", Origin: "uaa"}
+				response := PaginatedResponse(user)
+
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusOK, response),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22+and+origin+eq+%22uaa%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				user, err := um.GetUserByUsername("marcus", "uaa")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(user.Username).To(Equal("marcus"))
+			})
+
+			It("returns an error when request fails", func() {
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusInternalServerError, ""),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22+and+origin+eq+%22uaa%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				_, err := um.GetUserByUsername("marcus", "uaa")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("An unknown error"))
+			})
+
+			It("returns an error if no results are found", func() {
+				response := PaginatedResponse()
+
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusOK, response),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22+and+origin+eq+%22uaa%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				_, err := um.GetUserByUsername("marcus", "uaa")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal(`User marcus not found in origin uaa`))
+			})
+		})
+
+		Context("when no origin is specified", func() {
+			It("looks up a user with a SCIM filter", func() {
+				user := ScimUser{Username: "marcus", Origin: "uaa"}
+				response := PaginatedResponse(user)
+
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusOK, response),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				user, err := um.GetUserByUsername("marcus", "")
+				Expect(err).NotTo(HaveOccurred())
+				Expect(user.Username).To(Equal("marcus"))
+			})
+
+			It("returns an error when request fails", func() {
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusInternalServerError, ""),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				_, err := um.GetUserByUsername("marcus", "")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(ContainSubstring("An unknown error"))
+			})
+
+			It("returns an error when no users are found", func() {
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusOK, PaginatedResponse()),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				_, err := um.GetUserByUsername("marcus", "")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal(`User marcus not found.`))
+			})
+
+			It("returns an error when username found in multiple origins", func() {
+				user1 := ScimUser{Username: "marcus", Origin: "uaa"}
+				user2 := ScimUser{Username: "marcus", Origin: "ldap"}
+				user3 := ScimUser{Username: "marcus", Origin: "okta"}
+				response := PaginatedResponse(user1, user2, user3)
+
+				uaaServer.RouteToHandler("GET", "/Users", ghttp.CombineHandlers(
+					ghttp.RespondWith(http.StatusOK, response),
+					ghttp.VerifyRequest("GET", "/Users", "filter=userName+eq+%22marcus%22"),
+					ghttp.VerifyHeaderKV("Accept", "application/json"),
+					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				))
+
+				_, err := um.GetUserByUsername("marcus", "")
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal(`Found users with username marcus in multiple origins [uaa, ldap, okta].`))
+			})
 		})
 	})
 

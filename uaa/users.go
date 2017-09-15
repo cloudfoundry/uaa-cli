@@ -1,7 +1,10 @@
 package uaa
 
 import (
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -94,6 +97,46 @@ func (um UserManager) Get(userId string) (ScimUser, error) {
 	}
 
 	return user, err
+}
+
+func (um UserManager) GetUserByUsername(username, origin string) (ScimUser, error) {
+	if username == "" {
+		return ScimUser{}, errors.New("Username may not be blank.")
+	}
+
+	var filter string
+	if origin != "" {
+		filter = fmt.Sprintf(`userName eq "%v" and origin eq "%v"`, username, origin)
+		users, err := um.List(filter, "", "", "", 0, 0)
+		if err != nil {
+			return ScimUser{}, err
+		}
+
+		if len(users.Resources) == 0 {
+			return ScimUser{}, errors.New(fmt.Sprintf(`User %v not found in origin %v`, username, origin))
+		}
+		return users.Resources[0], nil
+	}
+
+	filter = fmt.Sprintf(`userName eq "%v"`, username)
+	users, err := um.List(filter, "", "", "", 0, 0)
+	if err != nil {
+		return ScimUser{}, err
+	}
+	if len(users.Resources) == 0 {
+		return ScimUser{}, errors.New(fmt.Sprintf("User %v not found.", username))
+	}
+	if len(users.Resources) > 1 {
+		var foundOrigins []string
+		for _, user := range users.Resources {
+			foundOrigins = append(foundOrigins, user.Origin)
+		}
+
+		msgTmpl := "Found users with username %v in multiple origins %v."
+		msg := fmt.Sprintf(msgTmpl, username, utils.StringSliceStringifier(foundOrigins))
+		return ScimUser{}, errors.New(msg)
+	}
+	return users.Resources[0], nil
 }
 
 type ScimSortOrder string
