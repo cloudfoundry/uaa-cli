@@ -42,6 +42,11 @@ var (
 	port                 int
 )
 
+// Users
+var (
+	origin string
+)
+
 // SCIM filters
 var (
 	filter     string

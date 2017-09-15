@@ -67,6 +67,7 @@ type ScimUser struct {
 
 type Crud interface {
 	Get(string) (ScimUser, error)
+	GetByUsername(string, string) (ScimUser, error)
 	List(string, string, string, ScimSortOrder, int, int) (PaginatedUserList, error)
 }
 
@@ -99,7 +100,7 @@ func (um UserManager) Get(userId string) (ScimUser, error) {
 	return user, err
 }
 
-func (um UserManager) GetUserByUsername(username, origin string) (ScimUser, error) {
+func (um UserManager) GetByUsername(username, origin string) (ScimUser, error) {
 	if username == "" {
 		return ScimUser{}, errors.New("Username may not be blank.")
 	}
@@ -186,10 +187,14 @@ func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSort
 type TestUserCrud struct {
 	CallData map[string]string
 }
-
 func (tc TestUserCrud) Get(id string) (ScimUser, error) {
 	tc.CallData["GetId"] = id
 	return ScimUser{Id: id}, nil
+}
+func (tc TestUserCrud) GetByUsername(username, origin string) (ScimUser, error) {
+	tc.CallData["Username"] = username
+	tc.CallData["Origin"] = origin
+	return ScimUser{Id: username, Origin: origin}, nil
 }
 func (tc TestUserCrud) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserList, error) {
 	return PaginatedUserList{}, nil

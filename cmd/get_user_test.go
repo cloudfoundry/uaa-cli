@@ -3,31 +3,36 @@ package cmd_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/cmd"
 
-	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	. "github.com/onsi/gomega/ghttp"
+	. "github.com/onsi/gomega/gexec"
+	. "github.com/onsi/gomega/gbytes"
+	"net/http"
+	"code.cloudfoundry.org/uaa-cli/fixtures"
+	"code.cloudfoundry.org/uaa-cli/config"
 )
 
 var _ = Describe("GetUser", func() {
-	var userManager uaa.TestUserCrud
-	var printer cli.TestPrinter
-
 	BeforeEach(func() {
-		printer = cli.NewTestPrinter()
-		userManager = uaa.NewTestUserCrud()
+		c := uaa.NewConfigWithServerURL(server.URL())
+		ctx := uaa.NewContextWithToken("access_token")
+		c.AddContext(ctx)
+		config.WriteConfig(c)
 	})
 
-	It("uses the UserManager to get a given userId", func() {
-		GetUserCmd("jen", userManager, printer)
+	It("looks up a user with a SCIM filter", func() {
+		server.RouteToHandler("GET", "/Users", CombineHandlers(
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22"),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+		))
 
-		Expect(userManager.CallData["GetId"]).To(Equal("jen"))
-	})
+		session := runCommand("get-user", "woodstock@peanuts.com", "--origin", "uaa")
 
-	It("prints the user", func() {
-		GetUserCmd("jen", userManager, printer)
+		Eventually(session).Should(Say(`"userName": "woodstock@peanuts.com"`))
+		Eventually(session).Should(Exit(0))
 
-		Expect(printer.CallData["Print"]).To(Equal(uaa.ScimUser{Id: "jen"}))
 	})
 
 	Describe("validations", func() {
@@ -45,14 +50,14 @@ var _ = Describe("GetUser", func() {
 			Expect(err.Error()).To(Equal("You must have a token in your context to perform this command."))
 		})
 
-		It("requires a user id", func() {
+		It("requires a username", func() {
 			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
 			ctx := uaa.NewContextWithToken("access_token")
 			cfg.AddContext(ctx)
 
 			err := GetUserValidations(cfg, []string{})
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(Equal("The positional argument USER_ID must be specified."))
+			Expect(err.Error()).To(Equal("The positional argument USERNAME must be specified."))
 
 			err = GetUserValidations(cfg, []string{"userid"})
 			Expect(err).NotTo(HaveOccurred())

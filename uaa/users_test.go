@@ -101,10 +101,10 @@ var _ = Describe("Users", func() {
 		})
 	})
 
-	Describe("UserManager#GetUserByUsername", func() {
+	Describe("UserManager#GetByUsername", func() {
 		Context("when no username is specified", func() {
 			It("returns an error", func() {
-				_, err := um.GetUserByUsername("", "")
+				_, err := um.GetByUsername("", "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal("Username may not be blank."))
 			})
@@ -122,7 +122,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				user, err := um.GetUserByUsername("marcus", "uaa")
+				user, err := um.GetByUsername("marcus", "uaa")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(user.Username).To(Equal("marcus"))
 			})
@@ -135,7 +135,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := um.GetUserByUsername("marcus", "uaa")
+				_, err := um.GetByUsername("marcus", "uaa")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("An unknown error"))
 			})
@@ -150,7 +150,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := um.GetUserByUsername("marcus", "uaa")
+				_, err := um.GetByUsername("marcus", "uaa")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal(`User marcus not found in origin uaa`))
 			})
@@ -168,7 +168,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				user, err := um.GetUserByUsername("marcus", "")
+				user, err := um.GetByUsername("marcus", "")
 				Expect(err).NotTo(HaveOccurred())
 				Expect(user.Username).To(Equal("marcus"))
 			})
@@ -181,7 +181,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := um.GetUserByUsername("marcus", "")
+				_, err := um.GetByUsername("marcus", "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("An unknown error"))
 			})
@@ -194,7 +194,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := um.GetUserByUsername("marcus", "")
+				_, err := um.GetByUsername("marcus", "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal(`User marcus not found.`))
 			})
@@ -212,7 +212,7 @@ var _ = Describe("Users", func() {
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := um.GetUserByUsername("marcus", "")
+				_, err := um.GetByUsername("marcus", "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(Equal(`Found users with username marcus in multiple origins [uaa, ldap, okta].`))
 			})
