@@ -4,7 +4,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"fmt"
-	"strings"
 )
 
 func avalableFormats() []string {
@@ -12,7 +11,7 @@ func avalableFormats() []string {
 }
 
 func availableFormatsStr() string {
-	return "[" + strings.Join(avalableFormats(), ", ") + "]"
+	return utils.StringSliceStringifier(avalableFormats())
 }
 
 func validateTokenFormatError(tokenFormat string) error {
