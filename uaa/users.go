@@ -65,12 +65,6 @@ type ScimUser struct {
 	Schemas              []string        `json:"schemas,omitempty"`
 }
 
-type Crud interface {
-	Get(string) (ScimUser, error)
-	GetByUsername(string, string) (ScimUser, error)
-	List(string, string, string, ScimSortOrder, int, int) (PaginatedUserList, error)
-}
-
 type UserManager struct {
 	HttpClient *http.Client
 	Config     Config
@@ -100,7 +94,7 @@ func (um UserManager) Get(userId string) (ScimUser, error) {
 	return user, err
 }
 
-func (um UserManager) GetByUsername(username, origin string) (ScimUser, error) {
+func (um UserManager) GetByUsername(username, origin, attributes string) (ScimUser, error) {
 	if username == "" {
 		return ScimUser{}, errors.New("Username may not be blank.")
 	}
@@ -108,7 +102,7 @@ func (um UserManager) GetByUsername(username, origin string) (ScimUser, error) {
 	var filter string
 	if origin != "" {
 		filter = fmt.Sprintf(`userName eq "%v" and origin eq "%v"`, username, origin)
-		users, err := um.List(filter, "", "", "", 0, 0)
+		users, err := um.List(filter, "", attributes, "", 0, 0)
 		if err != nil {
 			return ScimUser{}, err
 		}
@@ -120,7 +114,7 @@ func (um UserManager) GetByUsername(username, origin string) (ScimUser, error) {
 	}
 
 	filter = fmt.Sprintf(`userName eq "%v"`, username)
-	users, err := um.List(filter, "", "", "", 0, 0)
+	users, err := um.List(filter, "", attributes, "", 0, 0)
 	if err != nil {
 		return ScimUser{}, err
 	}
@@ -182,26 +176,4 @@ func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSort
 	}
 
 	return usersResp, err
-}
-
-type TestUserCrud struct {
-	CallData map[string]string
-}
-func (tc TestUserCrud) Get(id string) (ScimUser, error) {
-	tc.CallData["GetId"] = id
-	return ScimUser{Id: id}, nil
-}
-func (tc TestUserCrud) GetByUsername(username, origin string) (ScimUser, error) {
-	tc.CallData["Username"] = username
-	tc.CallData["Origin"] = origin
-	return ScimUser{Id: username, Origin: origin}, nil
-}
-func (tc TestUserCrud) List(filter, sortBy, attributes string, sortOrder ScimSortOrder, startIdx, count int) (PaginatedUserList, error) {
-	return PaginatedUserList{}, nil
-}
-
-func NewTestUserCrud() TestUserCrud {
-	tc := TestUserCrud{}
-	tc.CallData = make(map[string]string)
-	return tc
 }

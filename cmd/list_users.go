@@ -14,7 +14,7 @@ func ListUserValidations(cfg uaa.Config) error {
 	return nil
 }
 
-func ListUsersCmd(um uaa.Crud, printer cli.Printer, filter, sortBy, sortOrder, attributes string, startIndex, count int) error {
+func ListUsersCmd(um uaa.UserManager, printer cli.Printer, filter, sortBy, sortOrder, attributes string, startIndex, count int) error {
 	user, err := um.List(filter, sortBy, attributes, uaa.ScimSortOrder(sortOrder), startIndex, count)
 	if err != nil {
 		return err

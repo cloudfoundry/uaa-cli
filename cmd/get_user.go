@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func GetUserCmd(um uaa.Crud, printer cli.Printer, username, origin string) error {
-	user, err := um.GetByUsername(username, origin)
+func GetUserCmd(um uaa.UserManager, printer cli.Printer, username, origin, attributes string) error {
+	user, err := um.GetByUsername(username, origin, attributes)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ var getUserCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := GetUserCmd(um, cli.NewJsonPrinter(log), args[0], origin)
+		err := GetUserCmd(um, cli.NewJsonPrinter(log), args[0], origin, attributes)
 		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
@@ -46,5 +46,6 @@ func init() {
 	getUserCmd.Annotations = make(map[string]string)
 	getUserCmd.Annotations[USER_CRUD_CATEGORY] = "true"
 
-	getUserCmd.Flags().StringVarP(&origin, "origin", "", "", `The identity provider in which to search. Examples: uaa, ldap, etc. `)
+	getUserCmd.Flags().StringVarP(&origin, "origin", "o", "", `The identity provider in which to search. Examples: uaa, ldap, etc. `)
+	getUserCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
 }

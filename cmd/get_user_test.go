@@ -32,7 +32,18 @@ var _ = Describe("GetUser", func() {
 
 		Eventually(session).Should(Say(`"userName": "woodstock@peanuts.com"`))
 		Eventually(session).Should(Exit(0))
+	})
 
+	It("can limit results data with --attributes", func() {
+		server.RouteToHandler("GET", "/Users", CombineHandlers(
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&attributes=userName"),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+		))
+
+		session := runCommand("get-user", "woodstock@peanuts.com", "--origin", "uaa", "--attributes", "userName")
+
+		Eventually(session).Should(Say(`"userName": "woodstock@peanuts.com"`))
+		Eventually(session).Should(Exit(0))
 	})
 
 	Describe("validations", func() {
