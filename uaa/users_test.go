@@ -4,6 +4,8 @@ import (
 	. "code.cloudfoundry.org/uaa-cli/uaa"
 
 	. "code.cloudfoundry.org/uaa-cli/fixtures"
+	. "code.cloudfoundry.org/uaa-cli/utils"
+	"encoding/json"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -26,6 +28,94 @@ var _ = Describe("Users", func() {
 
 	var userListResponse = fmt.Sprintf(PaginatedResponseTmpl, MarcusUserResponse, DrSeussUserResponse)
 
+	Describe("ScimUser Json", func() {
+		// All this dance is necessary because the --attributes option means I need
+		// to be able to hide values that aren't sent in the server response. If I
+		// just used omitempty, I wouldn't be able to distinguish between empty values
+		// (false, empty string) and ones that were never sent by the server.
+
+		Describe("Verified", func() {
+			It("correctly shows false boolean values", func() {
+				user := ScimUser{Verified: NewFalseP()}
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"verified": false}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Verified).To(BeFalse())
+			})
+
+			It("correctly shows true values", func() {
+				user := ScimUser{Verified: NewTrueP()}
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"verified": true}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Verified).To(BeTrue())
+			})
+
+			It("correctly hides unset values", func() {
+				user := ScimUser{}
+				json.Unmarshal([]byte("{}"), &user)
+				Expect(user.Verified).To(BeNil())
+
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{}`))
+			})
+		})
+
+		Describe("Active", func() {
+			It("correctly shows false boolean values", func() {
+				user := ScimUser{Active: NewFalseP()}
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"active": false}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Active).To(BeFalse())
+			})
+
+			It("correctly shows true values", func() {
+				user := ScimUser{Active: NewTrueP()}
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"active": true}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Active).To(BeTrue())
+			})
+		})
+
+		Describe("Emails", func() {
+			It("correctly shows false boolean values", func() {
+				user := ScimUser{}
+				email := ScimUserEmail{"foo@bar.com", NewFalseP()}
+				user.Emails = []ScimUserEmail{email}
+
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"emails": [ { "value": "foo@bar.com", "primary": false } ]}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Emails[0].Primary).To(BeFalse())
+			})
+
+			It("correctly shows true values", func() {
+				user := ScimUser{}
+				email := ScimUserEmail{"foo@bar.com", NewTrueP()}
+				user.Emails = []ScimUserEmail{email}
+
+				userBytes, _ := json.Marshal(&user)
+				Expect(string(userBytes)).To(MatchJSON(`{"emails": [ { "value": "foo@bar.com", "primary": true } ]}`))
+
+				newUser := ScimUser{}
+				json.Unmarshal([]byte(userBytes), &newUser)
+				Expect(*newUser.Emails[0].Primary).To(BeTrue())
+			})
+		})
+	})
+
 	Describe("UserManager#Get", func() {
 		It("gets a user from the UAA by id", func() {
 			uaaServer.RouteToHandler("GET", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
@@ -39,14 +129,13 @@ var _ = Describe("Users", func() {
 
 			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 			Expect(user.ExternalId).To(Equal("marcus-user"))
-			Expect(user.Active).To(Equal(true))
 			Expect(user.Meta.Created).To(Equal("2017-01-15T16:54:15.677Z"))
 			Expect(user.Meta.LastModified).To(Equal("2017-08-15T16:54:15.677Z"))
 			Expect(user.Meta.Version).To(Equal(1))
 			Expect(user.Username).To(Equal("marcus@stoicism.com"))
 			Expect(user.Name.GivenName).To(Equal("Marcus"))
 			Expect(user.Name.FamilyName).To(Equal("Aurelius"))
-			Expect(user.Emails[0].Primary).To(Equal(false))
+			Expect(*user.Emails[0].Primary).To(Equal(false))
 			Expect(user.Emails[0].Value).To(Equal("marcus@stoicism.com"))
 			Expect(user.Groups[0].Display).To(Equal("philosophy.read"))
 			Expect(user.Groups[0].Type).To(Equal("DIRECT"))
@@ -61,8 +150,8 @@ var _ = Describe("Users", func() {
 			Expect(user.Approvals[0].Scope).To(Equal("philosophy.read"))
 			Expect(user.Approvals[0].Status).To(Equal("APPROVED"))
 			Expect(user.PhoneNumbers[0].Value).To(Equal("5555555555"))
-			Expect(user.Active).To(Equal(true))
-			Expect(user.Verified).To(Equal(true))
+			Expect(*user.Active).To(Equal(true))
+			Expect(*user.Verified).To(Equal(true))
 			Expect(user.Origin).To(Equal("uaa"))
 			Expect(user.ZoneId).To(Equal("uaa"))
 			Expect(user.PasswordLastModified).To(Equal("2017-08-15T16:54:15.000Z"))

@@ -23,7 +23,7 @@ type ScimUserName struct {
 
 type ScimUserEmail struct {
 	Value   string `json:"value,omitempty"`
-	Primary bool   `json:"primary,omitempty"`
+	Primary *bool  `json:"primary,omitempty"`
 }
 
 type ScimGroup struct {
@@ -55,8 +55,8 @@ type ScimUser struct {
 	Groups               []ScimGroup     `json:"groups,omitempty"`
 	Approvals            []Approval      `json:"approvals,omitempty"`
 	PhoneNumbers         []PhoneNumber   `json:"phoneNumbers,omitempty"`
-	Active               bool            `json:"active,omitempty"`
-	Verified             bool            `json:"verified,omitempty"`
+	Active               *bool           `json:"active,omitempty"`
+	Verified             *bool           `json:"verified,omitempty"`
 	Origin               string          `json:"origin,omitempty"`
 	ZoneId               string          `json:"zoneId,omitempty"`
 	PasswordLastModified string          `json:"passwordLastModified,omitempty"`
