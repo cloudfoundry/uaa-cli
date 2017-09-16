@@ -21,8 +21,8 @@ tasks are being tracked in this [trello board](https://trello.com/b/Hw4Pz0Jd/uaa
 ```
 go get code.cloudfoundry.org/uaa-cli
 cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
-dep ensure
-go build && ./uaa-cli -h
+make && make install
+uaa -h
 ```
 
 ## Development notes

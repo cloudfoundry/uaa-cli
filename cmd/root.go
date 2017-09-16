@@ -9,6 +9,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"github.com/spf13/cobra"
+	"code.cloudfoundry.org/uaa-cli/version"
 )
 
 var cfgFile uaa.Config
@@ -69,7 +70,7 @@ const (
 var RootCmd = cobra.Command{
 	Use:   "uaa",
 	Short: "A cli for interacting with UAAs",
-	Long:  help.Root(),
+	Long:  help.Root(version.VersionString()),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
