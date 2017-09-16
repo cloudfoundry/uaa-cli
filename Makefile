@@ -1,7 +1,7 @@
 .PHONY: all build ci clean dependencies format ginkgo test install
 
 DEST = build/uaa
-INSTALL_DEST = $(GOPATH)/src/uaa
+INSTALL_DEST = $(GOPATH)/bin/uaa
 COMMIT_HASH=`git rev-parse --short HEAD`
 
 ifndef VERSION
@@ -29,6 +29,6 @@ build:
 		mkdir -p build
 		go build $(GOFLAGS)
 
-install: build
-		rm $(INSTALL_DEST)
+install:
+		rm -rf $(INSTALL_DEST)
 		cp $(DEST) $(INSTALL_DEST)
