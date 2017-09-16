@@ -1,11 +1,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"fmt"
 	"code.cloudfoundry.org/uaa-cli/version"
+	"fmt"
+	"github.com/spf13/cobra"
 )
-
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
@@ -20,4 +19,3 @@ func init() {
 	versionCmd.Annotations = make(map[string]string)
 	versionCmd.Annotations[INTRO_CATEGORY] = "true"
 }
-

@@ -106,4 +106,3 @@ TROUBLESHOOTING FAQ
       has.
   `
 }
-

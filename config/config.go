@@ -1,11 +1,11 @@
 package config
 
 import (
+	. "code.cloudfoundry.org/uaa-cli/uaa"
 	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path"
-	. "code.cloudfoundry.org/uaa-cli/uaa"
 )
 
 func ConfigDir() string {

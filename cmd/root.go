@@ -8,8 +8,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
-	"github.com/spf13/cobra"
 	"code.cloudfoundry.org/uaa-cli/version"
+	"github.com/spf13/cobra"
 )
 
 var cfgFile uaa.Config

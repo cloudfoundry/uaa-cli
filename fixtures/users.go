@@ -1,8 +1,8 @@
 package fixtures
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 )
 
 const MarcusUserResponse = `{

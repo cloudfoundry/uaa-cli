@@ -1,14 +1,15 @@
 .PHONY: all build ci clean dep format ginkgo test install
 
-DEST = build/uaa
+BUILD_DEST = build/uaa
 INSTALL_DEST = $(GOPATH)/bin/uaa
 COMMIT_HASH=`git rev-parse --short HEAD`
+GOFILES_NOVENDOR=`find . -type f -name '*.go' -not -path "./vendor/*"`
 
 ifndef VERSION
 	VERSION = DEV
 endif
 
-GOFLAGS := -v -o $(DEST) -ldflags "-X code.cloudfoundry.org/uaa-cli/version.Version=${VERSION} -X code.cloudfoundry.org/uaa-cli/version.Commit=${COMMIT_HASH}"
+GOFLAGS := -v -o $(BUILD_DEST) -ldflags "-X code.cloudfoundry.org/uaa-cli/version.Version=${VERSION} -X code.cloudfoundry.org/uaa-cli/version.Commit=${COMMIT_HASH}"
 
 all: dep test clean build
 
@@ -16,7 +17,7 @@ clean:
 		rm -rf build
 
 format:
-		go fmt .
+		gofmt -l -s -w ${GOFILES_NOVENDOR}
 
 ginkgo:
 		ginkgo -r -randomizeSuites -randomizeAllSpecs -race 2>&1
@@ -38,4 +39,4 @@ build:
 
 install:
 		rm -rf $(INSTALL_DEST)
-		cp $(DEST) $(INSTALL_DEST)
+		cp $(BUILD_DEST) $(INSTALL_DEST)
