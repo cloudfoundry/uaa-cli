@@ -58,6 +58,15 @@ var (
 	startIndex int
 )
 
+// Curl flags
+var (
+	path           string
+	method         string
+	data           string
+	headers        []string
+	includeHeaders bool
+)
+
 // Command categories
 const (
 	INTRO_CATEGORY       = "Getting Started"

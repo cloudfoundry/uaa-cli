@@ -8,11 +8,11 @@ import (
 )
 
 type Requester interface {
-	Get(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
-	Delete(client *http.Client, context UaaContext, path string, query string) ([]byte, error)
-	PostForm(client *http.Client, context UaaContext, path string, query string, body map[string]string) ([]byte, error)
-	PostJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
-	PutJson(client *http.Client, context UaaContext, path string, query string, body interface{}) ([]byte, error)
+	Get(client *http.Client, config Config, path string, query string) ([]byte, error)
+	Delete(client *http.Client, config Config, path string, query string) ([]byte, error)
+	PostForm(client *http.Client, config Config, path string, query string, body map[string]string) ([]byte, error)
+	PostJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error)
+	PutJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error)
 }
 
 type UnauthenticatedRequester struct{}

@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/uaa"
 	"crypto/tls"
 	"net/http"
 	"time"
+
+	"code.cloudfoundry.org/uaa-cli/uaa"
 )
 
 func GetHttpClient() *http.Client {
@@ -16,7 +17,7 @@ func GetHttpClient() *http.Client {
 // the new target.
 func GetHttpClientWithConfig(config uaa.Config) *http.Client {
 	var client = &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 60 * time.Second,
 	}
 
 	if config.GetActiveTarget().SkipSSLValidation {
