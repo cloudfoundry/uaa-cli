@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("InteractivePrompt", func() {
+var _ = Describe("Interactive inputs", func() {
 	var inbuf *bytes.Buffer
 	var outbuf *bytes.Buffer
 
@@ -20,24 +20,42 @@ var _ = Describe("InteractivePrompt", func() {
 		InteractiveInput = inbuf
 	})
 
-	It("prints the prompt for the user", func() {
-		ip := InteractivePrompt{Prompt: "Username"}
+	Describe("InteractivePrompt", func() {
+		It("prints the prompt for the user", func() {
+			ip := InteractivePrompt{Prompt: "Username"}
 
-		ip.Get()
+			ip.Get()
 
-		outreader := bufio.NewReader(outbuf)
-		printed, err := outreader.ReadString(':')
-		Expect(err).NotTo(HaveOccurred())
-		Expect(printed).To(Equal("Username:"))
+			outreader := bufio.NewReader(outbuf)
+			printed, err := outreader.ReadString(':')
+			Expect(err).NotTo(HaveOccurred())
+			Expect(printed).To(Equal("Username:"))
+		})
+
+		It("gets user input", func() {
+			inbuf.WriteString("woodstock\n")
+
+			ip := InteractivePrompt{Prompt: "Username"}
+			input, err := ip.Get()
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(input).To(Equal("woodstock"))
+		})
 	})
 
-	It("gets user input", func() {
-		inbuf.WriteString("woodstock\n")
+	Describe("InteractiveSecret", func() {
+		It("gets user input with terminal.ReadPassword", func() {
+			called := false
+			ReadPassword = func(fd int) ([]byte, error) {
+				called = true
+				return []byte("somepassword"), nil
+			}
 
-		ip := InteractivePrompt{Prompt: "Username"}
-		input, err := ip.Get()
+			ip := InteractiveSecret{Prompt: "Password"}
+			input, err := ip.Get()
 
-		Expect(err).NotTo(HaveOccurred())
-		Expect(input).To(Equal("woodstock"))
+			Expect(err).NotTo(HaveOccurred())
+			Expect(input).To(Equal("somepassword"))
+		})
 	})
 })
