@@ -24,7 +24,7 @@ var _ = Describe("Curl", func() {
 		userListResponse = fmt.Sprintf(PaginatedResponseTmpl, MarcusUserResponse, DrSeussUserResponse)
 	})
 
-	It("sends request", func() {
+	It("sends GET request", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", ""),
 			RespondWith(http.StatusOK, userListResponse),
@@ -33,6 +33,20 @@ var _ = Describe("Curl", func() {
 		session := runCommand("curl",
 			"/Users",
 			"-X", "GET",
+			"-H", "Accept: application/json")
+
+		Eventually(session).Should(Exit(0))
+	})
+
+	It("sends POST request", func() {
+		server.RouteToHandler("POST", "/Users", CombineHandlers(
+			VerifyRequest("POST", "/Users", ""),
+			RespondWith(http.StatusCreated, userListResponse),
+		))
+
+		session := runCommand("curl",
+			"/Users",
+			"-X", "POST",
 			"-H", "Accept: application/json")
 
 		Eventually(session).Should(Exit(0))

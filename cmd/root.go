@@ -60,11 +60,10 @@ var (
 
 // Curl flags
 var (
-	path           string
-	method         string
-	data           string
-	headers        []string
-	includeHeaders bool
+	path    string
+	method  string
+	data    string
+	headers []string
 )
 
 // Command categories

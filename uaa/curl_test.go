@@ -43,6 +43,31 @@ var _ = Describe("Curl", func() {
 
 			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 		})
+
+		It("creates a user in the UAA", func() {
+			reqBody := map[string]interface{}{
+				"externalId": "marcus-user",
+				"userName":   "marcus@stoicism.com",
+			}
+			uaaServer.RouteToHandler("POST", "/Users", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Users"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyJSONRepresenting(reqBody),
+				ghttp.RespondWith(http.StatusCreated, MarcusUserResponse),
+			))
+
+			reqBodyBytes, err := json.Marshal(reqBody)
+			Expect(err).NotTo(HaveOccurred())
+
+			_, resBody, err := cm.Curl("/Users", "POST", string(reqBodyBytes), []string{"Content-Type: application/json", "Accept: application/json"})
+
+			var user ScimUser
+			err = json.Unmarshal([]byte(resBody), &user)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
+		})
 	})
 
 })

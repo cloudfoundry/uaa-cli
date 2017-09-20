@@ -20,21 +20,20 @@ func GetCurlValidations(cfg uaa.Config, args []string) error {
 	return nil
 }
 
-func CurlCmd(cm uaa.CurlManager, logger cli.Logger, path, method, data string, headers []string, includeHeaders bool) error {
+func CurlCmd(cm uaa.CurlManager, logger cli.Logger, path, method, data string, headers []string) error {
 	resHeaders, resBody, err := cm.Curl(path, method, data, headers)
 	if err != nil {
 		return err
 	}
+	bodyPrinter := logger.Info
 	if strings.Contains(resHeaders, "application/json") {
 		buffer := bytes.Buffer{}
 		if err := json.Indent(&buffer, []byte(resBody), "", "  "); err == nil {
 			resBody = buffer.String()
+			bodyPrinter = logger.Robots
 		}
 	}
-	if includeHeaders {
-		logger.Info(resHeaders)
-	}
-	logger.Info(resBody)
+	bodyPrinter(resBody)
 	return nil
 }
 
@@ -45,16 +44,17 @@ var curlCmd = &cobra.Command{
 		cfg := GetSavedConfig()
 		NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
 		cm := uaa.CurlManager{GetHttpClient(), cfg}
-		err := CurlCmd(cm, log, args[0], method, data, headers, includeHeaders)
+		err := CurlCmd(cm, log, args[0], method, data, headers)
 		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(curlCmd)
+	curlCmd.Annotations = make(map[string]string)
+	curlCmd.Annotations[USER_CRUD_CATEGORY] = "true"
 
 	curlCmd.Flags().StringVarP(&method, "method", "X", "GET", "HTTP method (GET, POST, PUT, DELETE, etc)")
 	curlCmd.Flags().StringVarP(&data, "data", "d", "", "HTTP data to include in the request body")
 	curlCmd.Flags().StringSliceVarP(&headers, "header", "H", []string{}, "Custom headers to include in the request, flag can be specified multiple times")
-	curlCmd.Flags().BoolVarP(&includeHeaders, "include", "i", false, "Include response headers in the output")
 }

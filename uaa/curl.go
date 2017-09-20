@@ -2,6 +2,7 @@ package uaa
 
 import (
 	"bufio"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -37,10 +38,16 @@ func (cm CurlManager) Curl(path, method, data string, headers []string) (resHead
 	if err != nil {
 		return
 	}
-	addZoneSwitchHeader(req, &cm.Config)
+
+	if cm.Config.Trace {
+		logRequest(req)
+	}
 
 	resp, err := cm.HttpClient.Do(req)
 	if err != nil {
+		if cm.Config.Trace {
+			fmt.Printf("%v\n\n", err)
+		}
 		return
 	}
 	defer resp.Body.Close()
@@ -49,7 +56,14 @@ func (cm CurlManager) Curl(path, method, data string, headers []string) (resHead
 	resHeaders = string(headerBytes)
 
 	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil && cm.Config.Trace {
+		fmt.Printf("%v\n\n", err)
+	}
 	resBody = string(bytes)
+
+	if cm.Config.Trace {
+		logResponse(resp, bytes)
+	}
 
 	return
 }
