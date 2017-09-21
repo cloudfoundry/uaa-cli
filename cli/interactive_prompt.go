@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	"github.com/fatih/color"
 	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"os"
@@ -34,7 +35,8 @@ type InteractivePrompt struct {
 }
 
 func (ip InteractivePrompt) Get() (string, error) {
-	fmt.Fprint(InteractiveOutput, ip.Prompt+": ")
+	prompt := color.CyanString(ip.Prompt + ": ")
+	fmt.Fprint(InteractiveOutput, prompt)
 
 	reader := bufio.NewReader(InteractiveInput)
 	val, err := reader.ReadString('\n')

@@ -29,7 +29,7 @@ var _ = Describe("Interactive inputs", func() {
 			outreader := bufio.NewReader(outbuf)
 			printed, err := outreader.ReadString(':')
 			Expect(err).NotTo(HaveOccurred())
-			Expect(printed).To(Equal("Username:"))
+			Expect(printed).To(ContainSubstring("Username:"))
 		})
 
 		It("gets user input", func() {
