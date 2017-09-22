@@ -442,4 +442,64 @@ var _ = Describe("Users", func() {
 		})
 	})
 
+	Describe("UserManager#Create", func() {
+		var user ScimUser
+
+		BeforeEach(func() {
+			user = ScimUser{
+				Username: "marcus@stoicism.com",
+				Active: NewTrueP(),
+			}
+			user.Name = &ScimUserName{GivenName: "Marcus", FamilyName: "Aurelius"}
+		})
+
+		It("performs POST with user data and bearer token", func() {
+			uaaServer.RouteToHandler("POST", "/Users", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Users"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
+				ghttp.VerifyJSON(`{ "userName": "marcus@stoicism.com", "active": true, "name" : { "familyName" : "Aurelius", "givenName" : "Marcus" }}`),
+				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+			))
+
+			um.Create(user)
+
+			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
+		})
+
+		It("returns the created user", func() {
+			uaaServer.RouteToHandler("POST", "/Users", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Users"),
+				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+			))
+
+			user, _ := um.Create(user)
+
+			Expect(user.Username).To(Equal("marcus@stoicism.com"))
+			Expect(user.ExternalId).To(Equal("marcus-user"))
+		})
+
+		It("returns error when response cannot be parsed", func() {
+			uaaServer.RouteToHandler("POST", "/Users", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Users"),
+				ghttp.RespondWith(http.StatusOK, "{unparseable}"),
+			))
+
+			_, err:= um.Create(user)
+
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("returns error when response is not 200 OK", func() {
+			uaaServer.RouteToHandler("POST", "/Users", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Users"),
+				ghttp.RespondWith(http.StatusBadRequest, ""),
+			))
+
+			_, err:= um.Create(user)
+
+			Expect(err).To(HaveOccurred())
+		})
+	})
 })
