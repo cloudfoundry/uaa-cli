@@ -178,9 +178,25 @@ func (um UserManager) List(filter, sortBy, attributes string, sortOrder ScimSort
 	return usersResp, err
 }
 
-func (um UserManager) Create(user ScimUser) (ScimUser, error) {
+func (um UserManager) Create(toCreate ScimUser) (ScimUser, error) {
 	url := "/Users"
-	bytes, err := AuthenticatedRequester{}.PostJson(um.HttpClient, um.Config, url, "", user)
+	bytes, err := AuthenticatedRequester{}.PostJson(um.HttpClient, um.Config, url, "", toCreate)
+	if err != nil {
+		return ScimUser{}, err
+	}
+
+	created := ScimUser{}
+	err = json.Unmarshal(bytes, &created)
+	if err != nil {
+		return ScimUser{}, parseError(url, bytes)
+	}
+
+	return created, err
+}
+
+func (um UserManager) Update(toUpdate ScimUser) (ScimUser, error) {
+	url := "/Users"
+	bytes, err := AuthenticatedRequester{}.PutJson(um.HttpClient, um.Config, url, "", toUpdate)
 	if err != nil {
 		return ScimUser{}, err
 	}
