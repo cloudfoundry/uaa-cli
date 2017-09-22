@@ -37,7 +37,7 @@ var _ = Describe("CreateClient", func() {
 	})
 
 	Describe("and a target was previously set", func() {
-		Describe("when the --trace option is used", func() {
+		Describe("when the --verbose option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/clients",
 					RespondWith(http.StatusOK, notifierClient),
@@ -48,7 +48,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--authorities", "notifications.write",
-					"--trace")
+					"--verbose")
 
 				Eventually(session).Should(Exit(0))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/clients"))
@@ -66,7 +66,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--authorities", "notifications.write",
-					"--trace")
+					"--verbose")
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/clients"))

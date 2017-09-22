@@ -48,13 +48,13 @@ func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
 func NotifyErrorsWithRetry(err error, cfg uaa.Config, log cli.Logger) {
 	if err != nil {
 		log.Error(err.Error())
-		TraceRetryMsg(GetSavedConfig())
+		VerboseRetryMsg(GetSavedConfig())
 		os.Exit(1)
 	}
 }
 
-func TraceRetryMsg(c uaa.Config) {
-	if !c.Trace {
-		log.Info("Retry with --trace for more information.")
+func VerboseRetryMsg(c uaa.Config) {
+	if !c.Verbose {
+		log.Info("Retry with --verbose for more information.")
 	}
 }

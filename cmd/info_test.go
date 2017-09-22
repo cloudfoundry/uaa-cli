@@ -18,7 +18,7 @@ var _ = Describe("Info", func() {
 			config.WriteConfig(c)
 		})
 
-		ItSupportsTheTraceFlagWhenGet("info", "/info", InfoResponseJson)
+		ItSupportsTheVerboseFlagWhenGet("info", "/info", InfoResponseJson)
 
 		It("shows the info response", func() {
 			server.RouteToHandler("GET", "/info",

@@ -25,7 +25,7 @@ var _ = Describe("ListClients", func() {
 		  "schemas" : [ "http://cloudfoundry.org/schema/scim/oauth-clients-1.0" ]
 		}`
 
-	Describe("--trace flag support", func() {
+	Describe("--verbose flag support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
 			c.AddContext(uaa.NewContextWithToken("access_token"))
@@ -37,7 +37,7 @@ var _ = Describe("ListClients", func() {
 				RespondWith(http.StatusOK, ClientsListResponseJsonPage1),
 			)
 
-			session := runCommand("list-clients", "--trace")
+			session := runCommand("list-clients", "--verbose")
 
 			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients"))
 			Expect(session.Out).To(Say("Accept: application/json"))
@@ -50,7 +50,7 @@ var _ = Describe("ListClients", func() {
 				RespondWith(http.StatusBadRequest, "garbage response"),
 			)
 
-			session := runCommand("list-clients", "--trace")
+			session := runCommand("list-clients", "--verbose")
 
 			Eventually(session).Should(Exit(1))
 			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients"))
@@ -77,7 +77,7 @@ var _ = Describe("ListClients", func() {
 				),
 			)
 
-			session := runCommand("list-clients", "--trace", "--zone", "twilight-zone")
+			session := runCommand("list-clients", "--verbose", "--zone", "twilight-zone")
 			Eventually(session).Should(Exit(0))
 		})
 	})

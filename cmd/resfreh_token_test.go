@@ -44,13 +44,13 @@ var _ = Describe("ResfrehToken", func() {
 			config.WriteConfig(c)
 		})
 
-		Describe("when the --trace option is used", func() {
+		Describe("when the --verbose option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/token",
 					RespondWith(http.StatusOK, jwtTokenResponseJson),
 				)
 
-				session := runCommand("refresh-token", "-s", "secretsecret", "--trace")
+				session := runCommand("refresh-token", "-s", "secretsecret", "--verbose")
 
 				Eventually(session).Should(Exit(0))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))
@@ -63,7 +63,7 @@ var _ = Describe("ResfrehToken", func() {
 					RespondWith(http.StatusBadRequest, "garbage response"),
 				)
 
-				session := runCommand("refresh-token", "-s", "secretsecret", "--trace")
+				session := runCommand("refresh-token", "-s", "secretsecret", "--verbose")
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))

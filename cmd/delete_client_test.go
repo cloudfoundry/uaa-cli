@@ -28,7 +28,7 @@ var _ = Describe("DeleteClient", func() {
 		  "required_user_groups" : [ "cloud_controller.admin" ]
 		}`
 
-	Describe("--trace flag support", func() {
+	Describe("--verbose flag support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
 			c.AddContext(uaa.NewContextWithToken("access_token"))
@@ -40,7 +40,7 @@ var _ = Describe("DeleteClient", func() {
 				RespondWith(http.StatusOK, DeleteClientResponseJson),
 			)
 
-			session := runCommand("delete-client", "clientid", "--trace")
+			session := runCommand("delete-client", "clientid", "--verbose")
 
 			Expect(session.Out).To(Say("DELETE " + server.URL() + "/oauth/clients/clientid"))
 			Expect(session.Out).To(Say("Accept: application/json"))
@@ -53,7 +53,7 @@ var _ = Describe("DeleteClient", func() {
 				RespondWith(http.StatusBadRequest, "garbage response"),
 			)
 
-			session := runCommand("delete-client", "clientid", "--trace")
+			session := runCommand("delete-client", "clientid", "--verbose")
 
 			Eventually(session).Should(Exit(1))
 			Expect(session.Out).To(Say("DELETE " + server.URL() + "/oauth/clients/clientid"))

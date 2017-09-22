@@ -45,7 +45,7 @@ var _ = Describe("SetClientSecret", func() {
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
 		Expect(session.Err).To(Say("The secret for client shinyclient was not updated."))
-		Expect(session.Out).To(Say("Retry with --trace for more information."))
+		Expect(session.Out).To(Say("Retry with --verbose for more information."))
 		Eventually(session).Should(Exit(1))
 	})
 

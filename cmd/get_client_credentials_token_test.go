@@ -36,13 +36,13 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			context = c.GetActiveContext()
 		})
 
-		Describe("when the --trace option is used", func() {
+		Describe("when the --verbose option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/token",
 					RespondWith(http.StatusOK, opaqueTokenResponseJson),
 				)
 
-				session := runCommand("get-client-credentials-token", "admin", "-s", "secret", "--trace")
+				session := runCommand("get-client-credentials-token", "admin", "-s", "secret", "--verbose")
 
 				Eventually(session).Should(Exit(0))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))
@@ -55,7 +55,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 					RespondWith(http.StatusBadRequest, "garbage response"),
 				)
 
-				session := runCommand("get-client-credentials-token", "admin", "-s", "secret", "--trace")
+				session := runCommand("get-client-credentials-token", "admin", "-s", "secret", "--verbose")
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))

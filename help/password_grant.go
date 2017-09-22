@@ -61,7 +61,7 @@ TROUBLESHOOTING FAQ
   Scenario: You are unable to get a token using get-password-token.
 
     - Ensure you are using valid client_id, client_secret, username, and password.
-      If you are very confident in these values, run with --trace and make sure
+      If you are very confident in these values, run with --verbose and make sure
       you have targeted the correct UAA for the credentials you are passing.
 
     - Ensure that "password" in the list of authorized_grant_types for your client.

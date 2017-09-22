@@ -106,13 +106,13 @@ func ItBehavesLikeHelp(command string, alias string, validate func(*Session)) {
 	})
 }
 
-func ItSupportsTheTraceFlagWhenGet(command string, endpoint string, responseJson string) {
+func ItSupportsTheVerboseFlagWhenGet(command string, endpoint string, responseJson string) {
 	It("shows extra output about the request on success", func() {
 		server.RouteToHandler("GET", endpoint,
 			RespondWith(http.StatusOK, responseJson),
 		)
 
-		session := runCommand(command, "--trace")
+		session := runCommand(command, "--verbose")
 
 		Eventually(session).Should(Exit(0))
 		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))
@@ -125,7 +125,7 @@ func ItSupportsTheTraceFlagWhenGet(command string, endpoint string, responseJson
 			RespondWith(http.StatusBadRequest, "garbage response"),
 		)
 
-		session := runCommand(command, "--trace")
+		session := runCommand(command, "--verbose")
 
 		Eventually(session).Should(Exit(1))
 		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))

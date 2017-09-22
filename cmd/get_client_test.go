@@ -26,7 +26,7 @@ var _ = Describe("GetClient", func() {
 		  "required_user_groups" : [ "cloud_controller.admin" ]
 		}`
 
-	Describe("--trace flag support", func() {
+	Describe("--verbose flag support", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
 			c.AddContext(uaa.NewContextWithToken("access_token"))
@@ -38,7 +38,7 @@ var _ = Describe("GetClient", func() {
 				RespondWith(http.StatusOK, GetClientResponseJson),
 			)
 
-			session := runCommand("get-client", "clientid", "--trace")
+			session := runCommand("get-client", "clientid", "--verbose")
 
 			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients/clientid"))
 			Expect(session.Out).To(Say("Accept: application/json"))
@@ -51,7 +51,7 @@ var _ = Describe("GetClient", func() {
 				RespondWith(http.StatusBadRequest, "garbage response"),
 			)
 
-			session := runCommand("get-client", "clientid", "--trace")
+			session := runCommand("get-client", "clientid", "--verbose")
 
 			Eventually(session).Should(Exit(1))
 			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients/clientid"))

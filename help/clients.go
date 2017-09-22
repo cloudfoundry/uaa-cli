@@ -10,7 +10,7 @@ func CreateClient() string {
   required.
 
   Most errors that occur during create-client can be easily diagnosed by using
-  the --trace option to inspect the error response sent from the UAA.
+  the --verbose option to inspect the error response sent from the UAA.
 
 EXAMPLE USAGE
 

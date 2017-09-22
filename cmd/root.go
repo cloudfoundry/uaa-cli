@@ -25,7 +25,7 @@ var (
 // Global flags
 var (
 	skipSSLValidation bool
-	trace             bool
+	verbose           bool
 )
 
 // Client flags
@@ -92,7 +92,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	RootCmd.PersistentFlags().BoolVarP(&trace, "trace", "t", false, "See additional info on HTTP requests")
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "See additional info on HTTP requests")
 	RootCmd.Annotations = make(map[string]string)
 	RootCmd.Annotations[INTRO_CATEGORY] = "true"
 	RootCmd.Annotations[TOKEN_CATEGORY] = "true"
@@ -137,7 +137,7 @@ func GetLogger() *cli.Logger {
 
 func GetSavedConfig() uaa.Config {
 	cfgFile = config.ReadConfig()
-	cfgFile.Trace = trace
+	cfgFile.Verbose = verbose
 	cfgFile.ZoneSubdomain = zoneSubdomain
 	return cfgFile
 }

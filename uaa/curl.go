@@ -39,13 +39,13 @@ func (cm CurlManager) Curl(path, method, data string, headers []string) (resHead
 		return
 	}
 
-	if cm.Config.Trace {
+	if cm.Config.Verbose {
 		logRequest(req)
 	}
 
 	resp, err := cm.HttpClient.Do(req)
 	if err != nil {
-		if cm.Config.Trace {
+		if cm.Config.Verbose {
 			fmt.Printf("%v\n\n", err)
 		}
 		return
@@ -56,12 +56,12 @@ func (cm CurlManager) Curl(path, method, data string, headers []string) (resHead
 	resHeaders = string(headerBytes)
 
 	bytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil && cm.Config.Trace {
+	if err != nil && cm.Config.Verbose {
 		fmt.Printf("%v\n\n", err)
 	}
 	resBody = string(bytes)
 
-	if cm.Config.Trace {
+	if cm.Config.Verbose {
 		logResponse(resp, bytes)
 	}
 

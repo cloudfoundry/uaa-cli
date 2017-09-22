@@ -38,12 +38,12 @@ func mapToUrlValues(body map[string]string) url.Values {
 }
 
 func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, error) {
-	if config.Trace {
+	if config.Verbose {
 		logRequest(req)
 	}
 	resp, err := client.Do(req)
 	if err != nil {
-		if config.Trace {
+		if config.Verbose {
 			fmt.Printf("%v\n\n", err)
 		}
 
@@ -52,12 +52,12 @@ func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, e
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		if config.Trace {
+		if config.Verbose {
 			fmt.Printf("%v\n\n", err)
 		}
 
 		return []byte{}, unknownError()
-	} else if config.Trace {
+	} else if config.Verbose {
 		logResponse(resp, bytes)
 	}
 

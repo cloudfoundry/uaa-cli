@@ -40,7 +40,7 @@ var _ = Describe("GetPasswordToken", func() {
 			ctx = c.GetActiveContext()
 		})
 
-		Describe("when the --trace option is used", func() {
+		Describe("when the --verbose option is used", func() {
 			It("shows extra output about the request on success", func() {
 				server.RouteToHandler("POST", "/oauth/token",
 					RespondWith(http.StatusOK, jwtTokenResponseJson),
@@ -51,7 +51,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-s", "adminsecret",
 					"-u", "woodstock",
 					"-p", "secret",
-					"--trace")
+					"--verbose")
 
 				Eventually(session).Should(Exit(0))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))
@@ -69,7 +69,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"-s", "adminsecret",
 					"-u", "woodstock",
 					"-p", "secret",
-					"--trace")
+					"--verbose")
 
 				Eventually(session).Should(Exit(1))
 				Expect(session.Out).To(Say("POST " + server.URL() + "/oauth/token"))
