@@ -44,7 +44,7 @@ var _ = Describe("Curl", func() {
 			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 		})
 
-		It("creates a user in the UAA", func() {
+		It("can POST body and multiple headers", func() {
 			reqBody := map[string]interface{}{
 				"externalId": "marcus-user",
 				"userName":   "marcus@stoicism.com",
@@ -53,6 +53,7 @@ var _ = Describe("Curl", func() {
 				ghttp.VerifyRequest("POST", "/Users"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
 				ghttp.VerifyJSONRepresenting(reqBody),
 				ghttp.RespondWith(http.StatusCreated, MarcusUserResponse),
 			))
