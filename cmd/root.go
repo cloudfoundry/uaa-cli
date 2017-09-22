@@ -45,7 +45,13 @@ var (
 
 // Users
 var (
-	origin string
+	userName     string
+	familyName   string
+	givenName    string
+	emails       []string
+	phoneNumbers []string
+	origin       string
+	userPassword string
 )
 
 // SCIM filters
