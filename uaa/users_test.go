@@ -448,7 +448,7 @@ var _ = Describe("Users", func() {
 		BeforeEach(func() {
 			user = ScimUser{
 				Username: "marcus@stoicism.com",
-				Active: NewTrueP(),
+				Active:   NewTrueP(),
 			}
 			user.Name = &ScimUserName{GivenName: "Marcus", FamilyName: "Aurelius"}
 		})
@@ -486,7 +486,7 @@ var _ = Describe("Users", func() {
 				ghttp.RespondWith(http.StatusOK, "{unparseable}"),
 			))
 
-			_, err:= um.Create(user)
+			_, err := um.Create(user)
 
 			Expect(err).To(HaveOccurred())
 		})
@@ -497,7 +497,7 @@ var _ = Describe("Users", func() {
 				ghttp.RespondWith(http.StatusBadRequest, ""),
 			))
 
-			_, err:= um.Create(user)
+			_, err := um.Create(user)
 
 			Expect(err).To(HaveOccurred())
 		})
@@ -509,7 +509,7 @@ var _ = Describe("Users", func() {
 		BeforeEach(func() {
 			user = ScimUser{
 				Username: "marcus@stoicism.com",
-				Active: NewTrueP(),
+				Active:   NewTrueP(),
 			}
 			user.Name = &ScimUserName{GivenName: "Marcus", FamilyName: "Aurelius"}
 		})
@@ -547,7 +547,7 @@ var _ = Describe("Users", func() {
 				ghttp.RespondWith(http.StatusOK, "{unparseable}"),
 			))
 
-			_, err:= um.Update(user)
+			_, err := um.Update(user)
 
 			Expect(err).To(HaveOccurred())
 		})
@@ -558,10 +558,58 @@ var _ = Describe("Users", func() {
 				ghttp.RespondWith(http.StatusBadRequest, ""),
 			))
 
-			_, err:= um.Update(user)
+			_, err := um.Update(user)
 
 			Expect(err).To(HaveOccurred())
 		})
 	})
 
+	Describe("UserManager#Delete", func() {
+		It("performs DELETE with user data and bearer token", func() {
+			uaaServer.RouteToHandler("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+			))
+
+			um.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+
+			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
+		})
+
+		It("returns the deleted user", func() {
+			uaaServer.RouteToHandler("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
+				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+			))
+
+			user, _ := um.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+
+			Expect(user.Username).To(Equal("marcus@stoicism.com"))
+			Expect(user.ExternalId).To(Equal("marcus-user"))
+		})
+
+		It("returns error when response cannot be parsed", func() {
+			uaaServer.RouteToHandler("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
+				ghttp.RespondWith(http.StatusOK, "{unparseable}"),
+			))
+
+			_, err := um.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("returns error when response is not 200 OK", func() {
+			uaaServer.RouteToHandler("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("DELETE", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
+				ghttp.RespondWith(http.StatusBadRequest, ""),
+			))
+
+			_, err := um.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+
+			Expect(err).To(HaveOccurred())
+		})
+	})
 })

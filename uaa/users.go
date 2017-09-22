@@ -201,11 +201,27 @@ func (um UserManager) Update(toUpdate ScimUser) (ScimUser, error) {
 		return ScimUser{}, err
 	}
 
-	created := ScimUser{}
-	err = json.Unmarshal(bytes, &created)
+	updated := ScimUser{}
+	err = json.Unmarshal(bytes, &updated)
 	if err != nil {
 		return ScimUser{}, parseError(url, bytes)
 	}
 
-	return created, err
+	return updated, err
+}
+
+func (um UserManager) Delete(userId string) (ScimUser, error) {
+	url := "/Users/" + userId
+	bytes, err := AuthenticatedRequester{}.Delete(um.HttpClient, um.Config, url, "")
+	if err != nil {
+		return ScimUser{}, err
+	}
+
+	deleted := ScimUser{}
+	err = json.Unmarshal(bytes, &deleted)
+	if err != nil {
+		return ScimUser{}, parseError(url, bytes)
+	}
+
+	return deleted, err
 }
