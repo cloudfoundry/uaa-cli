@@ -52,7 +52,7 @@ var curlCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(curlCmd)
 	curlCmd.Annotations = make(map[string]string)
-	curlCmd.Annotations[USER_CRUD_CATEGORY] = "true"
+	curlCmd.Annotations[MISC_CATEGORY] = "true"
 
 	curlCmd.Flags().StringVarP(&method, "method", "X", "GET", "HTTP method (GET, POST, PUT, DELETE, etc)")
 	curlCmd.Flags().StringVarP(&data, "data", "d", "", "HTTP data to include in the request body")
