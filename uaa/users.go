@@ -1,13 +1,14 @@
 package uaa
 
 import (
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 type ScimMetaInfo struct {
@@ -26,7 +27,7 @@ type ScimUserEmail struct {
 	Primary *bool  `json:"primary,omitempty"`
 }
 
-type ScimGroup struct {
+type ScimUserGroup struct {
 	Value   string `json:"value,omitempty"`
 	Display string `json:"display,omitempty"`
 	Type    string `json:"type,omitempty"`
@@ -53,7 +54,7 @@ type ScimUser struct {
 	Username             string          `json:"userName,omitempty"`
 	Name                 *ScimUserName   `json:"name,omitempty"`
 	Emails               []ScimUserEmail `json:"emails,omitempty"`
-	Groups               []ScimGroup     `json:"groups,omitempty"`
+	Groups               []ScimUserGroup `json:"groups,omitempty"`
 	Approvals            []Approval      `json:"approvals,omitempty"`
 	PhoneNumbers         []PhoneNumber   `json:"phoneNumbers,omitempty"`
 	Active               *bool           `json:"active,omitempty"`
@@ -109,7 +110,7 @@ func (um UserManager) GetByUsername(username, origin, attributes string) (ScimUs
 		}
 
 		if len(users.Resources) == 0 {
-			return ScimUser{}, errors.New(fmt.Sprintf(`User %v not found in origin %v`, username, origin))
+			return ScimUser{}, fmt.Errorf(`User %v not found in origin %v`, username, origin)
 		}
 		return users.Resources[0], nil
 	}
@@ -120,7 +121,7 @@ func (um UserManager) GetByUsername(username, origin, attributes string) (ScimUs
 		return ScimUser{}, err
 	}
 	if len(users.Resources) == 0 {
-		return ScimUser{}, errors.New(fmt.Sprintf("User %v not found.", username))
+		return ScimUser{}, fmt.Errorf("User %v not found.", username)
 	}
 	if len(users.Resources) > 1 {
 		var foundOrigins []string

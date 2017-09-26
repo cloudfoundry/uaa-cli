@@ -78,6 +78,7 @@ const (
 	TOKEN_CATEGORY       = "Getting Tokens"
 	CLIENT_CRUD_CATEGORY = "Managing Clients"
 	USER_CRUD_CATEGORY   = "Managing Users"
+	GROUP_CRUD_CATEGORY  = "Managing Groups"
 	MISC_CATEGORY        = "Miscellaneous"
 )
 
@@ -104,6 +105,7 @@ func init() {
 	RootCmd.Annotations[TOKEN_CATEGORY] = "true"
 	RootCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	RootCmd.Annotations[USER_CRUD_CATEGORY] = "true"
+	RootCmd.Annotations[GROUP_CRUD_CATEGORY] = "true"
 	RootCmd.Annotations[MISC_CATEGORY] = "true"
 	RootCmd.SetUsageTemplate(`Usage:{{if .Runnable}}
   {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
