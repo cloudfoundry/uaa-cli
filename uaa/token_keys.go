@@ -10,7 +10,7 @@ type Keys struct {
 }
 
 func TokenKeys(client *http.Client, config Config) ([]JWK, error) {
-	body, err := AuthenticatedRequester{}.Get(client, config, "/token_keys", "")
+	body, err := UnauthenticatedRequester{}.Get(client, config, "/token_keys", "")
 	if err != nil {
 		key, err := TokenKey(client, config)
 		return []JWK{key}, err
