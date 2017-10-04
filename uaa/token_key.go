@@ -6,13 +6,13 @@ import (
 )
 
 type JWK struct {
-	Kty   string
-	E     string
-	Use   string
-	Kid   string
-	Alg   string
-	Value string
-	N     string
+	Kty   string `json:"kty"`
+	E     string `json:"e,omitempty"`
+	Use   string `json:"use"`
+	Kid   string `json:"kid"`
+	Alg   string `json:"alg"`
+	Value string `json:"value"`
+	N     string `json:"n,omitempty"`
 }
 
 func TokenKey(client *http.Client, config Config) (JWK, error) {

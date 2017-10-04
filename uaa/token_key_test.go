@@ -14,7 +14,7 @@ var _ = Describe("TokenKey", func() {
 		server       *ghttp.Server
 		client       *http.Client
 		config       Config
-		tokenKeyJson string
+		asymmetricKeyJson string
 	)
 
 	BeforeEach(func() {
@@ -22,7 +22,7 @@ var _ = Describe("TokenKey", func() {
 		client = &http.Client{}
 		config = NewConfigWithServerURL(server.URL())
 
-		tokenKeyJson = `{
+		asymmetricKeyJson = `{
 		  "kty": "RSA",
 		  "e": "AQAB",
 		  "use": "sig",
@@ -39,7 +39,7 @@ var _ = Describe("TokenKey", func() {
 
 	It("calls the /token_key endpoint", func() {
 		server.RouteToHandler("GET", "/token_key", ghttp.CombineHandlers(
-			ghttp.RespondWith(200, tokenKeyJson),
+			ghttp.RespondWith(200, asymmetricKeyJson),
 			ghttp.VerifyRequest("GET", "/token_key"),
 			ghttp.VerifyHeaderKV("Accept", "application/json"),
 		))
@@ -81,5 +81,30 @@ var _ = Describe("TokenKey", func() {
 		Expect(err).NotTo(BeNil())
 		Expect(err.Error()).To(ContainSubstring("An unknown error occurred while parsing response from"))
 		Expect(err.Error()).To(ContainSubstring("Response was {unparsable-json-response}"))
+	})
+
+	It("can handle symmetric keys", func() {
+		symmetricKeyJson := `{
+		  "kty" : "MAC",
+		  "alg" : "HS256",
+		  "value" : "key",
+		  "use" : "sig",
+		  "kid" : "testKey"
+		}`
+
+		server.RouteToHandler("GET", "/token_key", ghttp.CombineHandlers(
+			ghttp.RespondWith(200, symmetricKeyJson),
+			ghttp.VerifyRequest("GET", "/token_key"),
+			ghttp.VerifyHeaderKV("Accept", "application/json"),
+		))
+
+		key, _ := TokenKey(client, config)
+
+		Expect(server.ReceivedRequests()).To(HaveLen(1))
+		Expect(key.Kty).To(Equal("MAC"))
+		Expect(key.Alg).To(Equal("HS256"))
+		Expect(key.Value).To(Equal("key"))
+		Expect(key.Use).To(Equal("sig"))
+		Expect(key.Kid).To(Equal("testKey"))
 	})
 })
