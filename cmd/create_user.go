@@ -99,4 +99,5 @@ func init() {
 	createUserCmd.Flags().StringVarP(&origin, "origin", "o", "uaa", "user origin")
 	createUserCmd.Flags().StringSliceVarP(&emails, "email", "", []string{}, "email address (required, multiple may be specified)")
 	createUserCmd.Flags().StringSliceVarP(&phoneNumbers, "phone", "", []string{}, "phone number (optional, multiple may be specified)")
+	createUserCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to create the user")
 }

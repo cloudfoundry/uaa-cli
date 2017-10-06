@@ -39,4 +39,23 @@ var _ = Describe("ListUsers", func() {
 
 		Eventually(session).Should(Exit(0))
 	})
+
+	It("understands the --zone flag", func() {
+		server.RouteToHandler("GET", "/Users", CombineHandlers(
+			VerifyRequest("GET", "/Users", "filter=verified+eq+false&attributes=id%2CuserName&sortBy=userName&sortOrder=descending&count=50&startIndex=100"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "foozone"),
+			RespondWith(http.StatusOK, userListResponse),
+		))
+
+		session := runCommand("list-users",
+			"--filter", "verified eq false",
+			"--attributes", "id,userName",
+			"--sortBy", "userName",
+			"--sortOrder", "descending",
+			"--count", "50",
+			"--startIndex", "100",
+			"--zone", "foozone")
+
+		Eventually(session).Should(Exit(0))
+	})
 })

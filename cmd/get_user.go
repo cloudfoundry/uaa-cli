@@ -48,4 +48,5 @@ func init() {
 
 	getUserCmd.Flags().StringVarP(&origin, "origin", "o", "", `The identity provider in which to search. Examples: uaa, ldap, etc. `)
 	getUserCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
+	getUserCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in find the user")
 }

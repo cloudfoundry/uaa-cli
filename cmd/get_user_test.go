@@ -34,6 +34,19 @@ var _ = Describe("GetUser", func() {
 		Eventually(session).Should(Exit(0))
 	})
 
+	It("can understand the --zone flag", func() {
+		server.RouteToHandler("GET", "/Users", CombineHandlers(
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+		))
+
+		session := runCommand("get-user", "woodstock@peanuts.com", "--zone", "twilight-zone")
+
+		Eventually(session).Should(Say(`"userName": "woodstock@peanuts.com"`))
+		Eventually(session).Should(Exit(0))
+	})
+
 	It("can limit results data with --attributes", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&attributes=userName"),

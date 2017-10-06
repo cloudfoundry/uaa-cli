@@ -49,4 +49,5 @@ func init() {
 	listUsersCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
 	listUsersCmd.Flags().IntVarP(&startIndex, "startIndex", "s", 1, `starting index of paginated results`)
 	listUsersCmd.Flags().IntVarP(&count, "count", "c", 100, `maximum number of results to return`)
+	listUsersCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to list the users")
 }

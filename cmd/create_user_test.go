@@ -83,6 +83,7 @@ var _ = Describe("CreateUser", func() {
 				VerifyHeaderKV("Authorization", "bearer access_token"),
 				VerifyHeaderKV("Accept", "application/json"),
 				VerifyHeaderKV("Content-Type", "application/json"),
+				VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
 				VerifyJSON(`
 					{
 						"userName": "marcus",
@@ -118,6 +119,7 @@ var _ = Describe("CreateUser", func() {
 				"--phone", "666-6666",
 				"--password", "secret",
 				"--origin", "uaa",
+				"--zone", "twilight-zone",
 			)
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
