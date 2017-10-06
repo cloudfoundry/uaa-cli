@@ -56,7 +56,7 @@ func (gm GroupManager) Get(groupID string) (ScimGroup, error) {
 
 func (gm GroupManager) GetByName(name, attributes string) (ScimGroup, error) {
 	if name == "" {
-		return ScimGroup{}, errors.New("Groupname may not be blank.")
+		return ScimGroup{}, errors.New("Group name may not be blank.")
 	}
 
 	filter := fmt.Sprintf(`displayName eq "%v"`, name)

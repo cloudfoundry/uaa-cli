@@ -24,7 +24,7 @@ var _ = Describe("Groups", func() {
 		gm = GroupManager{&http.Client{}, config}
 	})
 
-	var groupListResponse = fmt.Sprintf(PaginatedResponseTmpl, AdminGroupResponse, ReadGroupResponse)
+	var groupListResponse = fmt.Sprintf(PaginatedResponseTmpl, UaaAdminGroupResponse, CloudControllerReadGroupResponse)
 
 	Describe("GroupManager#Get", func() {
 		It("gets a group from the UAA by id", func() {
@@ -32,7 +32,7 @@ var _ = Describe("Groups", func() {
 				ghttp.VerifyRequest("GET", "/Groups/05a0c169-3592-4a45-b109-a16d9246e0ab"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			group, _ := gm.Get("05a0c169-3592-4a45-b109-a16d9246e0ab")
@@ -41,16 +41,16 @@ var _ = Describe("Groups", func() {
 			Expect(group.Meta.Created).To(Equal("2017-01-15T16:54:15.677Z"))
 			Expect(group.Meta.LastModified).To(Equal("2017-08-15T16:54:15.677Z"))
 			Expect(group.Meta.Version).To(Equal(1))
-			Expect(group.DisplayName).To(Equal("admin"))
+			Expect(group.DisplayName).To(Equal("uaa.admin"))
 			Expect(group.ZoneID).To(Equal("uaa"))
-			Expect(group.Description).To(Equal("admin"))
+			Expect(group.Description).To(Equal("Act as an administrator throughout the UAA"))
 			Expect(group.Members[0].Origin).To(Equal("uaa"))
 			Expect(group.Members[0].Type).To(Equal("USER"))
 			Expect(group.Members[0].Value).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 			Expect(group.Schemas[0]).To(Equal("urn:scim:schemas:core:1.0"))
 		})
 
-		It("returns helpful error when /Users/userid request fails", func() {
+		It("returns helpful error when /Groups/groupid request fails", func() {
 			uaaServer.RouteToHandler("GET", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusInternalServerError, ""),
 				ghttp.VerifyRequest("GET", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"),
@@ -81,68 +81,68 @@ var _ = Describe("Groups", func() {
 	})
 
 	Describe("GroupManager#GetByName", func() {
-		Context("when no groupname is specified", func() {
+		Context("when no group name is specified", func() {
 			It("returns an error", func() {
 				_, err := gm.GetByName("", "")
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("Groupname may not be blank."))
+				Expect(err.Error()).To(Equal("Group name may not be blank."))
 			})
 		})
 
 		Context("when no origin is specified", func() {
-			It("looks up a user with a SCIM filter", func() {
-				group := ScimGroup{DisplayName: "admin"}
+			It("looks up a group with a SCIM filter", func() {
+				group := ScimGroup{DisplayName: "uaa.admin"}
 				response := PaginatedResponse(group)
 
 				uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
 					ghttp.RespondWith(http.StatusOK, response),
-					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
+					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22uaa.admin%22"),
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				group, err := gm.GetByName("admin", "")
+				group, err := gm.GetByName("uaa.admin", "")
 				Expect(err).NotTo(HaveOccurred())
-				Expect(group.DisplayName).To(Equal("admin"))
+				Expect(group.DisplayName).To(Equal("uaa.admin"))
 			})
 
 			It("returns an error when request fails", func() {
 				uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
 					ghttp.RespondWith(http.StatusInternalServerError, ""),
-					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
+					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22uaa.admin%22"),
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := gm.GetByName("admin", "")
+				_, err := gm.GetByName("uaa.admin", "")
 				Expect(err).To(HaveOccurred())
 				Expect(err.Error()).To(ContainSubstring("An unknown error"))
 			})
 
-			It("returns an error when no users are found", func() {
+			It("returns an error when no groups are found", func() {
 				uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
 					ghttp.RespondWith(http.StatusOK, PaginatedResponse()),
-					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
+					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22uaa.admin%22"),
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := gm.GetByName("admin", "")
+				_, err := gm.GetByName("uaa.admin", "")
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal(`Group admin not found.`))
+				Expect(err.Error()).To(Equal(`Group uaa.admin not found.`))
 			})
 		})
 
 		Context("when attributes are specified", func() {
 			It("adds them to the GET request", func() {
 				uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
-					ghttp.RespondWith(http.StatusOK, PaginatedResponse(ScimGroup{DisplayName: "admin"})),
-					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&attributes=displayName"),
+					ghttp.RespondWith(http.StatusOK, PaginatedResponse(ScimGroup{DisplayName: "uaa.admin"})),
+					ghttp.VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22uaa.admin%22&attributes=displayName"),
 					ghttp.VerifyHeaderKV("Accept", "application/json"),
 					ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				_, err := gm.GetByName("admin", "displayName")
+				_, err := gm.GetByName("uaa.admin", "displayName")
 				Expect(err).NotTo(HaveOccurred())
 			})
 		})
@@ -160,11 +160,11 @@ var _ = Describe("Groups", func() {
 			resp, err := gm.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "", "", 0, 0)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp.Resources[0].DisplayName).To(Equal("admin"))
-			Expect(resp.Resources[1].DisplayName).To(Equal("read"))
+			Expect(resp.Resources[0].DisplayName).To(Equal("uaa.admin"))
+			Expect(resp.Resources[1].DisplayName).To(Equal("cloud_controller.read"))
 		})
 
-		It("gets all users when no filter is passed", func() {
+		It("gets all groups when no filter is passed", func() {
 			uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusOK, groupListResponse),
 				ghttp.VerifyRequest("GET", "/Groups", ""),
@@ -173,8 +173,8 @@ var _ = Describe("Groups", func() {
 			resp, err := gm.List("", "", "", "", 0, 0)
 
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp.Resources[0].DisplayName).To(Equal("admin"))
-			Expect(resp.Resources[1].DisplayName).To(Equal("read"))
+			Expect(resp.Resources[0].DisplayName).To(Equal("uaa.admin"))
+			Expect(resp.Resources[1].DisplayName).To(Equal("cloud_controller.read"))
 		})
 
 		It("can accept an attributes list", func() {
@@ -185,8 +185,8 @@ var _ = Describe("Groups", func() {
 
 			resp, err := gm.List(`id eq "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"`, "", "displayName", "", 0, 0)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(resp.Resources[0].DisplayName).To(Equal("admin"))
-			Expect(resp.Resources[1].DisplayName).To(Equal("read"))
+			Expect(resp.Resources[0].DisplayName).To(Equal("uaa.admin"))
+			Expect(resp.Resources[1].DisplayName).To(Equal("cloud_controller.read"))
 		})
 
 		It("can accept sortBy", func() {
@@ -229,7 +229,7 @@ var _ = Describe("Groups", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("returns an error when /Users doesn't respond", func() {
+		It("returns an error when /Groups doesn't respond", func() {
 			uaaServer.RouteToHandler("GET", "/Groups", ghttp.CombineHandlers(
 				ghttp.RespondWith(http.StatusInternalServerError, ""),
 				ghttp.VerifyRequest("GET", "/Groups", "filter=id+eq+%22fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7%22"),
@@ -261,18 +261,18 @@ var _ = Describe("Groups", func() {
 
 		BeforeEach(func() {
 			group = ScimGroup{
-				DisplayName: "admin",
+				DisplayName: "uaa.admin",
 			}
 		})
 
-		It("performs POST with user data and bearer token", func() {
+		It("performs POST with group data and bearer token", func() {
 			uaaServer.RouteToHandler("POST", "/Groups", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("POST", "/Groups"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
-				ghttp.VerifyJSON(`{ "displayName": "admin", "members": null }`),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.VerifyJSON(`{ "displayName": "uaa.admin", "members": null }`),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			gm.Create(group)
@@ -280,15 +280,15 @@ var _ = Describe("Groups", func() {
 			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
 		})
 
-		It("returns the created user", func() {
+		It("returns the created group", func() {
 			uaaServer.RouteToHandler("POST", "/Groups", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("POST", "/Groups"),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			group, _ := gm.Create(group)
 
-			Expect(group.DisplayName).To(Equal("admin"))
+			Expect(group.DisplayName).To(Equal("uaa.admin"))
 		})
 
 		It("returns error when response cannot be parsed", func() {
@@ -319,18 +319,18 @@ var _ = Describe("Groups", func() {
 
 		BeforeEach(func() {
 			group = ScimGroup{
-				DisplayName: "admin",
+				DisplayName: "uaa.admin",
 			}
 		})
 
-		It("performs PUT with user data and bearer token", func() {
+		It("performs PUT with group data and bearer token", func() {
 			uaaServer.RouteToHandler("PUT", "/Groups", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("PUT", "/Groups"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
-				ghttp.VerifyJSON(`{ "displayName": "admin", "members": null }`),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.VerifyJSON(`{ "displayName": "uaa.admin", "members": null }`),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			gm.Update(group)
@@ -341,12 +341,12 @@ var _ = Describe("Groups", func() {
 		It("returns the updated group", func() {
 			uaaServer.RouteToHandler("PUT", "/Groups", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("PUT", "/Groups"),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			group, _ := gm.Update(group)
 
-			Expect(group.DisplayName).To(Equal("admin"))
+			Expect(group.DisplayName).To(Equal("uaa.admin"))
 		})
 
 		It("returns error when response cannot be parsed", func() {
@@ -373,12 +373,12 @@ var _ = Describe("Groups", func() {
 	})
 
 	Describe("GroupManager#Delete", func() {
-		It("performs DELETE with user data and bearer token", func() {
+		It("performs DELETE with group data and bearer token", func() {
 			uaaServer.RouteToHandler("DELETE", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("DELETE", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
-				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			gm.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
@@ -389,12 +389,12 @@ var _ = Describe("Groups", func() {
 		It("returns the deleted group", func() {
 			uaaServer.RouteToHandler("DELETE", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("DELETE", "/Groups/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
-				ghttp.RespondWith(http.StatusOK, AdminGroupResponse),
+				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
 			group, _ := gm.Delete("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
 
-			Expect(group.DisplayName).To(Equal("admin"))
+			Expect(group.DisplayName).To(Equal("uaa.admin"))
 		})
 
 		It("returns error when response cannot be parsed", func() {

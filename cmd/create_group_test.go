@@ -54,7 +54,7 @@ var _ = Describe("CreateGroup", func() {
 				"members":     nil,
 			}
 			server.RouteToHandler("POST", "/Groups", CombineHandlers(
-				RespondWith(http.StatusOK, fixtures.AdminGroupResponse),
+				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
 				VerifyRequest("POST", "/Groups"),
 				VerifyHeaderKV("Authorization", "bearer access_token"),
 				VerifyHeaderKV("Accept", "application/json"),
@@ -70,7 +70,7 @@ var _ = Describe("CreateGroup", func() {
 
 		It("prints the created user json", func() {
 			server.RouteToHandler("POST", "/Groups", CombineHandlers(
-				RespondWith(http.StatusOK, fixtures.AdminGroupResponse),
+				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
 				VerifyRequest("POST", "/Groups"),
 			))
 
@@ -78,7 +78,7 @@ var _ = Describe("CreateGroup", func() {
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(session).To(Exit(0))
-			Expect(session.Out.Contents()).To(MatchJSON(fixtures.AdminGroupResponse))
+			Expect(session.Out.Contents()).To(MatchJSON(fixtures.UaaAdminGroupResponse))
 		})
 
 		It("displays an error if there is a problem during create", func() {

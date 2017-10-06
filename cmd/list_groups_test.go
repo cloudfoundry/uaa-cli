@@ -20,7 +20,7 @@ var _ = Describe("ListGroups", func() {
 		cfg := uaa.NewConfigWithServerURL(server.URL())
 		cfg.AddContext(uaa.NewContextWithToken("access_token"))
 		config.WriteConfig(cfg)
-		groupListResponse = fmt.Sprintf(PaginatedResponseTmpl, AdminGroupResponse, ReadGroupResponse)
+		groupListResponse = fmt.Sprintf(PaginatedResponseTmpl, UaaAdminGroupResponse, CloudControllerReadGroupResponse)
 	})
 
 	It("executes SCIM queries based on flags", func() {

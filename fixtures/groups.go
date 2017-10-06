@@ -1,14 +1,14 @@
 package fixtures
 
-const AdminGroupResponse = `{
+const UaaAdminGroupResponse = `{
 	"id" : "05a0c169-3592-4a45-b109-a16d9246e0ab",
 	"meta" : {
 		"version" : 1,
 		"created" : "2017-01-15T16:54:15.677Z",
 		"lastModified" : "2017-08-15T16:54:15.677Z"
 	},
-	"displayName" : "admin",
-	"description" : "admin",
+	"displayName" : "uaa.admin",
+	"description" : "Act as an administrator throughout the UAA",
 	"members" : [ {
 		"origin" : "uaa",
 		"type" : "USER",
@@ -18,14 +18,15 @@ const AdminGroupResponse = `{
 	"schemas" : [ "urn:scim:schemas:core:1.0" ]
 }`
 
-const ReadGroupResponse = `{
+const CloudControllerReadGroupResponse = `{
 	"id" : "ea777017-883e-48ba-800a-637c71409b5e",
 	"meta" : {
 		"version" : 1,
 		"created" : "2017-01-15T16:54:15.677Z",
 		"lastModified" : "2017-08-15T16:54:15.677Z"
 	},
-	"displayName" : "read",
+	"displayName" : "cloud_controller.read",
+	"description" : "View details of your applications and services",
 	"members" : [ {
 		"origin" : "uaa",
 		"type" : "USER",
