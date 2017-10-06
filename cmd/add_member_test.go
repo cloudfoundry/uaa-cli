@@ -38,7 +38,7 @@ var _ = Describe("AddMember", func() {
 			))
 			server.RouteToHandler("GET", "/Users", CombineHandlers(
 				VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
-				RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Id: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "woodstock@peanuts.com"})),
+				RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "woodstock@peanuts.com"})),
 			))
 
 			session := runCommand("add-member", "uaa.admin", "woodstock@peanuts.com")

@@ -127,7 +127,7 @@ var _ = Describe("Users", func() {
 
 			user, _ := um.Get("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
 
-			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
+			Expect(user.ID).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 			Expect(user.ExternalId).To(Equal("marcus-user"))
 			Expect(user.Meta.Created).To(Equal("2017-01-15T16:54:15.677Z"))
 			Expect(user.Meta.LastModified).To(Equal("2017-08-15T16:54:15.677Z"))

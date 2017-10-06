@@ -33,7 +33,7 @@ func AddMemberCmd(httpClient *http.Client, config uaa.Config, groupName, usernam
 		return err
 	}
 
-	err = gm.AddMember(group.ID, user.Id)
+	err = gm.AddMember(group.ID, user.ID)
 	if err != nil {
 		return err
 	}

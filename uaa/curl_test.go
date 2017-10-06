@@ -41,7 +41,7 @@ var _ = Describe("Curl", func() {
 			err = json.Unmarshal([]byte(resBody), &user)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
+			Expect(user.ID).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 		})
 
 		It("can POST body and multiple headers", func() {
@@ -67,7 +67,7 @@ var _ = Describe("Curl", func() {
 			err = json.Unmarshal([]byte(resBody), &user)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(user.Id).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
+			Expect(user.ID).To(Equal("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"))
 		})
 	})
 

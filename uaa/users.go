@@ -47,7 +47,7 @@ type PhoneNumber struct {
 }
 
 type ScimUser struct {
-	Id                   string          `json:"id,omitempty"`
+	ID                   string          `json:"id,omitempty"`
 	Password             string          `json:"password,omitempty"`
 	ExternalId           string          `json:"externalId,omitempty"`
 	Meta                 *ScimMetaInfo   `json:"meta,omitempty"`
