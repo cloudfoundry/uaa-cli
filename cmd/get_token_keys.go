@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"net/http"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/spf13/cobra"
+	"net/http"
 )
 
 func GetTokenKeysCmd(client *http.Client, config uaa.Config) error {
@@ -18,8 +18,8 @@ func GetTokenKeysCmd(client *http.Client, config uaa.Config) error {
 }
 
 var getTokenKeysCmd = &cobra.Command{
-	Use:   "get-token-keys",
-	Short: "View all keys the UAA has used to sign JWT tokens",
+	Use:     "get-token-keys",
+	Short:   "View all keys the UAA has used to sign JWT tokens",
 	Aliases: []string{"token-keys"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
