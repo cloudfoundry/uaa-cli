@@ -20,7 +20,7 @@ format:
 		gofmt -l -s -w ${GOFILES_NOVENDOR}
 
 ginkgo:
-		ginkgo -r -randomizeSuites -randomizeAllSpecs -race 2>&1
+		bin/test 2>&1
 
 test: format ginkgo
 
