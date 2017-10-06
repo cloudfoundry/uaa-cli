@@ -46,6 +46,19 @@ var _ = Describe("GetGroup", func() {
 		Eventually(session).Should(Exit(0))
 	})
 
+	It("can understand the --zone flag", func() {
+		server.RouteToHandler("GET", "/Groups", CombineHandlers(
+			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimGroup{DisplayName: "admin"})),
+		))
+
+		session := runCommand("get-group", "admin", "--zone", "twilight-zone")
+
+		Eventually(session).Should(Say(`"displayName": "admin"`))
+		Eventually(session).Should(Exit(0))
+	})
+
 	Describe("validations", func() {
 		It("requires a target", func() {
 			err := GetGroupValidations(uaa.Config{}, []string{})

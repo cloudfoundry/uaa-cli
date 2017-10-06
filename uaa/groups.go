@@ -21,7 +21,7 @@ type ScimGroup struct {
 	DisplayName string            `json:"displayName,omitempty"`
 	ZoneID      string            `json:"zoneId,omitempty"`
 	Description string            `json:"description,omitempty"`
-	Members     []ScimGroupMember `json:"members"`
+	Members     []ScimGroupMember `json:"members,omitempty"`
 	Schemas     []string          `json:"schemas,omitempty"`
 }
 

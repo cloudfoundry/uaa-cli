@@ -8,9 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func CreateGroupCmd(gm uaa.GroupManager, printer cli.Printer, name string) error {
+func CreateGroupCmd(gm uaa.GroupManager, printer cli.Printer, name, description string) error {
 	toCreate := uaa.ScimGroup{
 		DisplayName: name,
+		Description: description,
 	}
 
 	group, err := gm.Create(toCreate)
@@ -41,7 +42,7 @@ var createGroupCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		gm := uaa.GroupManager{GetHttpClient(), cfg}
-		err := CreateGroupCmd(gm, cli.NewJsonPrinter(log), args[0])
+		err := CreateGroupCmd(gm, cli.NewJsonPrinter(log), args[0], groupDescription)
 		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
@@ -50,4 +51,7 @@ func init() {
 	RootCmd.AddCommand(createGroupCmd)
 	createGroupCmd.Annotations = make(map[string]string)
 	createGroupCmd.Annotations[GROUP_CRUD_CATEGORY] = "true"
+
+	createGroupCmd.Flags().StringVarP(&groupDescription, "description", "d", "", `a human-readable description`)
+	createGroupCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to create the group")
 }

@@ -30,7 +30,7 @@ func GetGroupValidations(cfg uaa.Config, args []string) error {
 
 var getGroupCmd = &cobra.Command{
 	Use:   "get-group GROUPNAME",
-	Short: "Look up a group by groupname",
+	Short: "Look up a group by group name",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		NotifyValidationErrors(GetGroupValidations(GetSavedConfig(), args), cmd, log)
 	},
@@ -48,4 +48,5 @@ func init() {
 	getGroupCmd.Annotations[GROUP_CRUD_CATEGORY] = "true"
 
 	getGroupCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
+	getGroupCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to get the group")
 }

@@ -271,7 +271,7 @@ var _ = Describe("Groups", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
-				ghttp.VerifyJSON(`{ "displayName": "uaa.admin", "members": null }`),
+				ghttp.VerifyJSON(`{ "displayName": "uaa.admin" }`),
 				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 
@@ -329,7 +329,7 @@ var _ = Describe("Groups", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyHeaderKV("Content-Type", "application/json"),
-				ghttp.VerifyJSON(`{ "displayName": "uaa.admin", "members": null }`),
+				ghttp.VerifyJSON(`{ "displayName": "uaa.admin" }`),
 				ghttp.RespondWith(http.StatusOK, UaaAdminGroupResponse),
 			))
 

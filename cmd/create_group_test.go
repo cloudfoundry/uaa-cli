@@ -39,7 +39,7 @@ var _ = Describe("CreateGroup", func() {
 			Expect(session.Err).To(Say(cmd.MISSING_CONTEXT))
 		})
 
-		It("requires a groupname", func() {
+		It("requires a group name", func() {
 			session := runCommand("create-group")
 
 			Eventually(session).Should(Exit(1))
@@ -48,10 +48,9 @@ var _ = Describe("CreateGroup", func() {
 	})
 
 	Describe("CreateGroupCmd", func() {
-		It("performs POST with user data and bearer token", func() {
+		It("performs POST with group data and bearer token", func() {
 			reqBody := map[string]interface{}{
-				"displayName": "admin",
-				"members":     nil,
+				"displayName": "uaa.admin",
 			}
 			server.RouteToHandler("POST", "/Groups", CombineHandlers(
 				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
@@ -62,19 +61,59 @@ var _ = Describe("CreateGroup", func() {
 				VerifyJSONRepresenting(reqBody),
 			))
 
-			session := runCommand("create-group", "admin")
+			session := runCommand("create-group", "uaa.admin")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(session).To(Exit(0))
 		})
 
-		It("prints the created user json", func() {
+		It("can accept a human-readable description", func() {
+			reqBody := map[string]interface{}{
+				"displayName": "uaa.admin",
+				"description": "Phenomenal cosmic powers",
+			}
+			server.RouteToHandler("POST", "/Groups", CombineHandlers(
+				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
+				VerifyRequest("POST", "/Groups"),
+				VerifyHeaderKV("Authorization", "bearer access_token"),
+				VerifyHeaderKV("Accept", "application/json"),
+				VerifyHeaderKV("Content-Type", "application/json"),
+				VerifyJSONRepresenting(reqBody),
+			))
+
+			session := runCommand("create-group", "uaa.admin", "--description", "Phenomenal cosmic powers")
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(session).To(Exit(0))
+		})
+
+		It("can understand the --zone flag", func() {
+			reqBody := map[string]interface{}{
+				"displayName": "uaa.admin",
+			}
+			server.RouteToHandler("POST", "/Groups", CombineHandlers(
+				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
+				VerifyRequest("POST", "/Groups"),
+				VerifyHeaderKV("Authorization", "bearer access_token"),
+				VerifyHeaderKV("Accept", "application/json"),
+				VerifyHeaderKV("Content-Type", "application/json"),
+				VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				VerifyJSONRepresenting(reqBody),
+			))
+
+			session := runCommand("create-group", "uaa.admin", "--zone", "twilight-zone")
+
+			Expect(server.ReceivedRequests()).To(HaveLen(1))
+			Expect(session).To(Exit(0))
+		})
+
+		It("prints the created group json", func() {
 			server.RouteToHandler("POST", "/Groups", CombineHandlers(
 				RespondWith(http.StatusOK, fixtures.UaaAdminGroupResponse),
 				VerifyRequest("POST", "/Groups"),
 			))
 
-			session := runCommand("create-group", "admin")
+			session := runCommand("create-group", "uaa.admin")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(session).To(Exit(0))
@@ -87,7 +126,7 @@ var _ = Describe("CreateGroup", func() {
 				VerifyRequest("POST", "/Groups"),
 			))
 
-			session := runCommand("create-group", "admin")
+			session := runCommand("create-group", "uaa.admin")
 
 			Expect(server.ReceivedRequests()).To(HaveLen(1))
 			Expect(session).To(Exit(1))

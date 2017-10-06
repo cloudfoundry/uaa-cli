@@ -41,10 +41,11 @@ func init() {
 	listGroupsCmd.Annotations = make(map[string]string)
 	listGroupsCmd.Annotations[GROUP_CRUD_CATEGORY] = "true"
 
-	listGroupsCmd.Flags().StringVarP(&filter, "filter", "", "", `a SCIM filter, or query, e.g. 'userName eq "bob@example.com"'`)
-	listGroupsCmd.Flags().StringVarP(&sortBy, "sortBy", "b", "", `the attribute to sort results by, e.g. "created" or "userName"`)
+	listGroupsCmd.Flags().StringVarP(&filter, "filter", "", "", `a SCIM filter, or query, e.g. 'id eq "a5e3f9fb-65a0-4033-a86c-11f4712e1fed"'`)
+	listGroupsCmd.Flags().StringVarP(&sortBy, "sortBy", "b", "", `the attribute to sort results by, e.g. "created" or "displayName"`)
 	listGroupsCmd.Flags().StringVarP(&sortOrder, "sortOrder", "o", "", `how results should be ordered. One of: [ascending, descending]`)
-	listGroupsCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
+	listGroupsCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated attributes to improve query performance`)
 	listGroupsCmd.Flags().IntVarP(&startIndex, "startIndex", "s", 1, `starting index of paginated results`)
 	listGroupsCmd.Flags().IntVarP(&count, "count", "c", 100, `maximum number of results to return`)
+	listGroupsCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain from which to list the groups")
 }

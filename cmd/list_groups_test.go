@@ -39,4 +39,23 @@ var _ = Describe("ListGroups", func() {
 
 		Eventually(session).Should(Exit(0))
 	})
+
+	It("understands the --zone flag", func() {
+		server.RouteToHandler("GET", "/Groups", CombineHandlers(
+			VerifyRequest("GET", "/Groups", "filter=verified+eq+false&attributes=id%2CdisplayName&sortBy=displayName&sortOrder=descending&count=50&startIndex=100"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			RespondWith(http.StatusOK, groupListResponse),
+		))
+
+		session := runCommand("list-groups",
+			"--filter", "verified eq false",
+			"--attributes", "id,displayName",
+			"--sortBy", "displayName",
+			"--sortOrder", "descending",
+			"--count", "50",
+			"--startIndex", "100",
+			"--zone", "twilight-zone")
+
+		Eventually(session).Should(Exit(0))
+	})
 })

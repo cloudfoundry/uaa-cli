@@ -43,15 +43,19 @@ var (
 	port                 int
 )
 
-// Users
+// Users flags
 var (
-	userName     string
 	familyName   string
 	givenName    string
 	emails       []string
 	phoneNumbers []string
 	origin       string
 	userPassword string
+)
+
+// Group flags
+var (
+	groupDescription string
 )
 
 // SCIM filters
@@ -66,7 +70,6 @@ var (
 
 // Curl flags
 var (
-	path    string
 	method  string
 	data    string
 	headers []string
