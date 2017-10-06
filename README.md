@@ -7,9 +7,9 @@ Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golan
 ### Goals
 
 - To provide a CLI which can be easily installed in environments without a functioning Ruby setup
-- To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
 - To more closely conform to the style of other widely used CLIs in the CF ecosystem, e.g. the cf CLI. Commands should be of the form VERB-NOUN, similar to `cf delete-app`.
 - To provide outputs that are machine-parseable whenever possible.
+- To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
 
 ### Roadmap
 
