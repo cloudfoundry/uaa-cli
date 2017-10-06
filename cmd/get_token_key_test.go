@@ -12,11 +12,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cmd"
 )
 
-var _ = Describe("TokenKey", func() {
+var _ = Describe("GetTokenKey", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
 			config.WriteConfig(c)
 		})
 
