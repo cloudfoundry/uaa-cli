@@ -4,6 +4,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -83,7 +84,7 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 		return err
 	}
 
-	log.Infof("The client %v has been successfully created.", clientId)
+	log.Infof("The client %v has been successfully created.", utils.Emphasize(clientId))
 	return cli.NewJsonPrinter(log).Print(created)
 }
 

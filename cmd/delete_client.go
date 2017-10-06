@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +22,7 @@ func DeleteClientCmd(cm *uaa.ClientManager, clientId string) error {
 		return err
 	}
 
-	log.Infof("Successfully deleted client %v.", clientId)
+	log.Infof("Successfully deleted client %v.", utils.Emphasize(clientId))
 	return nil
 }
 

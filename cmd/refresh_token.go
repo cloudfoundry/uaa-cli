@@ -5,6 +5,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
@@ -16,7 +17,7 @@ func RefreshTokenCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger, to
 		ClientId:     ctx.ClientId,
 		ClientSecret: clientSecret,
 	}
-	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", ctx.ClientId)
+	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(ctx.ClientId))
 	tokenResponse, err := refreshClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
 	if err != nil {
 		return err

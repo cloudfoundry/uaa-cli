@@ -3,6 +3,7 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"github.com/spf13/cobra"
 )
@@ -37,7 +38,7 @@ func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGra
 		return errors.New("An error occurred while updating the client.")
 	}
 
-	log.Infof("The client %v has been successfully updated.", clientId)
+	log.Infof("The client %v has been successfully updated.", utils.Emphasize(clientId))
 	return cli.NewJsonPrinter(log).Print(updated)
 
 }

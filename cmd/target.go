@@ -4,6 +4,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -50,7 +51,7 @@ func UpdateTargetCmd(cfg uaa.Config, newTarget string, log cli.Logger) error {
 	}
 
 	config.WriteConfig(cfg)
-	log.Info("Target set to " + newTarget)
+	log.Info("Target set to " + utils.Emphasize(newTarget))
 	return nil
 }
 

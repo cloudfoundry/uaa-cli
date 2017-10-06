@@ -3,6 +3,7 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/uaa"
+	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
@@ -27,7 +28,7 @@ func SetClientSecretCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger,
 	if err != nil {
 		return errors.New("The secret for client " + clientId + " was not updated.")
 	}
-	log.Infof("The secret for client %v has been successfully updated.", clientId)
+	log.Infof("The secret for client %v has been successfully updated.", utils.Emphasize(clientId))
 	return nil
 }
 
