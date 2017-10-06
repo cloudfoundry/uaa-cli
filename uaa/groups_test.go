@@ -419,4 +419,21 @@ var _ = Describe("Groups", func() {
 			Expect(err).To(HaveOccurred())
 		})
 	})
+
+	Describe("GroupManager#AddMember", func() {
+		It("adds a membership", func() {
+			membershipJson := `{"origin":"uaa","type":"USER","value":"fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"}`
+			uaaServer.RouteToHandler("POST", "/Groups/05a0c169-3592-4a45-b109-a16d9246e0ab/members", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("POST", "/Groups/05a0c169-3592-4a45-b109-a16d9246e0ab/members"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyJSON(membershipJson),
+				ghttp.RespondWith(http.StatusOK, membershipJson),
+			))
+
+			gm.AddMember("05a0c169-3592-4a45-b109-a16d9246e0ab", "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+
+			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
+		})
+	})
 })

@@ -38,6 +38,23 @@ type GroupManager struct {
 	Config     Config
 }
 
+type GroupMembership struct {
+	Origin string `json:"origin"`
+	Type   string `json:"type"`
+	Value  string `json:"value"`
+}
+
+func (gm GroupManager) AddMember(groupID, userID string) error {
+	url := fmt.Sprintf("/Groups/%s/members", groupID)
+	membership := GroupMembership{Origin: "uaa", Type: "USER", Value: userID}
+	_, err := AuthenticatedRequester{}.PostJson(gm.HttpClient, gm.Config, url, "", membership)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (gm GroupManager) Get(groupID string) (ScimGroup, error) {
 	url := "/Groups/" + groupID
 	bytes, err := AuthenticatedRequester{}.Get(gm.HttpClient, gm.Config, url, "")
