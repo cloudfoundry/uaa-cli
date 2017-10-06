@@ -7,13 +7,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 )
 
-func GetTokenKeyValidations(cfg uaa.Config, args []string) error {
-	//if err := EnsureContextInConfig(cfg); err != nil {
-	//	return err
-	//}
-	//if len(args) == 0 {
-	//	return MissingArgumentError("client_id")
-	//}
+func GetTokenKeyValidations(cfg uaa.Config) error {
+	if err := EnsureTargetInConfig(cfg); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -32,7 +29,7 @@ var getTokenKeyCmd = &cobra.Command{
 	Short: "View the key for validating UAA's JWT token signatures",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetTokenKeyValidations(cfg, args), cmd, log)
+		NotifyValidationErrors(GetTokenKeyValidations(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		NotifyErrorsWithRetry(GetTokenKeyCmd(GetHttpClient(), GetSavedConfig()), GetSavedConfig(), log)

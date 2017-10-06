@@ -5,9 +5,11 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
 	. "github.com/onsi/gomega/gexec"
+	. "github.com/onsi/gomega/gbytes"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/cmd"
 )
 
 var _ = Describe("TokenKey", func() {
@@ -67,7 +69,12 @@ var _ = Describe("TokenKey", func() {
 
 	Describe("Validations", func() {
 		It("it requires a target to have been set", func() {
+			config.WriteConfig(uaa.NewConfig())
 
+			session := runCommand("get-token-key")
+
+			Eventually(session).Should(Exit(1))
+			Expect(session.Err).To(Say(cmd.MISSING_TARGET))
 		})
 	})
 })
