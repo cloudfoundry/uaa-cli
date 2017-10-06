@@ -40,5 +40,4 @@ func init() {
 	RootCmd.AddCommand(getTokenKeyCmd)
 	getTokenKeyCmd.Annotations = make(map[string]string)
 	getTokenKeyCmd.Annotations[TOKEN_CATEGORY] = "true"
-	getTokenKeyCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to get the client")
 }
