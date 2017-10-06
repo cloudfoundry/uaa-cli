@@ -5,7 +5,20 @@ import (
 	"net/http"
 	"code.cloudfoundry.org/uaa-cli/uaa"
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"errors"
 )
+
+func AddMemberPreRunValidations(config uaa.Config, args []string) error {
+	if err := EnsureContextInConfig(config); err != nil {
+		return err
+	}
+
+	if len(args) != 2 {
+		return errors.New("The positional arguments GROUPNAME and USERNAME must be specified.")
+	}
+
+	return nil
+}
 
 func AddMemberCmd(httpClient *http.Client, config uaa.Config, groupName, username string, log cli.Logger) error {
 	gm := uaa.GroupManager{httpClient, config}
@@ -31,11 +44,11 @@ func AddMemberCmd(httpClient *http.Client, config uaa.Config, groupName, usernam
 }
 
 var addMemberCmd = &cobra.Command{
-	Use:   "add-member",
+	Use:   "add-member GROUPNAME USERNAME",
 	Short: "Add a user to a group",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(EnsureContextInConfig(cfg), cmd, log)
+		NotifyValidationErrors(AddMemberPreRunValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()

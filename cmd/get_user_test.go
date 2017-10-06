@@ -87,5 +87,4 @@ var _ = Describe("GetUser", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 	})
-
 })

@@ -75,4 +75,14 @@ var _ = Describe("AddMember", func() {
 			Expect(session.Err).To(Say(MISSING_CONTEXT))
 		})
 	})
+
+	Describe("validations", func() {
+		It("only accepts groupname and username", func() {
+			session := runCommand("add-member", "first-arg", "second-arg", "third-arg")
+			Eventually(session).Should(Exit(1))
+
+			session = runCommand("add-member", "woodstock")
+			Eventually(session).Should(Exit(1))
+		})
+	})
 })
