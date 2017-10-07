@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
+	"code.cloudfoundry.org/uaa-cli/utils"
 )
 
 func AddMemberPreRunValidations(config uaa.Config, args []string) error {
@@ -38,7 +39,7 @@ func AddMemberCmd(httpClient *http.Client, config uaa.Config, groupName, usernam
 		return err
 	}
 
-	log.Infof("User %v successfully added to group %v", username, groupName)
+	log.Infof("User %v successfully added to group %v", utils.Emphasize(username), utils.Emphasize(groupName))
 
 	return nil
 }
