@@ -39,7 +39,7 @@ var _ = Describe("ListClients", func() {
 
 			session := runCommand("list-clients", "--verbose")
 
-			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients"))
+			Expect(session.Out).To(Say("GET /oauth/clients"))
 			Expect(session.Out).To(Say("Accept: application/json"))
 			Expect(session.Out).To(Say("200 OK"))
 			Eventually(session).Should(Exit(0))
@@ -53,7 +53,7 @@ var _ = Describe("ListClients", func() {
 			session := runCommand("list-clients", "--verbose")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("GET " + server.URL() + "/oauth/clients"))
+			Expect(session.Out).To(Say("GET /oauth/clients"))
 			Expect(session.Out).To(Say("Accept: application/json"))
 			Expect(session.Out).To(Say("400 Bad Request"))
 			Expect(session.Out).To(Say("garbage response"))

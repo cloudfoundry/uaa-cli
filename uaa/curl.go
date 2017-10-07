@@ -62,7 +62,7 @@ func (cm CurlManager) Curl(path, method, data string, headers []string) (resHead
 	resBody = string(bytes)
 
 	if cm.Config.Verbose {
-		logResponse(resp, bytes)
+		logResponse(resp)
 	}
 
 	return

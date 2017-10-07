@@ -41,6 +41,7 @@ func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, e
 	if config.Verbose {
 		logRequest(req)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		if config.Verbose {
@@ -50,6 +51,10 @@ func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, e
 		return []byte{}, requestError(req.URL.String())
 	}
 
+	if config.Verbose {
+		logResponse(resp)
+	}
+
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		if config.Verbose {
@@ -57,8 +62,6 @@ func doAndRead(req *http.Request, client *http.Client, config Config) ([]byte, e
 		}
 
 		return []byte{}, unknownError()
-	} else if config.Verbose {
-		logResponse(resp, bytes)
 	}
 
 	if !is2XX(resp.StatusCode) {

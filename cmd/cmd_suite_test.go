@@ -115,7 +115,7 @@ func ItSupportsTheVerboseFlagWhenGet(command string, endpoint string, responseJs
 		session := runCommand(command, "--verbose")
 
 		Eventually(session).Should(Exit(0))
-		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))
+		Expect(session.Out).To(Say("GET " + endpoint))
 		Expect(session.Out).To(Say("Accept: application/json"))
 		Expect(session.Out).To(Say("200 OK"))
 	})
@@ -128,7 +128,7 @@ func ItSupportsTheVerboseFlagWhenGet(command string, endpoint string, responseJs
 		session := runCommand(command, "--verbose")
 
 		Eventually(session).Should(Exit(1))
-		Expect(session.Out).To(Say("GET " + server.URL() + endpoint))
+		Expect(session.Out).To(Say("GET " + endpoint))
 		Expect(session.Out).To(Say("Accept: application/json"))
 		Expect(session.Out).To(Say("400 Bad Request"))
 		Expect(session.Out).To(Say("garbage response"))
