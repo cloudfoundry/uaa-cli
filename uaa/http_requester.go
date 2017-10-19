@@ -163,3 +163,23 @@ func (ag AuthenticatedRequester) PutJson(client *http.Client, config Config, pat
 	addZoneSwitchHeader(req, &config)
 	return doAndRead(req, client, config)
 }
+
+
+func (ug UnauthenticatedRequester) PatchJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := UnauthenticatedRequestFactory{}.PatchJson(config.GetActiveTarget(), path, query, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	addZoneSwitchHeader(req, &config)
+	return doAndRead(req, client, config)
+}
+
+func (ag AuthenticatedRequester) PatchJson(client *http.Client, config Config, path string, query string, body interface{}) ([]byte, error) {
+	req, err := AuthenticatedRequestFactory{}.PatchJson(config.GetActiveTarget(), path, query, body)
+	if err != nil {
+		return []byte{}, err
+	}
+	addZoneSwitchHeader(req, &config)
+	return doAndRead(req, client, config)
+}
+

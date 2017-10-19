@@ -227,3 +227,21 @@ func (um UserManager) Delete(userId string) (ScimUser, error) {
 
 	return deleted, err
 }
+
+func (um UserManager) Deactivate(userID string) (error) {
+	url := "/Users/" + userID
+	toUpdate := ScimUser{}
+	toUpdate.Active = utils.NewFalseP()
+	bytes, err := AuthenticatedRequester{}.PatchJson(um.HttpClient, um.Config, url, "", toUpdate)
+	if err != nil {
+		return err
+	}
+
+	updated := ScimUser{}
+	err = json.Unmarshal(bytes, &updated)
+	if err != nil {
+		return parseError(url, bytes)
+	}
+
+	return err
+}
