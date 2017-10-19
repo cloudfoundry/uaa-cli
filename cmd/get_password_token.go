@@ -16,9 +16,6 @@ func GetPasswordTokenValidations(cfg uaa.Config, args []string, clientSecret, us
 	if len(args) < 1 {
 		return MissingArgumentError("client_id")
 	}
-	if clientSecret == "" {
-		return MissingArgumentError("client_secret")
-	}
 	if password == "" {
 		return MissingArgumentError("password")
 	}

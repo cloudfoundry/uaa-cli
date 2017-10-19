@@ -236,15 +236,22 @@ var _ = Describe("GetPasswordToken", func() {
 		})
 
 		Describe("when called with no client secret", func() {
-			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
+			It("succeeds", func() {
+				c := uaa.NewConfigWithServerURL(server.URL())
 				config.WriteConfig(c)
+				server.RouteToHandler("POST", "/oauth/token",
+					RespondWith(http.StatusOK, jwtTokenResponseJson),
+				)
+
 				session := runCommand("get-password-token", "admin",
 					"-u", "woodstock",
-					"-p", "secret")
+					"-p", "secret",
+					"--verbose")
 
-				Eventually(session).Should(Exit(1))
-				Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
+				Eventually(session).Should(Exit(0))
+				Expect(session.Out).To(Say("POST /oauth/token"))
+				Expect(session.Out).To(Say("Accept: application/json"))
+				Expect(session.Out).To(Say("200 OK"))
 			})
 		})
 
