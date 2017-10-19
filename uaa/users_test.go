@@ -195,12 +195,13 @@ var _ = Describe("Users", func() {
 			uaaServer.RouteToHandler("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
 				ghttp.VerifyRequest("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("If-Match", "10"),
 				ghttp.VerifyHeaderKV("Accept", "application/json"),
 				ghttp.VerifyJSON(`{ "active": false }`),
 				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
 			))
 
-			err := um.Deactivate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70")
+			err := um.Deactivate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", 10)
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
@@ -214,7 +215,7 @@ var _ = Describe("Users", func() {
 				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
 			))
 
-			err := um.Deactivate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7")
+			err := um.Deactivate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7", 0)
 
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))

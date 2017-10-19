@@ -228,11 +228,13 @@ func (um UserManager) Delete(userId string) (ScimUser, error) {
 	return deleted, err
 }
 
-func (um UserManager) Deactivate(userID string) (error) {
+func (um UserManager) Deactivate(userID string, userMetaVersion int) error {
 	url := "/Users/" + userID
-	toUpdate := ScimUser{}
-	toUpdate.Active = utils.NewFalseP()
-	bytes, err := AuthenticatedRequester{}.PatchJson(um.HttpClient, um.Config, url, "", toUpdate)
+	user := ScimUser{}
+	user.Active = utils.NewFalseP()
+
+	extraHeaders := map[string]string{"If-Match": strconv.Itoa(userMetaVersion)}
+	bytes, err := AuthenticatedRequester{}.PatchJson(um.HttpClient, um.Config, url, "", user, extraHeaders)
 	if err != nil {
 		return err
 	}
