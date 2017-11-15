@@ -229,21 +229,20 @@ func (um UserManager) Delete(userId string) (ScimUser, error) {
 }
 
 func (um UserManager) Deactivate(userID string, userMetaVersion int) error {
+	return um.setActive(false, userID, userMetaVersion)
+}
+
+func (um UserManager) Activate(userID string, userMetaVersion int) error {
+	return um.setActive(true, userID, userMetaVersion)
+}
+
+func (um UserManager) setActive(active bool, userID string, userMetaVersion int) error {
 	url := "/Users/" + userID
 	user := ScimUser{}
-	user.Active = utils.NewFalseP()
+	user.Active = &active
 
 	extraHeaders := map[string]string{"If-Match": strconv.Itoa(userMetaVersion)}
-	bytes, err := AuthenticatedRequester{}.PatchJson(um.HttpClient, um.Config, url, "", user, extraHeaders)
-	if err != nil {
-		return err
-	}
-
-	updated := ScimUser{}
-	err = json.Unmarshal(bytes, &updated)
-	if err != nil {
-		return parseError(url, bytes)
-	}
+	_, err := AuthenticatedRequester{}.PatchJson(um.HttpClient, um.Config, url, "", user, extraHeaders)
 
 	return err
 }

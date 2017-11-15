@@ -222,6 +222,40 @@ var _ = Describe("Users", func() {
 		})
 	})
 
+
+	Describe("UserManager#Activate", func() {
+		It("activates user using userID string", func() {
+			uaaServer.RouteToHandler("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", ghttp.CombineHandlers(
+				ghttp.VerifyRequest("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+				ghttp.VerifyHeaderKV("If-Match", "10"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyJSON(`{ "active": true }`),
+				ghttp.RespondWith(http.StatusOK, MarcusUserResponse),
+			))
+
+			err := um.Activate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", 10)
+
+			Expect(err).NotTo(HaveOccurred())
+			Expect(uaaServer.ReceivedRequests()).To(HaveLen(1))
+		})
+
+		It("returns helpful error when /Users/userid request fails", func() {
+			uaaServer.RouteToHandler("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7", ghttp.CombineHandlers(
+				ghttp.RespondWith(http.StatusInternalServerError, ""),
+				ghttp.VerifyRequest("PATCH", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7"),
+				ghttp.VerifyHeaderKV("Accept", "application/json"),
+				ghttp.VerifyHeaderKV("Authorization", "bearer access_token"),
+			))
+
+			err := um.Activate("fb5f32e1-5cb3-49e6-93df-6df9c8c8bd7", 0)
+
+			Expect(err).To(HaveOccurred())
+			Expect(err.Error()).To(ContainSubstring("An unknown error occurred while calling"))
+		})
+	})
+
+
 	Describe("UserManager#GetByUsername", func() {
 		Context("when no username is specified", func() {
 			It("returns an error", func() {
