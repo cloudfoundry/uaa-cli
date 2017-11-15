@@ -56,8 +56,9 @@ func UpdateTargetCmd(cfg uaa.Config, newTarget string, log cli.Logger) error {
 }
 
 var targetCmd = &cobra.Command{
-	Use:   "target UAA_URL",
-	Short: "Set the url of the UAA you'd like to target",
+	Use:     "target UAA_URL",
+	Aliases: []string{"api"},
+	Short:   "Set the url of the UAA you'd like to target",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		if len(args) == 0 {
