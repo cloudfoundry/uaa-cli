@@ -12,7 +12,7 @@ import (
 	"net/http"
 )
 
-var _ = Describe("DeactivateUser", func() {
+var _ = Describe("ActivateUser", func() {
 	BeforeEach(func() {
 		c := uaa.NewConfigWithServerURL(server.URL())
 		ctx := uaa.NewContextWithToken("access_token")
@@ -20,30 +20,30 @@ var _ = Describe("DeactivateUser", func() {
 		config.WriteConfig(c)
 	})
 
-	It("deactivates a user", func() {
+	It("activates a user", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock%40peanuts.com%22"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.ScimMetaInfo{Version: 10}})),
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef", ""),
 			VerifyHeaderKV("If-Match", "10"),
-			VerifyJSON(`{"active": false}`),
+			VerifyJSON(`{"active": true}`),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
 		))
 
-		session := runCommand("deactivate-user", "woodstock@peanuts.com")
+		session := runCommand("activate-user", "woodstock@peanuts.com")
 
 		Expect(server.ReceivedRequests()).To(HaveLen(2))
 		Eventually(session).Should(Exit(0))
-		Expect(session.Out).To(Say("Account for user woodstock@peanuts.com successfully deactivated."))
+		Expect(session.Out).To(Say("Account for user woodstock@peanuts.com successfully activated."))
 	})
 
 	Describe("validations", func() {
 		It("requires a target", func() {
 			config.WriteConfig(uaa.NewConfig())
 
-			session := runCommand("deactivate-user", "woodstock@peanuts.com")
+			session := runCommand("activate-user", "woodstock@peanuts.com")
 
 			Expect(session.Err).To(Say("You must set a target in order to use this command."))
 			Expect(session).Should(Exit(1))
@@ -53,7 +53,7 @@ var _ = Describe("DeactivateUser", func() {
 			cfg := uaa.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(cfg)
 
-			session := runCommand("deactivate-user", "woodstock@peanuts.com")
+			session := runCommand("activate-user", "woodstock@peanuts.com")
 
 			Expect(session.Err).To(Say("You must have a token in your context to perform this command."))
 			Expect(session).Should(Exit(1))
@@ -65,7 +65,7 @@ var _ = Describe("DeactivateUser", func() {
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 
-			session := runCommand("deactivate-user")
+			session := runCommand("activate-user")
 
 			Expect(session.Err).To(Say("The positional argument USERNAME must be specified."))
 			Expect(session).Should(Exit(1))
