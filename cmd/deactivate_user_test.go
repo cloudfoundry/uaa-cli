@@ -39,6 +39,27 @@ var _ = Describe("DeactivateUser", func() {
 		Expect(session.Out).To(Say("Account for user woodstock@peanuts.com successfully deactivated."))
 	})
 
+	It("deactivates a user in a non-default zone", func() {
+		server.RouteToHandler("GET", "/Users", CombineHandlers(
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilightzone"),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.ScimMetaInfo{Version: 10}})),
+		))
+		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
+			VerifyRequest("PATCH", "/Users/abcdef", ""),
+			VerifyHeaderKV("If-Match", "10"),
+			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilightzone"),
+			VerifyJSON(`{"active": false}`),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+		))
+
+		session := runCommand("deactivate-user", "woodstock@peanuts.com", "--zone", "twilightzone")
+
+		Expect(server.ReceivedRequests()).To(HaveLen(2))
+		Eventually(session).Should(Exit(0))
+		Expect(session.Out).To(Say("Account for user woodstock@peanuts.com successfully deactivated."))
+	})
+
 	Describe("validations", func() {
 		It("requires a target", func() {
 			config.WriteConfig(uaa.NewConfig())

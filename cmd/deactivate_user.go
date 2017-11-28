@@ -54,4 +54,7 @@ func init() {
 	RootCmd.AddCommand(deactivateUserCmd)
 	deactivateUserCmd.Annotations = make(map[string]string)
 	deactivateUserCmd.Annotations[USER_CRUD_CATEGORY] = "true"
+
+	deactivateUserCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain from which to deactivate the user")
+
 }
