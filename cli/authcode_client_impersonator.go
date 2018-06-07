@@ -1,22 +1,23 @@
 package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"github.com/cloudfoundry-community/go-uaa"
 )
 
 type AuthcodeClientImpersonator struct {
 	httpClient         *http.Client
 	config             uaa.Config
-	ClientId           string
+	ClientID           string
 	ClientSecret       string
 	TokenFormat        string
 	Scope              string
-	UaaBaseUrl         string
+	UaaBaseURL         string
 	Port               int
 	Log                Logger
 	AuthCallbackServer CallbackServer
@@ -44,7 +45,7 @@ func NewAuthcodeClientImpersonator(
 	impersonator := AuthcodeClientImpersonator{
 		httpClient:      httpClient,
 		config:          config,
-		ClientId:        clientId,
+		ClientID:        clientId,
 		ClientSecret:    clientSecret,
 		TokenFormat:     tokenFormat,
 		Scope:           scope,
@@ -72,7 +73,7 @@ func (aci AuthcodeClientImpersonator) Start() {
 		go aci.AuthCallbackServer.Start(urlValues)
 		values := <-urlValues
 		code := values.Get("code")
-		tokenRequester := uaa.AuthorizationCodeClient{ClientId: aci.ClientId, ClientSecret: aci.ClientSecret}
+		tokenRequester := uaa.AuthorizationCodeClient{ClientID: aci.ClientID, ClientSecret: aci.ClientSecret}
 		aci.Log.Infof("Calling UAA /oauth/token to exchange code %v for an access token", code)
 		resp, err := tokenRequester.RequestToken(aci.httpClient, aci.config, uaa.TokenFormat(aci.TokenFormat), code, aci.redirectUri())
 		if err != nil {
@@ -86,10 +87,10 @@ func (aci AuthcodeClientImpersonator) Start() {
 func (aci AuthcodeClientImpersonator) Authorize() {
 	requestValues := url.Values{}
 	requestValues.Add("response_type", "code")
-	requestValues.Add("client_id", aci.ClientId)
+	requestValues.Add("client_id", aci.ClientID)
 	requestValues.Add("redirect_uri", aci.redirectUri())
 
-	authUrl, err := utils.BuildUrl(aci.config.GetActiveTarget().BaseUrl, "/oauth/authorize")
+	authUrl, err := utils.BuildUrl(aci.config.GetActiveTarget().BaseURL, "/oauth/authorize")
 	if err != nil {
 		aci.Log.Error("Something went wrong while building the authorization URL.")
 		os.Exit(1)

@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"errors"
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
 )
 
 func GetClientCredentialsTokenValidations(cfg uaa.Config, args []string, clientSecret string) error {
@@ -23,15 +24,15 @@ func GetClientCredentialsTokenValidations(cfg uaa.Config, args []string, clientS
 }
 
 func GetClientCredentialsTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clientSecret string) error {
-	ccClient := uaa.ClientCredentialsClient{ClientId: clientId, ClientSecret: clientSecret}
+	ccClient := uaa.ClientCredentialsClient{ClientID: clientId, ClientSecret: clientSecret}
 	tokenResponse, err := ccClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat))
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")
 	}
 
 	activeContext := cfg.GetActiveContext()
-	activeContext.GrantType = uaa.CLIENT_CREDENTIALS
-	activeContext.ClientId = clientId
+	activeContext.GrantType = uaa.CLIENTCREDENTIALS
+	activeContext.ClientID = clientId
 	activeContext.TokenResponse = tokenResponse
 
 	cfg.AddContext(activeContext)

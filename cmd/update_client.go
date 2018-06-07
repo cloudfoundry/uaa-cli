@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+
+	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
@@ -22,12 +23,12 @@ func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string)
 }
 
 func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity, refreshTokenValidity int64) error {
-	toUpdate := uaa.UaaClient{
-		ClientId:             clientId,
+	toUpdate := uaa.Client{
+		ClientID:             clientId,
 		DisplayName:          displayName,
 		AuthorizedGrantTypes: arrayify(authorizedGrantTypes),
 		Authorities:          arrayify(authorities),
-		RedirectUri:          arrayify(redirectUri),
+		RedirectURI:          arrayify(redirectUri),
 		Scope:                arrayify(scope),
 		AccessTokenValidity:  accessTokenValidity,
 		RefreshTokenValidity: refreshTokenValidity,

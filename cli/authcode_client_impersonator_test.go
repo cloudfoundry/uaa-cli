@@ -3,12 +3,13 @@ package cli_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/cli"
 
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"net/http"
+	"net/url"
+
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
-	"net/url"
 )
 
 var _ = Describe("AuthcodeClientImpersonator", func() {

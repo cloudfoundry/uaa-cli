@@ -1,14 +1,15 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"fmt"
-	"github.com/spf13/cobra"
 	"strings"
+
+	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/help"
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"github.com/cloudfoundry-community/go-uaa"
+	"github.com/spf13/cobra"
 )
 
 func arrayify(commaSeparatedStr string) []string {
@@ -30,7 +31,7 @@ func CreateClientPreRunValidations(cfg uaa.Config, args []string) error {
 }
 
 func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
-	var toCreate uaa.UaaClient
+	var toCreate uaa.Client
 	var err error
 	if clone != "" {
 		toCreate, err = cm.Get(clone)
@@ -38,7 +39,7 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 			return errors.New(fmt.Sprintf("The client %v could not be found.", clone))
 		}
 
-		toCreate.ClientId = clientId
+		toCreate.ClientID = clientId
 		toCreate.ClientSecret = clientSecret
 		if displayName != "" {
 			toCreate.DisplayName = displayName
@@ -50,7 +51,7 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 			toCreate.Authorities = arrayify(authorities)
 		}
 		if redirectUri != "" {
-			toCreate.RedirectUri = arrayify(redirectUri)
+			toCreate.RedirectURI = arrayify(redirectUri)
 		}
 		if scope != "" {
 			toCreate.Scope = arrayify(scope)
@@ -62,19 +63,19 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 			toCreate.AccessTokenValidity = accessTokenValidity
 		}
 	} else {
-		toCreate = uaa.UaaClient{}
-		toCreate.ClientId = clientId
+		toCreate = uaa.Client{}
+		toCreate.ClientID = clientId
 		toCreate.ClientSecret = clientSecret
 		toCreate.DisplayName = displayName
 		toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
 		toCreate.Authorities = arrayify(authorities)
-		toCreate.RedirectUri = arrayify(redirectUri)
+		toCreate.RedirectURI = arrayify(redirectUri)
 		toCreate.Scope = arrayify(scope)
 		toCreate.AccessTokenValidity = accessTokenValidity
 		toCreate.RefreshTokenValidity = refreshTokenValidity
 	}
 
-	validationErr := toCreate.PreCreateValidation()
+	validationErr := toCreate.Validate()
 	if validationErr != nil {
 		return validationErr
 	}

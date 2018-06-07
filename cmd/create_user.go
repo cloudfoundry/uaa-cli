@@ -2,20 +2,20 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"github.com/spf13/cobra"
 )
 
-func buildEmails(emails []string) []uaa.ScimUserEmail {
-	userEmails := []uaa.ScimUserEmail{}
-	var newEmail uaa.ScimUserEmail
+func buildEmails(emails []string) []uaa.Email {
+	userEmails := []uaa.Email{}
+	var newEmail uaa.Email
 	for i, email := range emails {
 		if i == 0 {
-			newEmail = uaa.ScimUserEmail{Primary: utils.NewTrueP(), Value: email}
+			newEmail = uaa.Email{Primary: utils.NewTrueP(), Value: email}
 		} else {
-			newEmail = uaa.ScimUserEmail{Primary: utils.NewFalseP(), Value: email}
+			newEmail = uaa.Email{Primary: utils.NewFalseP(), Value: email}
 		}
 		userEmails = append(userEmails, newEmail)
 	}
@@ -33,11 +33,11 @@ func buildPhones(phones []string) []uaa.PhoneNumber {
 }
 
 func CreateUserCmd(um uaa.UserManager, printer cli.Printer, username, familyName, givenName, password, origin string, emails []string, phones []string) error {
-	toCreate := uaa.ScimUser{
+	toCreate := uaa.User{
 		Username: username,
 		Password: password,
 		Origin:   origin,
-		Name: &uaa.ScimUserName{
+		Name: &uaa.UserName{
 			FamilyName: familyName,
 			GivenName:  givenName,
 		},

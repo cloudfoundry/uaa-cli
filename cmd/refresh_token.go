@@ -4,7 +4,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"github.com/spf13/cobra"
@@ -14,10 +14,10 @@ import (
 func RefreshTokenCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger, tokenFormat string) error {
 	ctx := cfg.GetActiveContext()
 	refreshClient := uaa.RefreshTokenClient{
-		ClientId:     ctx.ClientId,
+		ClientID:     ctx.ClientID,
 		ClientSecret: clientSecret,
 	}
-	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(ctx.ClientId))
+	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(ctx.ClientID))
 	tokenResponse, err := refreshClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func RefreshTokenValidations(cfg uaa.Config, clientSecret string) error {
 	if clientSecret == "" {
 		return MissingArgumentError("client_secret")
 	}
-	if cfg.GetActiveContext().ClientId == "" {
+	if cfg.GetActiveContext().ClientID == "" {
 		return errors.New("A client_id was not found in the active context.")
 	}
 	if GetSavedConfig().GetActiveContext().RefreshToken == "" {

@@ -2,15 +2,15 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
 
 func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *cli.Logger) {
-	ctx := uaa.UaaContext{
+	ctx := uaa.AuthContext{
 		GrantType:     uaa.AUTHCODE,
-		ClientId:      clientId,
+		ClientID:      clientId,
 		TokenResponse: tokenResponse,
 	}
 

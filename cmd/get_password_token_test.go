@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -31,7 +31,7 @@ var _ = Describe("GetPasswordToken", func() {
 	}`
 
 	var c uaa.Config
-	var ctx uaa.UaaContext
+	var ctx uaa.AuthContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
@@ -111,7 +111,7 @@ var _ = Describe("GetPasswordToken", func() {
 
 				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 				Expect(config.ReadConfig().GetActiveContext().RefreshToken).To(Equal("eyJhbGciOiJSUzI1NiIsImtpZCI6ImtleS0xIiwidHlwIjoiSldUIn0.eyJqdGkiOiJlMTQ0NTE3N2YyYmU0YzQ3Yjk4MmIzNzI1MzllN2NkNy1yIiwic3ViIjoiODkwZmY4MWItMzMyNC00NDRiLTgwNTAtNDRmNWVjOGQ3MDUzIiwic2NvcGUiOlsib3BlbmlkIiwidXNlcl9hdHRyaWJ1dGVzIiwic2NpbS53cml0ZSIsInNjaW0ucmVhZCJdLCJpYXQiOjE1MDUwNzk4MjMsImV4cCI6MTUwNzY3MTgyMywiY2lkIjoiamF1dGhjb2RlIiwiY2xpZW50X2lkIjoiamF1dGhjb2RlIiwiaXNzIjoiaHR0cHM6Ly91YWEudWFhLWFjY2VwdGFuY2UuY2YtYXBwLmNvbS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJ1c2VyX25hbWUiOiJqaGFtb25AZ21haWwuY29tIiwib3JpZ2luIjoidWFhIiwidXNlcl9pZCI6Ijg5MGZmODFiLTMzMjQtNDQ0Yi04MDUwLTQ0ZjVlYzhkNzA1MyIsInJldl9zaWciOiI1NjFiNGRjMCIsImF1ZCI6WyJzY2ltIiwiamF1dGhjb2RlIiwib3BlbmlkIl19.hxTIL6pbybnpXwioYepdAEWHHwBB6hqJJjWW4atZJ4jeg1ZZCe6KKPM0xEo43mwLfuqcPim7Y7GAJFiJfcM9iqilzCLWAYvQi4aeliOgsYRrWpExYXSQ76bnJ584co7a4xSbxk6W_uXFGbcgBqJaOMlJ_TbIqtFqrvsf3CzGcDy7Mnir8caQru2tEr8Zlz4zuZImj6-FJ4AQkYW1RwXD2m94I2ZoCrv2eP-AVQjgbCDHgoN2jv9-Y1eyLagVqOXBgcd9KOQFqvm4D6ker3_grbq5VmZ-8QxwbsFZ5Sl6Q-Bk7y00nhQccLIKmNqECoAb520Zwm5OhcJERbq9jgTz9Q"))
-				Expect(config.ReadConfig().GetActiveContext().ClientId).To(Equal("admin"))
+				Expect(config.ReadConfig().GetActiveContext().ClientID).To(Equal("admin"))
 				Expect(config.ReadConfig().GetActiveContext().Username).To(Equal("woodstock"))
 				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(uaa.PASSWORD))
 				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal("bearer"))

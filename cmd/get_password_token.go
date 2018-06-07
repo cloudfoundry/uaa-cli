@@ -3,7 +3,7 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"errors"
 	"github.com/spf13/cobra"
 	"net/http"
@@ -29,7 +29,7 @@ func GetPasswordTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clie
 	requestedType := uaa.TokenFormat(tokenFormat)
 
 	ccClient := uaa.ResourceOwnerPasswordClient{
-		ClientId:     clientId,
+		ClientID:     clientId,
 		ClientSecret: clientSecret,
 		Username:     username,
 		Password:     password,
@@ -40,7 +40,7 @@ func GetPasswordTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clie
 	}
 
 	activeContext := cfg.GetActiveContext()
-	activeContext.ClientId = clientId
+	activeContext.ClientID = clientId
 	activeContext.GrantType = uaa.PASSWORD
 	activeContext.Username = username
 	activeContext.TokenResponse = tokenResponse

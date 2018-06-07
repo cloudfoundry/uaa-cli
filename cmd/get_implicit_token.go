@@ -4,12 +4,12 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 )
 
-func SaveContext(ctx uaa.UaaContext, log *cli.Logger) {
+func SaveContext(ctx uaa.AuthContext, log *cli.Logger) {
 	c := GetSavedConfig()
 	c.AddContext(ctx)
 	config.WriteConfig(c)
@@ -17,9 +17,9 @@ func SaveContext(ctx uaa.UaaContext, log *cli.Logger) {
 }
 
 func addImplicitTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *cli.Logger) {
-	ctx := uaa.UaaContext{
+	ctx := uaa.AuthContext{
 		GrantType:     uaa.IMPLICIT,
-		ClientId:      clientId,
+		ClientID:      clientId,
 		TokenResponse: tokenResponse,
 	}
 
@@ -57,7 +57,7 @@ var getImplicitToken = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
-		baseUrl := GetSavedConfig().GetActiveTarget().BaseUrl
+		baseUrl := GetSavedConfig().GetActiveTarget().BaseURL
 		implicitImp := cli.NewImplicitClientImpersonator(args[0], baseUrl, tokenFormat, scope, port, log, open.Run)
 		go ImplicitTokenCommandRun(done, args[0], implicitImp, GetLogger())
 		<-done

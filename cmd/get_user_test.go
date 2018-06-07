@@ -5,7 +5,7 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -25,7 +25,7 @@ var _ = Describe("GetUser", func() {
 	It("looks up a user with a SCIM filter", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
 		session := runCommand("get-user", "woodstock@peanuts.com", "--origin", "uaa")
@@ -38,7 +38,7 @@ var _ = Describe("GetUser", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
 			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
 		session := runCommand("get-user", "woodstock@peanuts.com", "--zone", "twilight-zone")
@@ -50,7 +50,7 @@ var _ = Describe("GetUser", func() {
 	It("can limit results data with --attributes", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&attributes=userName"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
 		session := runCommand("get-user", "woodstock@peanuts.com", "--origin", "uaa", "--attributes", "userName")

@@ -3,7 +3,7 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
@@ -14,8 +14,8 @@ func ListUserValidations(cfg uaa.Config) error {
 	return nil
 }
 
-func ListUsersCmd(um uaa.UserManager, printer cli.Printer, filter, sortBy, sortOrder, attributes string, startIndex, count int) error {
-	user, err := um.List(filter, sortBy, attributes, uaa.ScimSortOrder(sortOrder), startIndex, count)
+func ListUsersCmd(um uaa.UserManager, printer cli.Printer, filter, sortBy, sortOrder, attributes string) error {
+	user, err := um.List(filter, sortBy, attributes, uaa.SortOrder(sortOrder))
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ var listUsersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := ListUsersCmd(um, cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes, startIndex, count)
+		err := ListUsersCmd(um, cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
 		NotifyErrorsWithRetry(err, cfg, log)
 	},
 }
@@ -47,7 +47,5 @@ func init() {
 	listUsersCmd.Flags().StringVarP(&sortBy, "sortBy", "b", "", `the attribute to sort results by, e.g. "created" or "userName"`)
 	listUsersCmd.Flags().StringVarP(&sortOrder, "sortOrder", "o", "", `how results should be ordered. One of: [ascending, descending]`)
 	listUsersCmd.Flags().StringVarP(&attributes, "attributes", "a", "", `include only these comma-separated user attributes to improve query performance`)
-	listUsersCmd.Flags().IntVarP(&startIndex, "startIndex", "s", 1, `starting index of paginated results`)
-	listUsersCmd.Flags().IntVarP(&count, "count", "c", 100, `maximum number of results to return`)
 	listUsersCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to list the users")
 }

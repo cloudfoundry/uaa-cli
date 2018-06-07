@@ -4,7 +4,7 @@ package config_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -15,11 +15,11 @@ var _ = Describe("Config", func() {
 	It("can read saved data", func() {
 		cfg = uaa.NewConfig()
 		target := uaa.NewTarget()
-		target.BaseUrl = "http://nowhere.com"
+		target.BaseURL = "http://nowhere.com"
 		target.SkipSSLValidation = true
 
 		ctx := uaa.NewContextWithToken("foo-token")
-		ctx.ClientId = "cid"
+		ctx.ClientID = "cid"
 		ctx.Username = "woodstock"
 		ctx.GrantType = "client_credentials"
 
@@ -38,7 +38,7 @@ var _ = Describe("Config", func() {
 	It("can accept a context without previously setting target", func() {
 		cfg = uaa.NewConfig()
 		ctx := uaa.NewContextWithToken("foo-token")
-		ctx.ClientId = "cid"
+		ctx.ClientID = "cid"
 		ctx.Username = "woodstock"
 		ctx.GrantType = "client_credentials"
 		cfg.AddContext(ctx)

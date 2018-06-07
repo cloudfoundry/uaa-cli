@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	. "code.cloudfoundry.org/uaa-cli/uaa"
+	. "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -27,7 +27,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 	  "jti" : "bc4885d950854fed9a938e96b13ca519"
 	}`
 	var c Config
-	var context UaaContext
+	var context AuthContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
@@ -86,8 +86,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			It("updates the saved context", func() {
 				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret", "--format", "jwt")
 				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("bc4885d950854fed9a938e96b13ca519"))
-				Expect(config.ReadConfig().GetActiveContext().ClientId).To(Equal("admin"))
-				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(CLIENT_CREDENTIALS))
+				Expect(config.ReadConfig().GetActiveContext().ClientID).To(Equal("admin"))
+				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(CLIENTCREDENTIALS))
 				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal("bearer"))
 				Expect(config.ReadConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
 				Expect(config.ReadConfig().GetActiveContext().Scope).To(Equal("clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write"))

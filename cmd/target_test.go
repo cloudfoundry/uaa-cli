@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -96,12 +96,12 @@ var _ = Describe("Target", func() {
 			})
 
 			It("updates the saved context", func() {
-				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal(""))
 
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).NotTo(Equal(""))
-				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(server.URL()))
+				Expect(config.ReadConfig().GetActiveTarget().BaseURL).NotTo(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal(server.URL()))
 			})
 
 			It("displays a success message", func() {
@@ -133,7 +133,7 @@ var _ = Describe("Target", func() {
 			It("does not update the saved context", func() {
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal("http://someuaa.com"))
+				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal("http://someuaa.com"))
 			})
 
 			It("displays an error message", func() {
