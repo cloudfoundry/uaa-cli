@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"errors"
 	"github.com/spf13/cobra"
 )

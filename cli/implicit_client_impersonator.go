@@ -1,12 +1,13 @@
 package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/uaa"
-	"code.cloudfoundry.org/uaa-cli/utils"
 	"fmt"
 	"net/url"
 	"os"
 	"strconv"
+
+	"code.cloudfoundry.org/uaa-cli/utils"
+	"github.com/cloudfoundry-community/go-uaa"
 )
 
 type ClientImpersonator interface {
@@ -16,10 +17,10 @@ type ClientImpersonator interface {
 }
 
 type ImplicitClientImpersonator struct {
-	ClientId           string
+	ClientID           string
 	TokenFormat        string
 	Scope              string
-	UaaBaseUrl         string
+	UaaBaseURL         string
 	Port               int
 	Log                Logger
 	AuthCallbackServer CallbackServer
@@ -49,7 +50,7 @@ const implicitCallbackHTML = `<body>
 </body>`
 
 func NewImplicitClientImpersonator(clientId,
-	uaaBaseUrl string,
+	uaaBaseURL string,
 	tokenFormat string,
 	scope string,
 	port int,
@@ -57,8 +58,8 @@ func NewImplicitClientImpersonator(clientId,
 	launcher func(string) error) ImplicitClientImpersonator {
 
 	impersonator := ImplicitClientImpersonator{
-		ClientId:        clientId,
-		UaaBaseUrl:      uaaBaseUrl,
+		ClientID:        clientId,
+		UaaBaseURL:      uaaBaseURL,
 		TokenFormat:     tokenFormat,
 		Scope:           scope,
 		Port:            port,
@@ -100,12 +101,12 @@ func (ici ImplicitClientImpersonator) Start() {
 func (ici ImplicitClientImpersonator) Authorize() {
 	requestValues := url.Values{}
 	requestValues.Add("response_type", "token")
-	requestValues.Add("client_id", ici.ClientId)
+	requestValues.Add("client_id", ici.ClientID)
 	requestValues.Add("scope", ici.Scope)
 	requestValues.Add("token_format", ici.TokenFormat)
 	requestValues.Add("redirect_uri", fmt.Sprintf("http://localhost:%v", ici.Port))
 
-	authUrl, err := utils.BuildUrl(ici.UaaBaseUrl, "/oauth/authorize")
+	authUrl, err := utils.BuildUrl(ici.UaaBaseURL, "/oauth/authorize")
 	if err != nil {
 		ici.Log.Error("Something went wrong while building the authorization URL.")
 		os.Exit(1)

@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -27,7 +27,7 @@ var _ = Describe("CreateClient", func() {
 	}`
 
 	var c uaa.Config
-	var ctx uaa.UaaContext
+	var ctx uaa.AuthContext
 
 	BeforeEach(func() {
 		c = uaa.NewConfigWithServerURL(server.URL())

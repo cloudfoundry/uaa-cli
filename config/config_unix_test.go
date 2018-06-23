@@ -8,7 +8,7 @@ import (
 	"path"
 
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

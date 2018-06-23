@@ -4,7 +4,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"

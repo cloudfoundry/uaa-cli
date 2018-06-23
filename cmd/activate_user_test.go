@@ -1,15 +1,16 @@
 package cmd_test
 
 import (
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
 
 var _ = Describe("ActivateUser", func() {
@@ -23,13 +24,13 @@ var _ = Describe("ActivateUser", func() {
 	It("activates a user", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock%40peanuts.com%22"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.ScimMetaInfo{Version: 10}})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.Meta{Version: 10}})),
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef", ""),
 			VerifyHeaderKV("If-Match", "10"),
 			VerifyJSON(`{"active": true}`),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimUser{Username: "woodstock@peanuts.com"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
 		session := runCommand("activate-user", "woodstock@peanuts.com")

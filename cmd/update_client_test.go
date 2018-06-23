@@ -1,14 +1,15 @@
 package cmd_test
 
 import (
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
 
 var _ = Describe("UpdateClient", func() {
@@ -26,7 +27,7 @@ var _ = Describe("UpdateClient", func() {
 	  "name" : "Notifier Client"
 	}`
 
-	var ctx uaa.UaaContext
+	var ctx uaa.AuthContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {

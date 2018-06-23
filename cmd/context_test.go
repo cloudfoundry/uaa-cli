@@ -2,7 +2,7 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -43,7 +43,7 @@ var _ = Describe("Context", func() {
 	Describe("when there is an active context", func() {
 		BeforeEach(func() {
 			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
-			ctx := uaa.UaaContext{ClientId: "admin", Username: "woodstock"}
+			ctx := uaa.AuthContext{ClientID: "admin", Username: "woodstock"}
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 		})

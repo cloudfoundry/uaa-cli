@@ -5,7 +5,7 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -22,7 +22,7 @@ func (tl *TestLauncher) Run(target string) error {
 
 var _ = Describe("GetImplicitToken", func() {
 	var c uaa.Config
-	var ctx uaa.UaaContext
+	var ctx uaa.AuthContext
 	var logger cli.Logger
 
 	BeforeEach(func() {
@@ -45,7 +45,7 @@ var _ = Describe("GetImplicitToken", func() {
 
 		<-doneRunning
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
-		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
+		Expect(GetSavedConfig().GetActiveContext().ClientID).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("foo"))
 		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal("bearer"))

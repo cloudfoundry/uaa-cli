@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 )
 
 func GetHttpClient() *http.Client {

@@ -5,7 +5,7 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
@@ -15,7 +15,7 @@ import (
 var _ = Describe("GetAuthcodeToken", func() {
 	var (
 		c          uaa.Config
-		ctx        uaa.UaaContext
+		ctx        uaa.AuthContext
 		logger     cli.Logger
 		launcher   TestLauncher
 		httpClient *http.Client
@@ -62,7 +62,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		Expect(GetSavedConfig().GetActiveContext().RefreshToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gSADFJSKADJFLsdfandydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
-		Expect(GetSavedConfig().GetActiveContext().ClientId).To(Equal("shinyclient"))
+		Expect(GetSavedConfig().GetActiveContext().ClientID).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("authorization_code")))
 		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal("bearer"))
 		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))

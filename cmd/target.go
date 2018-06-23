@@ -3,7 +3,7 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
 	"fmt"
@@ -19,17 +19,17 @@ type TargetStatus struct {
 }
 
 func printTarget(log cli.Logger, target uaa.Target, status string, version string) error {
-	return cli.NewJsonPrinter(log).Print(TargetStatus{target.BaseUrl, status, version, target.SkipSSLValidation})
+	return cli.NewJsonPrinter(log).Print(TargetStatus{target.BaseURL, status, version, target.SkipSSLValidation})
 }
 
 func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger) error {
 	target := cfg.GetActiveTarget()
 
-	if target.BaseUrl == "" {
+	if target.BaseURL == "" {
 		return printTarget(log, target, "", "")
 	}
 
-	info, err := uaa.Info(httpClient, cfg)
+	info, err := uaa.GetInfo(httpClient, cfg)
 	if err != nil {
 		_ = printTarget(log, target, "ERROR", "unknown")
 		return errors.New("There was an error while fetching status info about the current target.")
@@ -41,11 +41,11 @@ func ShowTargetCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger) erro
 func UpdateTargetCmd(cfg uaa.Config, newTarget string, log cli.Logger) error {
 	target := uaa.Target{
 		SkipSSLValidation: skipSSLValidation,
-		BaseUrl:           newTarget,
+		BaseURL:           newTarget,
 	}
 
 	cfg.AddTarget(target)
-	_, err := uaa.Info(GetHttpClientWithConfig(cfg), cfg)
+	_, err := uaa.GetInfo(GetHttpClientWithConfig(cfg), cfg)
 	if err != nil {
 		return errors.New(fmt.Sprintf("The target %s could not be set.", newTarget))
 	}

@@ -5,7 +5,7 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
-	"code.cloudfoundry.org/uaa-cli/uaa"
+	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -25,7 +25,7 @@ var _ = Describe("GetGroup", func() {
 	It("looks up a group with a SCIM filter", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
 			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimGroup{DisplayName: "admin"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
 		session := runCommand("get-group", "admin")
@@ -37,7 +37,7 @@ var _ = Describe("GetGroup", func() {
 	It("can limit results data with --attributes", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
 			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&attributes=displayName"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimGroup{DisplayName: "admin"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
 		session := runCommand("get-group", "admin", "--attributes", "displayName")
@@ -50,7 +50,7 @@ var _ = Describe("GetGroup", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
 			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
 			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
-			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.ScimGroup{DisplayName: "admin"})),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
 		session := runCommand("get-group", "admin", "--zone", "twilight-zone")
