@@ -1,0 +1,11 @@
+---
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: golang:1.9
+inputs:
+  - name: uaa-cli
+
+run:
+  path: uaa-cli/ci/tasks/run-tests/task.sh
