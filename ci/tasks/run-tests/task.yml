@@ -3,7 +3,8 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: golang:1.9
+    repository: golang
+    tag: 1.9
 inputs:
   - name: uaa-cli
   - name: identity-ci
