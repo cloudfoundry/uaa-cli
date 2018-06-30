@@ -43,6 +43,8 @@ var _ = Describe("Context", func() {
 		BeforeEach(func() {
 			c := config.NewConfigWithServerURL("http://login.somewhere.com")
 			ctx := config.UaaContext{ClientId: "admin", Username: "woodstock"}
+			ctx.Token.TokenType = "bearer"
+			ctx.Token.AccessToken = "token"
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 		})
@@ -52,14 +54,29 @@ var _ = Describe("Context", func() {
 			  "client_id": "admin",
 			  "grant_type": "",
 			  "username": "woodstock",
-	          "Token": {
-                "access_token": "",
-                "expiry": "0001-01-01T00:00:00Z"
-              }
+				"Token": {
+					"access_token": "token",
+					"token_type": "bearer",
+					"expiry": "0001-01-01T00:00:00Z"
+				}
 			}`
 			session := runCommand("context")
 
 			Expect(session.Out.Contents()).To(MatchJSON(activeContextJson))
+			Eventually(session).Should(Exit(0))
+		})
+
+		It("displays the context access_token", func() {
+			session := runCommand("context", "--access_token")
+
+			Expect(session.Out).To(Say(`token`))
+			Eventually(session).Should(Exit(0))
+		})
+
+		It("displays the context authentication header", func() {
+			session := runCommand("context", "--auth_header")
+
+			Expect(session.Out).To(Say(`bearer token`))
 			Eventually(session).Should(Exit(0))
 		})
 	})
