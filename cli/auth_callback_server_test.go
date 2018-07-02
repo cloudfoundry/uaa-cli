@@ -78,7 +78,6 @@ var _ = Describe("AuthCallbackServer", func() {
 
 		acs.Start(done)
 
-		_, err := httpClient.Get(serverUrl(randPort))
 		Eventually(func() (*http.Response, error) {
 			return httpClient.Get(serverUrl(randPort))
 		}).ShouldNot(BeNil())
@@ -92,7 +91,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		// Server should close after first request with "code" param
 		// Sleep so we don't call while the server is still closing
 		time.Sleep(20 * time.Millisecond)
-		_, err = httpClient.Get(serverUrl(randPort))
+		_, err := httpClient.Get(serverUrl(randPort))
 		Expect(err).To(HaveOccurred())
 
 		requestParams := <-done
