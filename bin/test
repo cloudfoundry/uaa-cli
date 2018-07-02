@@ -2,4 +2,4 @@
 
 set -x
 
-ginkgo -r -randomizeSuites -randomizeAllSpecs -race $@
+ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race $@
