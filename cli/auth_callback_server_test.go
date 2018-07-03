@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+	"github.com/onsi/gomega/gstruct"
 )
 
 func serverUrl(port int) string {
@@ -56,13 +57,22 @@ var _ = Describe("AuthCallbackServer", func() {
 
 			acs.Start(done)
 
-			resp, err := httpClient.Get(serverUrl(randPort))
-			if err != nil {
-				Fail(err.Error())
-			}
+			var err error
+			var resp *http.Response
+			Eventually(func() (*http.Response, error) {
+				resp, err = httpClient.Get(serverUrl(randPort))
+				return resp, err
+			}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+				gstruct.IgnoreExtras, gstruct.Fields{
+					"StatusCode": Equal(200),
+					"Body": Not(BeNil()),
+				},
+			)))
 
-			<-done
-			parsedBody, _ := ioutil.ReadAll(resp.Body)
+			Eventually(done).Should(Receive())
+
+			parsedBody, err := ioutil.ReadAll(resp.Body)
+			Expect(err).NotTo(HaveOccurred())
 			Expect(string(parsedBody)).To(ContainSubstring("Hello There"))
 			Expect(string(parsedBody)).To(ContainSubstring("background: #F00"))
 			Expect(string(parsedBody)).To(ContainSubstring("Objective judgement"))
@@ -80,13 +90,28 @@ var _ = Describe("AuthCallbackServer", func() {
 
 		Eventually(func() (*http.Response, error) {
 			return httpClient.Get(serverUrl(randPort))
-		}).ShouldNot(BeNil())
+		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+			gstruct.IgnoreExtras, gstruct.Fields{
+				"StatusCode": Equal(200),
+				"Body": Not(BeNil()),
+			},
+		)))
 		Eventually(func() (*http.Response, error) {
 			return httpClient.Get(serverUrl(randPort) + "?foo=not_the_code")
-		}).ShouldNot(BeNil())
+		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+			gstruct.IgnoreExtras, gstruct.Fields{
+				"StatusCode": Equal(200),
+				"Body": Not(BeNil()),
+			},
+		)))
 		Eventually(func() (*http.Response, error) {
 			return httpClient.Get(serverUrl(randPort) + "?code=secret_code")
-		}).ShouldNot(BeNil())
+		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+			gstruct.IgnoreExtras, gstruct.Fields{
+				"StatusCode": Equal(200),
+				"Body": Not(BeNil()),
+			},
+		)))
 
 		// Server should close after first request with "code" param
 		// Sleep so we don't call while the server is still closing
@@ -94,7 +119,8 @@ var _ = Describe("AuthCallbackServer", func() {
 		_, err := httpClient.Get(serverUrl(randPort))
 		Expect(err).To(HaveOccurred())
 
-		requestParams := <-done
+		var requestParams url.Values
+		Eventually(done).Should(Receive(&requestParams))
 		Expect(requestParams.Get("code")).To(Equal("secret_code"))
 	})
 })

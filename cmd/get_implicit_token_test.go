@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
+	"github.com/onsi/gomega/gstruct"
 )
 
 type TestLauncher struct {
@@ -41,9 +42,17 @@ var _ = Describe("GetImplicitToken", func() {
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
-		httpClient.Get("http://localhost:8080/?access_token=foo&scope=openid&token_type=bearer")
+		Eventually(func() (*http.Response, error) {
+			return httpClient.Get("http://localhost:8080/?access_token=foo&scope=openid&token_type=bearer")
+		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+			gstruct.IgnoreExtras, gstruct.Fields{
+				"StatusCode": Equal(200),
+				"Body": Not(BeNil()),
+			},
+		)))
 
-		<-doneRunning
+		Eventually(doneRunning, AuthCallbackTimeout, AuthCallbackPollInterval).Should(Receive())
+
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
 		Expect(GetSavedConfig().GetActiveContext().ClientID).To(Equal("shinyclient"))
 		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))

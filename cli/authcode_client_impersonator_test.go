@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
+	"github.com/onsi/gomega/gstruct"
 )
 
 var _ = Describe("AuthcodeClientImpersonator", func() {
@@ -88,15 +89,25 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 			go impersonator.Start()
 
 			// Hit the callback server with an authcode
-			httpClient.Get("http://localhost:8080/?code=secretcode")
+			Eventually(func() (*http.Response, error) {
+				return httpClient.Get("http://localhost:8080/?code=secretcode")
+			}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+				gstruct.IgnoreExtras, gstruct.Fields{
+					"StatusCode": Equal(200),
+					"Body": Not(BeNil()),
+				},
+			)))
 
 			// The callback server should have exchanged the code for a token
-			tokenResponse := <-impersonator.Done()
-			Expect(tokenResponse.AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
-			Expect(tokenResponse.TokenType).To(Equal("bearer"))
-			Expect(tokenResponse.Scope).To(Equal("openid"))
-			Expect(tokenResponse.JTI).To(Equal("bc4885d950854fed9a938e96b13ca519"))
-			Expect(tokenResponse.ExpiresIn).To(Equal(int32(3000)))
+			Eventually(impersonator.Done(), AuthCallbackTimeout, AuthCallbackPollInterval).Should(
+				Receive(Equal(uaa.TokenResponse{
+					AccessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+					TokenType: "bearer",
+					Scope: "openid",
+					JTI: "bc4885d950854fed9a938e96b13ca519",
+					ExpiresIn: int32(3000),
+				})),
+			)
 		})
 	})
 

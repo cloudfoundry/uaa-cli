@@ -23,9 +23,11 @@ func TestCmd(t *testing.T) {
 }
 
 var (
-	commandPath string
-	homeDir     string
-	server      *Server
+	commandPath              string
+	homeDir                  string
+	server                   *Server
+	AuthCallbackTimeout      float64 = 5
+	AuthCallbackPollInterval float64 = 0.01
 )
 
 var _ = BeforeEach(func() {

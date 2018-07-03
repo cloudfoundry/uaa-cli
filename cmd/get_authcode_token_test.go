@@ -10,6 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
 	"net/http"
+	"github.com/onsi/gomega/gstruct"
 )
 
 var _ = Describe("GetAuthcodeToken", func() {
@@ -56,9 +57,17 @@ var _ = Describe("GetAuthcodeToken", func() {
 		go AuthcodeTokenCommandRun(doneRunning, "shinyclient", imp, &logger)
 
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
-		httpClient.Get("http://localhost:8080/?code=ASDFGHJKL")
+		Eventually(func() (*http.Response, error) {
+			return httpClient.Get("http://localhost:8080/?code=ASDFGHJKL")
+		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
+			gstruct.IgnoreExtras, gstruct.Fields{
+				"StatusCode": Equal(200),
+				"Body": Not(BeNil()),
+			},
+		)))
 
-		<-doneRunning
+		Eventually(doneRunning, AuthCallbackTimeout, AuthCallbackPollInterval).Should(Receive())
+
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
 		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		Expect(GetSavedConfig().GetActiveContext().RefreshToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gSADFJSKADJFLsdfandydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
