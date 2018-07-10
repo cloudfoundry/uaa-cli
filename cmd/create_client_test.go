@@ -1,6 +1,8 @@
 package cmd_test
 
 import (
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
@@ -8,7 +10,6 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
 
 var _ = Describe("CreateClient", func() {
@@ -18,10 +19,10 @@ var _ = Describe("CreateClient", func() {
 	  "client_secret" : "secret",
 	  "resource_ids" : [ ],
 	  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
+	  "autoapprove" : ["true"],
 	  "redirect_uri" : [ "http://localhost:8080/*" ],
 	  "authorities" : [ "notifications.write", "notifications.read" ],
 	  "token_salt" : "",
-	  "autoapprove" : ["true"],
 	  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
 	  "name" : "Notifier Client"
 	}`
@@ -169,7 +170,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"autoapprove":["true"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusOK, shinyCopy),
@@ -193,7 +194,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client", "access_token_validity": 3600, "refresh_token_validity": 4500}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"autoapprove":["true"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client", "access_token_validity": 3600, "refresh_token_validity": 4500}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusOK, shinyCopy),
@@ -241,7 +242,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"autoapprove":["true"],"redirect_uri":["http://localhost:8080/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusBadRequest, shinyCopy),
@@ -299,7 +300,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "bearer access_token"),
 				))
 
-				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client" }`
+				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "autoapprove" : [ "true" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client" }`
 
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),

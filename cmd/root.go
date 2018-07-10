@@ -7,8 +7,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/version"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
@@ -33,6 +33,7 @@ var (
 	clientSecret         string
 	authorizedGrantTypes string
 	authorities          string
+	autoapprove          string
 	accessTokenValidity  int64
 	refreshTokenValidity int64
 	displayName          string
