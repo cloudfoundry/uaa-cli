@@ -31,7 +31,7 @@ func CreateClientPreRunValidations(cfg config.Config, args []string) error {
 	return nil
 }
 
-func CreateClientCmd(api *uaa.API, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
+func CreateClientCmd(api *uaa.API, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, autoapprove, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
 	var toCreate *uaa.Client
 	var err error
 	if clone != "" {
@@ -50,6 +50,9 @@ func CreateClientCmd(api *uaa.API, clone, clientId, clientSecret, displayName, a
 		}
 		if authorities != "" {
 			toCreate.Authorities = arrayify(authorities)
+		}
+		if autoapprove != "" {
+			toCreate.AutoApprove = arrayify(autoapprove)
 		}
 		if redirectUri != "" {
 			toCreate.RedirectURI = arrayify(redirectUri)
@@ -70,6 +73,7 @@ func CreateClientCmd(api *uaa.API, clone, clientId, clientSecret, displayName, a
 		toCreate.DisplayName = displayName
 		toCreate.AuthorizedGrantTypes = arrayify(authorizedGrantTypes)
 		toCreate.Authorities = arrayify(authorities)
+		toCreate.AutoApprove = arrayify(autoapprove)
 		toCreate.RedirectURI = arrayify(redirectUri)
 		toCreate.Scope = arrayify(scope)
 		toCreate.AccessTokenValidity = accessTokenValidity
@@ -113,6 +117,7 @@ var createClientCmd = &cobra.Command{
 			displayName,
 			authorizedGrantTypes,
 			authorities,
+			autoapprove,
 			redirectUri,
 			scope,
 			accessTokenValidity,
@@ -126,8 +131,9 @@ func init() {
 	createClientCmd.Annotations = make(map[string]string)
 	createClientCmd.Annotations[CLIENT_CRUD_CATEGORY] = "true"
 	createClientCmd.Flags().StringVarP(&clientSecret, "client_secret", "s", "", "client secret")
-	createClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client.")
+	createClientCmd.Flags().StringVarP(&authorizedGrantTypes, "authorized_grant_types", "", "", "list of grant types allowed with this client")
 	createClientCmd.Flags().StringVarP(&authorities, "authorities", "", "", "scopes requested by client during client_credentials grant")
+	createClientCmd.Flags().StringVarP(&autoapprove, "autoapprove", "", "", "Scopes that do not require user approval")
 	createClientCmd.Flags().StringVarP(&scope, "scope", "", "", "scopes requested by client during authorization_code, implicit, or password grants")
 	createClientCmd.Flags().Int64VarP(&accessTokenValidity, "access_token_validity", "", 0, "the time in seconds before issued access tokens expire")
 	createClientCmd.Flags().Int64VarP(&refreshTokenValidity, "refresh_token_validity", "", 0, "the time in seconds before issued refrsh tokens expire")
