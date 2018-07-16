@@ -48,7 +48,7 @@ var deactivateUserCmd = &cobra.Command{
 		if zoneSubdomain == "" {
 			zoneSubdomain = cfg.ZoneSubdomain
 		}
-		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, zoneSubdomain, cfg.GetActiveContext().Token)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, zoneSubdomain, cfg.GetActiveContext().Token, cfg.GetActiveTarget().SkipSSLValidation)
 		NotifyErrorsWithRetry(err, log)
 		err = DeactivateUserCmd(api, args[0], origin, attributes)
 		NotifyErrorsWithRetry(err, log)

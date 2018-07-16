@@ -44,7 +44,7 @@ var curlCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
-		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token, cfg.GetActiveTarget().SkipSSLValidation)
 		NotifyErrorsWithRetry(err, log)
 		err = CurlCmd(api, log, args[0], method, data, headers)
 		NotifyErrorsWithRetry(err, log)

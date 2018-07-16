@@ -36,7 +36,7 @@ var deleteClientCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token, cfg.GetActiveTarget().SkipSSLValidation)
 		NotifyErrorsWithRetry(err, log)
 		NotifyErrorsWithRetry(DeleteClientCmd(api, args[0]), log)
 	},
