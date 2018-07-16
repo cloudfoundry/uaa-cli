@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	cli_config "code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
 )
 
-func AddMemberPreRunValidations(config uaa.Config, args []string) error {
+func AddMemberPreRunValidations(config cli_config.Config, args []string) error {
 	if err := EnsureContextInConfig(config); err != nil {
 		return err
 	}
@@ -21,20 +21,18 @@ func AddMemberPreRunValidations(config uaa.Config, args []string) error {
 	return nil
 }
 
-func AddMemberCmd(httpClient *http.Client, config uaa.Config, groupName, username string, log cli.Logger) error {
-	gm := uaa.GroupManager{httpClient, config}
-	group, err := gm.GetByName(groupName, "")
+func AddMemberCmd(api *uaa.API, groupName, username string, log cli.Logger) error {
+	group, err := api.GetGroupByName(groupName, "")
 	if err != nil {
 		return err
 	}
 
-	um := uaa.UserManager{httpClient, config}
-	user, err := um.GetByUsername(username, "", "")
+	user, err := api.GetUserByUsername(username, "", "")
 	if err != nil {
 		return err
 	}
 
-	err = gm.AddMember(group.ID, user.ID)
+	err = api.AddGroupMember(group.ID, user.ID, "", "")
 	if err != nil {
 		return err
 	}
@@ -52,8 +50,9 @@ var addMemberCmd = &cobra.Command{
 		NotifyValidationErrors(AddMemberPreRunValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(AddMemberCmd(GetHttpClient(), cfg, args[0], args[1], log), cfg, log)
+		groupName := args[0]
+		userName := args[1]
+		NotifyErrorsWithRetry(AddMemberCmd(GetAPIFromSavedTokenInContext(), groupName, userName, log), log)
 	},
 }
 

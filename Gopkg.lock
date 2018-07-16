@@ -2,10 +2,13 @@
 
 
 [[projects]]
+  branch = "master"
   name = "github.com/cloudfoundry-community/go-uaa"
-  packages = ["."]
-  revision = "23275128776ce3440cb4bf5a286154783fdb6619"
-  version = "v0.0.6"
+  packages = [
+    ".",
+    "passwordcredentials"
+  ]
+  revision = "0e0f31fa68cb89c3e837a4104f60b3439aceb6db"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -97,6 +100,12 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/skratchdot/open-golang"
   packages = ["open"]
@@ -124,11 +133,23 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = [
+    "context",
+    "context/ctxhttp",
     "html",
     "html/atom",
     "html/charset"
   ]
   revision = "1c05540f6879653db88113bc4a2b70aec4bd491f"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/oauth2"
+  packages = [
+    ".",
+    "clientcredentials",
+    "internal"
+  ]
+  revision = "ef147856a6ddbb60760db74283d2424e98c87bff"
 
 [[projects]]
   branch = "master"
@@ -164,6 +185,20 @@
   revision = "e56139fd9c5bc7244c76116c68e500765bb6db6b"
 
 [[projects]]
+  name = "google.golang.org/appengine"
+  packages = [
+    "internal",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch"
+  ]
+  revision = "b1f26356af11148e710935ed1ac8a7f5702c7612"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -172,6 +207,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b670e1775b19c20821ef72d3f8f649444594e2a3b4e61ed7db388972765eaf8a"
+  inputs-digest = "72b9f8ae3a5d1f8147ef205ec5dd820b3c5b3fb5968dccbf8ad9a7f4b11898f1"
   solver-name = "gps-cdcl"
   solver-version = 1

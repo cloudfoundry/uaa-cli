@@ -2,12 +2,13 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func GetClientCmd(cm *uaa.ClientManager, clientId string) error {
-	client, err := cm.Get(clientId)
+func GetClientCmd(api *uaa.API, clientId string) error {
+	client, err := api.GetClient(clientId)
 	if err != nil {
 		return err
 	}
@@ -15,7 +16,7 @@ func GetClientCmd(cm *uaa.ClientManager, clientId string) error {
 	return cli.NewJsonPrinter(log).Print(client)
 }
 
-func GetClientValidations(cfg uaa.Config, args []string) error {
+func GetClientValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -33,8 +34,10 @@ var getClientCmd = &cobra.Command{
 		NotifyValidationErrors(GetClientValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-		NotifyErrorsWithRetry(GetClientCmd(cm, args[0]), GetSavedConfig(), log)
+		cfg := GetSavedConfig()
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		NotifyErrorsWithRetry(GetClientCmd(api, args[0]), log)
 	},
 }
 

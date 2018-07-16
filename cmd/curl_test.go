@@ -6,7 +6,6 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "code.cloudfoundry.org/uaa-cli/fixtures"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
@@ -18,8 +17,8 @@ var _ = Describe("Curl", func() {
 	var userListResponse string
 
 	BeforeEach(func() {
-		cfg := uaa.NewConfigWithServerURL(server.URL())
-		cfg.AddContext(uaa.NewContextWithToken("access_token"))
+		cfg := config.NewConfigWithServerURL(server.URL())
+		cfg.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(cfg)
 		userListResponse = fmt.Sprintf(PaginatedResponseTmpl, MarcusUserResponse, DrSeussUserResponse)
 	})
@@ -27,8 +26,8 @@ var _ = Describe("Curl", func() {
 	It("appends the access token from saved context", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", ""),
-			VerifyHeaderKV("Authorization", "bearer access_token"),
-			RespondWith(http.StatusOK, userListResponse),
+			VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+			RespondWith(http.StatusOK, userListResponse, contentTypeJson),
 		))
 
 		session := runCommand("curl", "/Users")
@@ -39,7 +38,7 @@ var _ = Describe("Curl", func() {
 	It("sends GET request by default", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
 			VerifyRequest("GET", "/Users", ""),
-			RespondWith(http.StatusOK, userListResponse),
+			RespondWith(http.StatusOK, userListResponse, contentTypeJson),
 		))
 
 		session := runCommand("curl", "/Users")
@@ -64,7 +63,7 @@ var _ = Describe("Curl", func() {
 	It("can send DELETE request", func() {
 		server.RouteToHandler("DELETE", "/Users/userguid", CombineHandlers(
 			VerifyRequest("DELETE", "/Users/userguid", ""),
-			RespondWith(http.StatusOK, MarcusUserResponse),
+			RespondWith(http.StatusOK, MarcusUserResponse, contentTypeJson),
 		))
 
 		session := runCommand("curl",
@@ -80,7 +79,7 @@ var _ = Describe("Curl", func() {
 			VerifyRequest("PUT", "/Users/userguid", ""),
 			VerifyBody([]byte(`{ "active" : false }`)),
 			VerifyHeaderKV("Content-Type", "application/json"),
-			RespondWith(http.StatusOK, MarcusUserResponse),
+			RespondWith(http.StatusOK, MarcusUserResponse, contentTypeJson),
 		))
 
 		session := runCommand("curl",
@@ -97,7 +96,7 @@ var _ = Describe("Curl", func() {
 			VerifyRequest("PATCH", "/Users/userguid", ""),
 			VerifyBody([]byte(`{ "active" : false }`)),
 			VerifyHeaderKV("Content-Type", "application/json"),
-			RespondWith(http.StatusOK, MarcusUserResponse),
+			RespondWith(http.StatusOK, MarcusUserResponse, contentTypeJson),
 		))
 
 		session := runCommand("curl",

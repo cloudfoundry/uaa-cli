@@ -14,15 +14,15 @@ import (
 
 var _ = Describe("DeactivateUser", func() {
 	BeforeEach(func() {
-		c := uaa.NewConfigWithServerURL(server.URL())
-		ctx := uaa.NewContextWithToken("access_token")
+		c := config.NewConfigWithServerURL(server.URL())
+		ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 		c.AddContext(ctx)
 		config.WriteConfig(c)
 	})
 
 	It("deactivates a user", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22&startIndex=1&count=100"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.Meta{Version: 10}})),
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
@@ -41,14 +41,14 @@ var _ = Describe("DeactivateUser", func() {
 
 	It("deactivates a user in a non-default zone", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilightzone"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22&startIndex=1&count=100"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "twilightzone"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.Meta{Version: 10}})),
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef", ""),
 			VerifyHeaderKV("If-Match", "10"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilightzone"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "twilightzone"),
 			VerifyJSON(`{"active": false}`),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
@@ -62,7 +62,7 @@ var _ = Describe("DeactivateUser", func() {
 
 	Describe("validations", func() {
 		It("requires a target", func() {
-			config.WriteConfig(uaa.NewConfig())
+			config.WriteConfig(config.NewConfig())
 
 			session := runCommand("deactivate-user", "woodstock@peanuts.com")
 
@@ -71,7 +71,7 @@ var _ = Describe("DeactivateUser", func() {
 		})
 
 		It("requires a context", func() {
-			cfg := uaa.NewConfigWithServerURL(server.URL())
+			cfg := config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(cfg)
 
 			session := runCommand("deactivate-user", "woodstock@peanuts.com")
@@ -81,8 +81,8 @@ var _ = Describe("DeactivateUser", func() {
 		})
 
 		It("requires a username", func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.NewContextWithToken("access_token")
+			c := config.NewConfigWithServerURL(server.URL())
+			ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 

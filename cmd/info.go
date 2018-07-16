@@ -1,15 +1,13 @@
 package cmd
 
 import (
-	"net/http"
-
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func InfoCmd(cfg uaa.Config, httpClient *http.Client) error {
-	i, err := uaa.GetInfo(httpClient, cfg)
+func InfoCmd(api *uaa.API) error {
+	i, err := api.GetInfo()
 	if err != nil {
 		return err
 	}
@@ -25,8 +23,7 @@ var infoCmd = &cobra.Command{
 		NotifyValidationErrors(EnsureTargetInConfig(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(InfoCmd(cfg, GetHttpClient()), cfg, log)
+		NotifyErrorsWithRetry(InfoCmd(GetUnauthenticatedAPI()), log)
 	},
 }
 

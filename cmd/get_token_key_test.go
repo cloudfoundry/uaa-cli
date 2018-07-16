@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -15,7 +14,7 @@ import (
 var _ = Describe("GetTokenKey", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
+			c := config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 		})
 
@@ -32,7 +31,7 @@ var _ = Describe("GetTokenKey", func() {
 
 			server.RouteToHandler("GET", "/token_key",
 				CombineHandlers(
-					RespondWith(http.StatusOK, asymmetricKeyResponse),
+					RespondWith(http.StatusOK, asymmetricKeyResponse, contentTypeJson),
 				),
 			)
 
@@ -54,7 +53,7 @@ var _ = Describe("GetTokenKey", func() {
 
 			server.RouteToHandler("GET", "/token_key",
 				CombineHandlers(
-					RespondWith(http.StatusOK, symmetricKeyResponse),
+					RespondWith(http.StatusOK, symmetricKeyResponse, contentTypeJson),
 				),
 			)
 
@@ -68,7 +67,7 @@ var _ = Describe("GetTokenKey", func() {
 
 	Describe("Validations", func() {
 		It("it requires a target to have been set", func() {
-			config.WriteConfig(uaa.NewConfig())
+			config.WriteConfig(config.NewConfig())
 
 			session := runCommand("get-token-key")
 

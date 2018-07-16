@@ -4,7 +4,6 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -15,14 +14,14 @@ import (
 
 var _ = Describe("CreateUser", func() {
 	BeforeEach(func() {
-		cfg := uaa.NewConfigWithServerURL(server.URL())
-		cfg.AddContext(uaa.NewContextWithToken("access_token"))
+		cfg := config.NewConfigWithServerURL(server.URL())
+		cfg.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(cfg)
 	})
 
 	Describe("Validations", func() {
 		It("requires a target to have been set", func() {
-			config.WriteConfig(uaa.NewConfig())
+			config.WriteConfig(config.NewConfig())
 
 			session := runCommand("create-user")
 
@@ -31,7 +30,7 @@ var _ = Describe("CreateUser", func() {
 		})
 
 		It("requires a token in context", func() {
-			config.WriteConfig(uaa.NewConfigWithServerURL(server.URL()))
+			config.WriteConfig(config.NewConfigWithServerURL(server.URL()))
 
 			session := runCommand("create-user")
 
@@ -80,10 +79,10 @@ var _ = Describe("CreateUser", func() {
 			server.RouteToHandler("POST", "/Users", CombineHandlers(
 				RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 				VerifyRequest("POST", "/Users"),
-				VerifyHeaderKV("Authorization", "bearer access_token"),
+				VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				VerifyHeaderKV("Accept", "application/json"),
 				VerifyHeaderKV("Content-Type", "application/json"),
-				VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+				VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 				VerifyJSON(`
 					{
 						"userName": "marcus",

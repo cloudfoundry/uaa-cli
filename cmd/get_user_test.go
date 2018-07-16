@@ -16,15 +16,15 @@ import (
 
 var _ = Describe("GetUser", func() {
 	BeforeEach(func() {
-		c := uaa.NewConfigWithServerURL(server.URL())
-		ctx := uaa.NewContextWithToken("access_token")
+		c := config.NewConfigWithServerURL(server.URL())
+		ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 		c.AddContext(ctx)
 		config.WriteConfig(c)
 	})
 
 	It("looks up a user with a SCIM filter", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&startIndex=1&count=100"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
@@ -36,8 +36,8 @@ var _ = Describe("GetUser", func() {
 
 	It("can understand the --zone flag", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22&startIndex=1&count=100"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
@@ -49,7 +49,7 @@ var _ = Describe("GetUser", func() {
 
 	It("can limit results data with --attributes", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&attributes=userName"),
+			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock@peanuts.com%22+and+origin+eq+%22uaa%22&attributes=userName&startIndex=1&count=100"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com"})),
 		))
 
@@ -61,13 +61,13 @@ var _ = Describe("GetUser", func() {
 
 	Describe("validations", func() {
 		It("requires a target", func() {
-			err := GetUserValidations(uaa.Config{}, []string{})
+			err := GetUserValidations(config.Config{}, []string{})
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("You must set a target in order to use this command."))
 		})
 
 		It("requires a context", func() {
-			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:8080")
 
 			err := GetUserValidations(cfg, []string{})
 			Expect(err).To(HaveOccurred())
@@ -75,8 +75,8 @@ var _ = Describe("GetUser", func() {
 		})
 
 		It("requires a username", func() {
-			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
-			ctx := uaa.NewContextWithToken("access_token")
+			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 			cfg.AddContext(ctx)
 
 			err := GetUserValidations(cfg, []string{})

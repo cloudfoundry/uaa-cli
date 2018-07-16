@@ -2,19 +2,20 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func ListGroupValidations(cfg uaa.Config) error {
+func ListGroupValidations(cfg config.Config) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListGroupsCmd(gm uaa.GroupManager, printer cli.Printer, filter, sortBy, sortOrder, attributes string) error {
-	group, err := gm.List(filter, sortBy, attributes, uaa.SortOrder(sortOrder))
+func ListGroupsCmd(api *uaa.API, printer cli.Printer, filter, sortBy, sortOrder, attributes string) error {
+	group, err := api.ListAllGroups(filter, sortBy, attributes, uaa.SortOrder(sortOrder))
 	if err != nil {
 		return err
 	}
@@ -29,10 +30,8 @@ var listGroupsCmd = &cobra.Command{
 		NotifyValidationErrors(ListGroupValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		gm := uaa.GroupManager{GetHttpClient(), cfg}
-		err := ListGroupsCmd(gm, cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
-		NotifyErrorsWithRetry(err, cfg, log)
+		err := ListGroupsCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

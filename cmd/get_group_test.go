@@ -16,15 +16,15 @@ import (
 
 var _ = Describe("GetGroup", func() {
 	BeforeEach(func() {
-		c := uaa.NewConfigWithServerURL(server.URL())
-		ctx := uaa.NewContextWithToken("access_token")
+		c := config.NewConfigWithServerURL(server.URL())
+		ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 		c.AddContext(ctx)
 		config.WriteConfig(c)
 	})
 
 	It("looks up a group with a SCIM filter", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
-			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
+			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&startIndex=1&count=100"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
@@ -36,7 +36,7 @@ var _ = Describe("GetGroup", func() {
 
 	It("can limit results data with --attributes", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
-			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&attributes=displayName"),
+			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&attributes=displayName&startIndex=1&count=100"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
@@ -48,8 +48,8 @@ var _ = Describe("GetGroup", func() {
 
 	It("can understand the --zone flag", func() {
 		server.RouteToHandler("GET", "/Groups", CombineHandlers(
-			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			VerifyRequest("GET", "/Groups", "filter=displayName+eq+%22admin%22&startIndex=1&count=100"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{DisplayName: "admin"})),
 		))
 
@@ -61,13 +61,13 @@ var _ = Describe("GetGroup", func() {
 
 	Describe("validations", func() {
 		It("requires a target", func() {
-			err := GetGroupValidations(uaa.Config{}, []string{})
+			err := GetGroupValidations(config.Config{}, []string{})
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("You must set a target in order to use this command."))
 		})
 
 		It("requires a context", func() {
-			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:8080")
 
 			err := GetGroupValidations(cfg, []string{})
 			Expect(err).To(HaveOccurred())
@@ -75,8 +75,8 @@ var _ = Describe("GetGroup", func() {
 		})
 
 		It("requires a groupname", func() {
-			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
-			ctx := uaa.NewContextWithToken("access_token")
+			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 			cfg.AddContext(ctx)
 
 			err := GetGroupValidations(cfg, []string{})

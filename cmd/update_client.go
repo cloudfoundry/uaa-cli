@@ -7,9 +7,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
+	"code.cloudfoundry.org/uaa-cli/config"
 )
 
-func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string) error {
+func UpdateClientValidations(cfg config.Config, args []string, clientSecret string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -22,7 +23,7 @@ func UpdateClientValidations(cfg uaa.Config, args []string, clientSecret string)
 	return nil
 }
 
-func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity, refreshTokenValidity int64) error {
+func UpdateClientCmd(api *uaa.API, clientId, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity, refreshTokenValidity int64) error {
 	toUpdate := uaa.Client{
 		ClientID:             clientId,
 		DisplayName:          displayName,
@@ -34,7 +35,7 @@ func UpdateClientCmd(cm *uaa.ClientManager, clientId, displayName, authorizedGra
 		RefreshTokenValidity: refreshTokenValidity,
 	}
 
-	updated, err := cm.Update(toUpdate)
+	updated, err := api.UpdateClient(toUpdate)
 	if err != nil {
 		return errors.New("An error occurred while updating the client.")
 	}
@@ -51,9 +52,7 @@ var updateClientCmd = &cobra.Command{
 		NotifyValidationErrors(UpdateClientValidations(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		cm := &uaa.ClientManager{GetHttpClient(), cfg}
-		NotifyErrorsWithRetry(UpdateClientCmd(cm, args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope, accessTokenValidity, refreshTokenValidity), cfg, log)
+		NotifyErrorsWithRetry(UpdateClientCmd(GetAPIFromSavedTokenInContext(), args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope, accessTokenValidity, refreshTokenValidity), log)
 	},
 }
 

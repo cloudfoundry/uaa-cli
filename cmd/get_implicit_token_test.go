@@ -5,7 +5,6 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -22,12 +21,12 @@ func (tl *TestLauncher) Run(target string) error {
 }
 
 var _ = Describe("GetImplicitToken", func() {
-	var c uaa.Config
-	var ctx uaa.AuthContext
+	var c config.Config
+	var ctx config.UaaContext
 	var logger cli.Logger
 
 	BeforeEach(func() {
-		c = uaa.NewConfigWithServerURL(server.URL())
+		c = config.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
 		logger = cli.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
@@ -54,10 +53,7 @@ var _ = Describe("GetImplicitToken", func() {
 		Eventually(doneRunning, AuthCallbackTimeout, AuthCallbackPollInterval).Should(Receive())
 
 		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
-		Expect(GetSavedConfig().GetActiveContext().ClientID).To(Equal("shinyclient"))
-		Expect(GetSavedConfig().GetActiveContext().GrantType).To(Equal(uaa.GrantType("implicit")))
-		Expect(GetSavedConfig().GetActiveContext().AccessToken).To(Equal("foo"))
-		Expect(GetSavedConfig().GetActiveContext().TokenType).To(Equal("bearer"))
-		Expect(GetSavedConfig().GetActiveContext().Scope).To(Equal("openid"))
+		Expect(GetSavedConfig().GetActiveContext().Token.AccessToken).To(Equal("foo"))
+		Expect(GetSavedConfig().GetActiveContext().Token.TokenType).To(Equal("bearer"))
 	})
 })

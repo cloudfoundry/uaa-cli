@@ -2,17 +2,17 @@ package cli
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
+	"golang.org/x/oauth2"
 )
 
 type AuthcodeClientImpersonator struct {
-	httpClient         *http.Client
-	config             uaa.Config
+	config             config.Config
 	ClientID           string
 	ClientSecret       string
 	TokenFormat        string
@@ -22,7 +22,7 @@ type AuthcodeClientImpersonator struct {
 	Log                Logger
 	AuthCallbackServer CallbackServer
 	BrowserLauncher    func(string) error
-	done               chan uaa.TokenResponse
+	done               chan oauth2.Token
 }
 
 const authcodeCallbackHTML = `<body>
@@ -32,8 +32,7 @@ const authcodeCallbackHTML = `<body>
 </body>`
 
 func NewAuthcodeClientImpersonator(
-	httpClient *http.Client,
-	config uaa.Config,
+	config config.Config,
 	clientId,
 	clientSecret,
 	tokenFormat,
@@ -43,7 +42,6 @@ func NewAuthcodeClientImpersonator(
 	launcher func(string) error) AuthcodeClientImpersonator {
 
 	impersonator := AuthcodeClientImpersonator{
-		httpClient:      httpClient,
 		config:          config,
 		ClientID:        clientId,
 		ClientSecret:    clientSecret,
@@ -52,7 +50,7 @@ func NewAuthcodeClientImpersonator(
 		Port:            port,
 		BrowserLauncher: launcher,
 		Log:             log,
-		done:            make(chan uaa.TokenResponse),
+		done:            make(chan oauth2.Token),
 	}
 
 	callbackServer := NewAuthCallbackServer(authcodeCallbackHTML, CallbackCSS, "", log, port)
@@ -73,24 +71,38 @@ func (aci AuthcodeClientImpersonator) Start() {
 		go aci.AuthCallbackServer.Start(urlValues)
 		values := <-urlValues
 		code := values.Get("code")
-		tokenRequester := uaa.AuthorizationCodeClient{ClientID: aci.ClientID, ClientSecret: aci.ClientSecret}
-		aci.Log.Infof("Calling UAA /oauth/token to exchange code %v for an access token", code)
-		resp, err := tokenRequester.RequestToken(aci.httpClient, aci.config, uaa.TokenFormat(aci.TokenFormat), code, aci.redirectUri())
+
+		tokenFormat := uaa.JSONWebToken //TODO: Use aci tokenformat to convert from string to int
+
+		api, err := uaa.NewWithAuthorizationCode(aci.config.GetActiveTarget().BaseUrl, aci.config.ZoneSubdomain, aci.ClientID, aci.ClientSecret, code, aci.config.GetActiveTarget().SkipSSLValidation, tokenFormat)
 		if err != nil {
 			aci.Log.Error(err.Error())
 			aci.Log.Info("Retry with --verbose for more information.")
 			os.Exit(1)
+			return
 		}
-		aci.Done() <- resp
+
+		oauth2Transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
+		token, err := oauth2Transport.Source.Token()
+
+		if err != nil {
+			aci.Log.Error(err.Error())
+			aci.Log.Info("Retry with --verbose for more information.")
+			os.Exit(1)
+			return
+		}
+
+		aci.Done() <- *token
 	}()
 }
 func (aci AuthcodeClientImpersonator) Authorize() {
 	requestValues := url.Values{}
 	requestValues.Add("response_type", "code")
 	requestValues.Add("client_id", aci.ClientID)
+	requestValues.Add("scope", aci.Scope)
 	requestValues.Add("redirect_uri", aci.redirectUri())
 
-	authUrl, err := utils.BuildUrl(aci.config.GetActiveTarget().BaseURL, "/oauth/authorize")
+	authUrl, err := utils.BuildUrl(aci.config.GetActiveTarget().BaseUrl, "/oauth/authorize")
 	if err != nil {
 		aci.Log.Error("Something went wrong while building the authorization URL.")
 		os.Exit(1)
@@ -100,7 +112,7 @@ func (aci AuthcodeClientImpersonator) Authorize() {
 	aci.Log.Info("Launching browser window to " + authUrl.String() + " where the user should login and grant approvals")
 	aci.BrowserLauncher(authUrl.String())
 }
-func (aci AuthcodeClientImpersonator) Done() chan uaa.TokenResponse {
+func (aci AuthcodeClientImpersonator) Done() chan oauth2.Token {
 	return aci.done
 }
 func (aci AuthcodeClientImpersonator) redirectUri() string {

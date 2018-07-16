@@ -6,7 +6,6 @@ import (
 
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "code.cloudfoundry.org/uaa-cli/fixtures"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gexec"
@@ -18,16 +17,16 @@ var _ = Describe("ListUsers", func() {
 	var userListResponse string
 
 	BeforeEach(func() {
-		cfg := uaa.NewConfigWithServerURL(server.URL())
-		cfg.AddContext(uaa.NewContextWithToken("access_token"))
+		cfg := config.NewConfigWithServerURL(server.URL())
+		cfg.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(cfg)
 		userListResponse = fmt.Sprintf(PaginatedResponseTmpl, MarcusUserResponse, DrSeussUserResponse)
 	})
 
 	It("executes SCIM queries based on flags", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=verified+eq+false&attributes=id%2CuserName&sortBy=userName&sortOrder=descending"),
-			RespondWith(http.StatusOK, userListResponse),
+			VerifyRequest("GET", "/Users", "filter=verified+eq+false&attributes=id%2CuserName&sortBy=userName&sortOrder=descending&count=100&startIndex=1"),
+			RespondWith(http.StatusOK, userListResponse, contentTypeJson),
 		))
 
 		session := runCommand(
@@ -43,9 +42,9 @@ var _ = Describe("ListUsers", func() {
 
 	It("understands the --zone flag", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=verified+eq+false&attributes=id%2CuserName&sortBy=userName&sortOrder=descending"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "foozone"),
-			RespondWith(http.StatusOK, userListResponse),
+			VerifyRequest("GET", "/Users", "filter=verified+eq+false&attributes=id%2CuserName&sortBy=userName&sortOrder=descending&count=100&startIndex=1"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "foozone"),
+			RespondWith(http.StatusOK, userListResponse, contentTypeJson),
 		))
 
 		session := runCommand(

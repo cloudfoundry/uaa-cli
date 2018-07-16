@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
@@ -20,7 +21,7 @@ func arrayify(commaSeparatedStr string) []string {
 	}
 }
 
-func CreateClientPreRunValidations(cfg uaa.Config, args []string) error {
+func CreateClientPreRunValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -30,11 +31,11 @@ func CreateClientPreRunValidations(cfg uaa.Config, args []string) error {
 	return nil
 }
 
-func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
-	var toCreate uaa.Client
+func CreateClientCmd(api *uaa.API, clone, clientId, clientSecret, displayName, authorizedGrantTypes, authorities, redirectUri, scope string, accessTokenValidity int64, refreshTokenValidity int64) error {
+	var toCreate *uaa.Client
 	var err error
 	if clone != "" {
-		toCreate, err = cm.Get(clone)
+		toCreate, err = api.GetClient(clone)
 		if err != nil {
 			return errors.New(fmt.Sprintf("The client %v could not be found.", clone))
 		}
@@ -63,7 +64,7 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 			toCreate.AccessTokenValidity = accessTokenValidity
 		}
 	} else {
-		toCreate = uaa.Client{}
+		toCreate = &uaa.Client{}
 		toCreate.ClientID = clientId
 		toCreate.ClientSecret = clientSecret
 		toCreate.DisplayName = displayName
@@ -80,7 +81,7 @@ func CreateClientCmd(cm *uaa.ClientManager, clone, clientId, clientSecret, displ
 		return validationErr
 	}
 
-	created, err := cm.Create(toCreate)
+	created, err := api.CreateClient(*toCreate)
 	if err != nil {
 		return err
 	}
@@ -99,9 +100,12 @@ var createClientCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		cm := &uaa.ClientManager{GetHttpClient(), cfg}
-		err := CreateClientCmd(
-			cm,
+
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+
+		err = CreateClientCmd(
+			api,
 			clone,
 			args[0],
 			clientSecret,
@@ -112,7 +116,7 @@ var createClientCmd = &cobra.Command{
 			scope,
 			accessTokenValidity,
 			refreshTokenValidity)
-		NotifyErrorsWithRetry(err, cfg, log)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

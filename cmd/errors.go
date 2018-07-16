@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -20,14 +20,14 @@ func MissingArgumentWithExplanationError(argName string, explanation string) err
 	return errors.New(fmt.Sprintf("Missing argument `%v` must be specified. %v", argName, explanation))
 }
 
-func EnsureTargetInConfig(cfg uaa.Config) error {
+func EnsureTargetInConfig(cfg config.Config) error {
 	if cfg.ActiveTargetName == "" {
 		return errors.New(MISSING_TARGET)
 	}
 	return nil
 }
 
-func EnsureContextInConfig(cfg uaa.Config) error {
+func EnsureContextInConfig(cfg config.Config) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -45,7 +45,7 @@ func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
 	}
 }
 
-func NotifyErrorsWithRetry(err error, cfg uaa.Config, log cli.Logger) {
+func NotifyErrorsWithRetry(err error, log cli.Logger) {
 	if err != nil {
 		log.Error(err.Error())
 		VerboseRetryMsg(GetSavedConfig())
@@ -53,7 +53,7 @@ func NotifyErrorsWithRetry(err error, cfg uaa.Config, log cli.Logger) {
 	}
 }
 
-func VerboseRetryMsg(c uaa.Config) {
+func VerboseRetryMsg(c config.Config) {
 	if !c.Verbose {
 		log.Info("Retry with --verbose for more information.")
 	}

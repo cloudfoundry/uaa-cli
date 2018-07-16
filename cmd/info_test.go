@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -14,15 +13,13 @@ import (
 var _ = Describe("Info", func() {
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
+			c := config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 		})
 
-		ItSupportsTheVerboseFlagWhenGet("info", "/info", InfoResponseJson)
-
 		It("shows the info response", func() {
 			server.RouteToHandler("GET", "/info",
-				RespondWith(http.StatusOK, InfoResponseJson),
+				RespondWith(http.StatusOK, InfoResponseJson, contentTypeJson),
 			)
 
 			session := runCommand("info")
@@ -46,7 +43,7 @@ var _ = Describe("Info", func() {
 
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.Config{}
+			c := config.Config{}
 			config.WriteConfig(c)
 		})
 

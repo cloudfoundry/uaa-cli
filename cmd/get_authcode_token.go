@@ -2,22 +2,23 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
 )
 
-func addAuthcodeTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *cli.Logger) {
-	ctx := uaa.AuthContext{
-		GrantType:     uaa.AUTHCODE,
-		ClientID:      clientId,
-		TokenResponse: tokenResponse,
+func addAuthcodeTokenToContext(clientId string, token oauth2.Token, log *cli.Logger) {
+	ctx := config.UaaContext{
+		ClientId:  clientId,
+		Token:     token,
+		GrantType: config.AUTHCODE,
 	}
 
 	SaveContext(ctx, log)
 }
 
-func AuthcodeTokenArgumentValidation(cfg uaa.Config, args []string, clientSecret string, tokenFormat string, port int) error {
+func AuthcodeTokenArgumentValidation(cfg config.Config, args []string, clientSecret string, tokenFormat string, port int) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -50,7 +51,7 @@ var getAuthcodeToken = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
-		authcodeImp := cli.NewAuthcodeClientImpersonator(GetHttpClient(), GetSavedConfig(), args[0], clientSecret, tokenFormat, scope, port, log, open.Run)
+		authcodeImp := cli.NewAuthcodeClientImpersonator(GetSavedConfig(), args[0], clientSecret, tokenFormat, scope, port, log, open.Run)
 		go AuthcodeTokenCommandRun(done, args[0], authcodeImp, GetLogger())
 		<-done
 	},

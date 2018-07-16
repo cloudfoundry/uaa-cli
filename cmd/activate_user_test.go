@@ -15,15 +15,16 @@ import (
 
 var _ = Describe("ActivateUser", func() {
 	BeforeEach(func() {
-		c := uaa.NewConfigWithServerURL(server.URL())
-		ctx := uaa.NewContextWithToken("access_token")
+
+		c := config.NewConfigWithServerURL(server.URL())
+		ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 		c.AddContext(ctx)
-		config.WriteConfig(c)
+		Expect(config.WriteConfig(c)).Should(Succeed())
 	})
 
 	It("activates a user", func() {
 		server.RouteToHandler("GET", "/Users", CombineHandlers(
-			VerifyRequest("GET", "/Users", "filter=userName+eq+%22woodstock%40peanuts.com%22"),
+			VerifyRequest("GET", "/Users", "count=100&filter=userName+eq+%22woodstock%40peanuts.com%22&startIndex=1"),
 			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{Username: "woodstock@peanuts.com", ID: "abcdef", Meta: &uaa.Meta{Version: 10}})),
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef", CombineHandlers(
@@ -42,7 +43,7 @@ var _ = Describe("ActivateUser", func() {
 
 	Describe("validations", func() {
 		It("requires a target", func() {
-			config.WriteConfig(uaa.NewConfig())
+			config.WriteConfig(config.NewConfig())
 
 			session := runCommand("activate-user", "woodstock@peanuts.com")
 
@@ -51,7 +52,7 @@ var _ = Describe("ActivateUser", func() {
 		})
 
 		It("requires a context", func() {
-			cfg := uaa.NewConfigWithServerURL(server.URL())
+			cfg := config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(cfg)
 
 			session := runCommand("activate-user", "woodstock@peanuts.com")
@@ -61,8 +62,8 @@ var _ = Describe("ActivateUser", func() {
 		})
 
 		It("requires a username", func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			ctx := uaa.NewContextWithToken("access_token")
+			c := config.NewConfigWithServerURL(server.URL())
+			ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 

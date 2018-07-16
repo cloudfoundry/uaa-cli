@@ -30,6 +30,10 @@ var (
 	AuthCallbackPollInterval float64 = 0.01
 )
 
+var contentTypeJson = http.Header{
+	"Content-Type": []string{"application/json"},
+}
+
 var _ = BeforeEach(func() {
 	var err error
 	homeDir, err = ioutil.TempDir("", "uaa-test")
@@ -111,7 +115,7 @@ func ItBehavesLikeHelp(command string, alias string, validate func(*Session)) {
 func ItSupportsTheVerboseFlagWhenGet(command string, endpoint string, responseJson string) {
 	It("shows extra output about the request on success", func() {
 		server.RouteToHandler("GET", endpoint,
-			RespondWith(http.StatusOK, responseJson),
+			RespondWith(http.StatusOK, responseJson, contentTypeJson),
 		)
 
 		session := runCommand(command, "--verbose")

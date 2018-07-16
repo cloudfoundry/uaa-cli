@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -26,45 +25,10 @@ var _ = Describe("GetClient", func() {
 		  "required_user_groups" : [ "cloud_controller.admin" ]
 		}`
 
-	Describe("--verbose flag support", func() {
-		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
-			config.WriteConfig(c)
-		})
-
-		It("shows extra output about the request on success", func() {
-			server.RouteToHandler("GET", "/oauth/clients/clientid",
-				RespondWith(http.StatusOK, GetClientResponseJson),
-			)
-
-			session := runCommand("get-client", "clientid", "--verbose")
-
-			Expect(session.Out).To(Say("GET /oauth/clients/clientid"))
-			Expect(session.Out).To(Say("Accept: application/json"))
-			Expect(session.Out).To(Say("200 OK"))
-			Eventually(session).Should(Exit(0))
-		})
-
-		It("shows extra output about the request on error", func() {
-			server.RouteToHandler("GET", "/oauth/clients/clientid",
-				RespondWith(http.StatusBadRequest, "garbage response"),
-			)
-
-			session := runCommand("get-client", "clientid", "--verbose")
-
-			Eventually(session).Should(Exit(1))
-			Expect(session.Out).To(Say("GET /oauth/clients/clientid"))
-			Expect(session.Out).To(Say("Accept: application/json"))
-			Expect(session.Out).To(Say("400 Bad Request"))
-			Expect(session.Out).To(Say("garbage response"))
-		})
-	})
-
 	Describe("zone switching support", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
 		})
 
@@ -72,9 +36,9 @@ var _ = Describe("GetClient", func() {
 			server.RouteToHandler("GET", "/oauth/clients/clientid",
 				CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/clientid"),
-					RespondWith(http.StatusOK, GetClientResponseJson),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+					RespondWith(http.StatusOK, GetClientResponseJson, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+					VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 				),
 			)
 
@@ -85,16 +49,16 @@ var _ = Describe("GetClient", func() {
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
 		})
 
 		It("shows the client configuration response", func() {
 			server.RouteToHandler("GET", "/oauth/clients/clientid",
 				CombineHandlers(
-					RespondWith(http.StatusOK, GetClientResponseJson),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, GetClientResponseJson, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				),
 			)
 
@@ -119,8 +83,8 @@ var _ = Describe("GetClient", func() {
 
 	Describe("when no client_id is supplied", func() {
 		It("displays an error message to the user", func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("sometoken"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("sometoken"))
 			config.WriteConfig(c)
 			session := runCommand("get-client")
 
@@ -131,7 +95,7 @@ var _ = Describe("GetClient", func() {
 
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.Config{}
+			c := config.Config{}
 			config.WriteConfig(c)
 		})
 

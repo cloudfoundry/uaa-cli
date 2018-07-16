@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func GetUserCmd(um uaa.UserManager, printer cli.Printer, username, origin, attributes string) error {
-	user, err := um.GetByUsername(username, origin, attributes)
+func GetUserCmd(api *uaa.API, printer cli.Printer, username, origin, attributes string) error {
+	user, err := api.GetUserByUsername(username, origin, attributes)
 	if err != nil {
 		return err
 	}
@@ -16,7 +17,7 @@ func GetUserCmd(um uaa.UserManager, printer cli.Printer, username, origin, attri
 	return printer.Print(user)
 }
 
-func GetUserValidations(cfg uaa.Config, args []string) error {
+func GetUserValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -34,10 +35,8 @@ var getUserCmd = &cobra.Command{
 		NotifyValidationErrors(GetUserValidations(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := GetUserCmd(um, cli.NewJsonPrinter(log), args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, cfg, log)
+		err := GetUserCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), args[0], origin, attributes)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

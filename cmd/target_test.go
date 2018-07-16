@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -11,7 +10,7 @@ import (
 	"net/http"
 )
 
-const InfoResponseJson string = `{
+const InfoResponseJson = `{
   "app": {
 	"version": "4.5.0"
   },
@@ -42,15 +41,13 @@ var _ = Describe("Target", func() {
 	Describe("when no new url is provided", func() {
 		Describe("and a target was previously set", func() {
 			BeforeEach(func() {
-				c := uaa.NewConfigWithServerURL(server.URL())
+				c := config.NewConfigWithServerURL(server.URL())
 				config.WriteConfig(c)
 			})
 
-			ItSupportsTheVerboseFlagWhenGet("target", "/info", InfoResponseJson)
-
 			It("shows the currently set target and UAA version", func() {
 				server.RouteToHandler("GET", "/info",
-					RespondWith(http.StatusOK, InfoResponseJson),
+					RespondWith(http.StatusOK, InfoResponseJson, contentTypeJson),
 				)
 
 				session := runCommand("target")
@@ -88,20 +85,20 @@ var _ = Describe("Target", func() {
 		Describe("when the url is a valid UAA", func() {
 			BeforeEach(func() {
 				server.RouteToHandler("GET", "/info",
-					RespondWith(http.StatusOK, InfoResponseJson),
+					RespondWith(http.StatusOK, InfoResponseJson, contentTypeJson),
 				)
 
-				c := uaa.NewConfig()
+				c := config.NewConfig()
 				config.WriteConfig(c)
 			})
 
 			It("updates the saved context", func() {
-				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(""))
 
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().GetActiveTarget().BaseURL).NotTo(Equal(""))
-				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal(server.URL()))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).NotTo(Equal(""))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(server.URL()))
 			})
 
 			It("displays a success message", func() {
@@ -126,14 +123,14 @@ var _ = Describe("Target", func() {
 					RespondWith(http.StatusNotFound, ""),
 				)
 
-				c := uaa.NewConfigWithServerURL("http://someuaa.com")
+				c := config.NewConfigWithServerURL("http://someuaa.com")
 				config.WriteConfig(c)
 			})
 
 			It("does not update the saved context", func() {
 				runCommand("target", server.URL())
 
-				Expect(config.ReadConfig().GetActiveTarget().BaseURL).To(Equal("http://someuaa.com"))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal("http://someuaa.com"))
 			})
 
 			It("displays an error message", func() {

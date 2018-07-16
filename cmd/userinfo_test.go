@@ -3,7 +3,6 @@ package cmd_test
 import (
 	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -27,8 +26,8 @@ var _ = Describe("Userinfo", func() {
 		}`
 
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
 		})
 
@@ -37,7 +36,7 @@ var _ = Describe("Userinfo", func() {
 				RespondWith(200, userinfoJson),
 				VerifyRequest("GET", "/userinfo", "scheme=openid"),
 				VerifyHeaderKV("Accept", "application/json"),
-				VerifyHeaderKV("Authorization", "bearer access_token"),
+				VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 			))
 
 			session := runCommand("userinfo")
@@ -61,13 +60,13 @@ var _ = Describe("Userinfo", func() {
 
 	Describe("Validations", func() {
 		It("requires a target", func() {
-			err := cmd.UserinfoValidations(uaa.Config{})
+			err := cmd.UserinfoValidations(config.Config{})
 			Expect(err).To(HaveOccurred())
 			Expect(err.Error()).To(Equal("You must set a target in order to use this command."))
 		})
 
 		It("requires a context", func() {
-			cfg := uaa.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:8080")
 
 			err := cmd.UserinfoValidations(cfg)
 			Expect(err).To(HaveOccurred())

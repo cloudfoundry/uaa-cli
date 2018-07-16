@@ -4,43 +4,53 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
+	"golang.org/x/oauth2"
 )
 
-func RefreshTokenCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger, tokenFormat string) error {
-	ctx := cfg.GetActiveContext()
-	refreshClient := uaa.RefreshTokenClient{
-		ClientID:     ctx.ClientID,
-		ClientSecret: clientSecret,
-	}
-	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(ctx.ClientID))
-	tokenResponse, err := refreshClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat), ctx.RefreshToken)
-	if err != nil {
-		return err
+func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) error {
+
+	//TODO: use library function to perform conversion
+	format := uaa.JSONWebToken
+	if tokenFormat == "opaque" {
+		format = uaa.OpaqueToken
 	}
 
-	ctx.TokenResponse = tokenResponse
+	api, err := uaa.NewWithRefreshToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().ClientId, clientSecret, cfg.GetActiveContext().Token.RefreshToken, cfg.GetActiveTarget().SkipSSLValidation, format)
+	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
+	if err != nil {
+		return errors.New("an error occurred while accessing API with refresh token")
+	}
+
+	ctx := cfg.GetActiveContext()
+
+	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
+	token, err := transport.Source.Token()
+	if err != nil {
+		return errors.New("an error occurred while fetching token.")
+	}
+
+	ctx.Token = *token
 	cfg.AddContext(ctx)
 	config.WriteConfig(cfg)
 	log.Info("Access token successfully fetched and added to active context.")
 	return nil
 }
 
-func RefreshTokenValidations(cfg uaa.Config, clientSecret string) error {
+func RefreshTokenValidations(cfg config.Config, clientSecret string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if clientSecret == "" {
 		return MissingArgumentError("client_secret")
 	}
-	if cfg.GetActiveContext().ClientID == "" {
+	if cfg.GetActiveContext().ClientId == "" {
 		return errors.New("A client_id was not found in the active context.")
 	}
-	if GetSavedConfig().GetActiveContext().RefreshToken == "" {
+	if GetSavedConfig().GetActiveContext().Token.RefreshToken == "" {
 		return errors.New("A refresh_token was not found in the active context.")
 	}
 
@@ -57,7 +67,7 @@ var refreshTokenCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(RefreshTokenCmd(cfg, GetHttpClient(), log, tokenFormat), cfg, log)
+		NotifyErrorsWithRetry(RefreshTokenCmd(cfg, log, tokenFormat), log)
 	},
 }
 

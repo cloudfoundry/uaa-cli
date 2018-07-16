@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +33,7 @@ func buildPhones(phones []string) []uaa.PhoneNumber {
 	return userPhoneNumbers
 }
 
-func CreateUserCmd(um uaa.UserManager, printer cli.Printer, username, familyName, givenName, password, origin string, emails []string, phones []string) error {
+func CreateUserCmd(api *uaa.API, printer cli.Printer, username, familyName, givenName, password, origin string, emails []string, phones []string) error {
 	toCreate := uaa.User{
 		Username: username,
 		Password: password,
@@ -46,7 +47,7 @@ func CreateUserCmd(um uaa.UserManager, printer cli.Printer, username, familyName
 	toCreate.Emails = buildEmails(emails)
 	toCreate.PhoneNumbers = buildPhones(phones)
 
-	user, err := um.Create(toCreate)
+	user, err := api.CreateUser(toCreate)
 	if err != nil {
 		return err
 	}
@@ -54,7 +55,7 @@ func CreateUserCmd(um uaa.UserManager, printer cli.Printer, username, familyName
 	return printer.Print(user)
 }
 
-func CreateUserValidation(cfg uaa.Config, args []string, familyName, givenName string, emails []string) error {
+func CreateUserValidation(cfg config.Config, args []string, familyName, givenName string, emails []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -82,9 +83,10 @@ var createUserCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := CreateUserCmd(um, cli.NewJsonPrinter(log), args[0], familyName, givenName, userPassword, origin, emails, phoneNumbers)
-		NotifyErrorsWithRetry(err, cfg, log)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		err = CreateUserCmd(api, cli.NewJsonPrinter(log), args[0], familyName, givenName, userPassword, origin, emails, phoneNumbers)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

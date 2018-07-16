@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func DeleteClientValidations(cfg uaa.Config, args []string) error {
+func DeleteClientValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -16,8 +17,8 @@ func DeleteClientValidations(cfg uaa.Config, args []string) error {
 	return nil
 }
 
-func DeleteClientCmd(cm *uaa.ClientManager, clientId string) error {
-	_, err := cm.Delete(clientId)
+func DeleteClientCmd(api *uaa.API, clientId string) error {
+	_, err := api.DeleteClient(clientId)
 	if err != nil {
 		return err
 	}
@@ -34,8 +35,10 @@ var deleteClientCmd = &cobra.Command{
 		NotifyValidationErrors(DeleteClientValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-		NotifyErrorsWithRetry(DeleteClientCmd(cm, args[0]), GetSavedConfig(), log)
+		cfg := GetSavedConfig()
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		NotifyErrorsWithRetry(DeleteClientCmd(api, args[0]), log)
 	},
 }
 

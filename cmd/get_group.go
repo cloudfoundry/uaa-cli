@@ -4,12 +4,13 @@ import (
 	"errors"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func GetGroupCmd(gm uaa.GroupManager, printer cli.Printer, name, attributes string) error {
-	group, err := gm.GetByName(name, attributes)
+func GetGroupCmd(api *uaa.API, printer cli.Printer, name, attributes string) error {
+	group, err := api.GetGroupByName(name, attributes)
 	if err != nil {
 		return err
 	}
@@ -17,7 +18,7 @@ func GetGroupCmd(gm uaa.GroupManager, printer cli.Printer, name, attributes stri
 	return printer.Print(group)
 }
 
-func GetGroupValidations(cfg uaa.Config, args []string) error {
+func GetGroupValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -35,10 +36,8 @@ var getGroupCmd = &cobra.Command{
 		NotifyValidationErrors(GetGroupValidations(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		gm := uaa.GroupManager{GetHttpClient(), cfg}
-		err := GetGroupCmd(gm, cli.NewJsonPrinter(log), args[0], attributes)
-		NotifyErrorsWithRetry(err, cfg, log)
+		err := GetGroupCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), args[0], attributes)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

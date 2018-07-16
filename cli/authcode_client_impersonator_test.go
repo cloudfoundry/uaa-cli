@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/cloudfoundry-community/go-uaa"
+	cliConfig "code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
 	"github.com/onsi/gomega/gstruct"
+	"time"
 )
 
 var _ = Describe("AuthcodeClientImpersonator", func() {
@@ -18,7 +19,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 		impersonator AuthcodeClientImpersonator
 		logger       Logger
 		httpClient   *http.Client
-		config       uaa.Config
+		config       cliConfig.Config
 		launcher     TestLauncher
 		uaaServer    *Server
 	)
@@ -27,14 +28,14 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 		httpClient = &http.Client{}
 		launcher = TestLauncher{}
 		uaaServer = NewServer()
-		config = uaa.NewConfigWithServerURL(uaaServer.URL())
+		config = cliConfig.NewConfigWithServerURL(uaaServer.URL())
 		logger = NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
 	Describe("NewAuthcodeClientImpersonator", func() {
 		BeforeEach(func() {
 			launcher := TestLauncher{}
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeClientId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeClientId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 		})
 
 		Describe("configures an AuthCallbackListener", func() {
@@ -66,24 +67,25 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 
 	Describe("#Start", func() {
 		It("starts the AuthCallbackServer", func() {
+			contentTypeJson := http.Header{}
+			contentTypeJson.Add("Content-Type", "application/json")
+
 			uaaServer.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-				VerifyRequest("POST", "/oauth/token"),
 				RespondWith(http.StatusOK, `{
 				  "access_token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
 				  "token_type" : "bearer",
 				  "expires_in" : 3000,
 				  "scope" : "openid",
 				  "jti" : "bc4885d950854fed9a938e96b13ca519"
-				}`),
-				VerifyFormKV("client_id", "authcodeId"),
-				VerifyFormKV("client_secret", "authcodesecret"),
-				VerifyFormKV("grant_type", "authorization_code"),
-				VerifyFormKV("token_format", "jwt"),
-				VerifyFormKV("response_type", "token"),
-				VerifyFormKV("code", "secretcode"),
-				VerifyFormKV("redirect_uri", "http://localhost:8080")),
+				}`, contentTypeJson),
+				VerifyRequest("POST", "/oauth/token"),
+				VerifyHeader(http.Header{"Authorization": []string{"Basic YXV0aGNvZGVJZDphdXRoY29kZXNlY3JldA=="},}),
+				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&response_type=token&token_format=jwt`)),
+				//VerifyFormKV("redirect_uri", "http://localhost:8080"),
+			),
 			)
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 
 			// Start the callback server
 			go impersonator.Start()
@@ -99,25 +101,22 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 			)))
 
 			// The callback server should have exchanged the code for a token
-			Eventually(impersonator.Done(), AuthCallbackTimeout, AuthCallbackPollInterval).Should(
-				Receive(Equal(uaa.TokenResponse{
-					AccessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
-					TokenType: "bearer",
-					Scope: "openid",
-					JTI: "bc4885d950854fed9a938e96b13ca519",
-					ExpiresIn: int32(3000),
-				})),
-			)
+			tokenResponse := <-impersonator.Done()
+			Expect(tokenResponse.AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
+			Expect(tokenResponse.TokenType).To(Equal("bearer"))
+			Expect(tokenResponse.Extra("scope")).To(Equal("openid"))
+			Expect(tokenResponse.Extra("jti")).To(Equal("bc4885d950854fed9a938e96b13ca519"))
+			Expect(tokenResponse.Expiry).Should(BeTemporally("~", time.Now(), 3000*time.Second))
 		})
 	})
 
 	Describe("#Authorize", func() {
 		It("launches a browser to the authorize page", func() {
-			impersonator = NewAuthcodeClientImpersonator(httpClient, config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
 
 			impersonator.Authorize()
 
-			Expect(launcher.TargetUrl).To(Equal(uaaServer.URL() + "/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code"))
+			Expect(launcher.TargetUrl).To(Equal(uaaServer.URL() + "/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code&scope=openid"))
 		})
 	})
 })

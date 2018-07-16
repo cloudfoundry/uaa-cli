@@ -1,22 +1,22 @@
 package cmd
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func DeactivateUserCmd(um uaa.UserManager, printer cli.Printer, username, origin, attributes string) error {
-	user, err := um.GetByUsername(username, origin, attributes)
+func DeactivateUserCmd(api *uaa.API, username, origin, attributes string) error {
+	user, err := api.GetUserByUsername(username, origin, attributes)
 	if err != nil {
 		return err
 	}
 	if user.Meta == nil {
 		return errors.New("The user did not have expected metadata version.")
 	}
-	err = um.Deactivate(user.ID, user.Meta.Version)
+	err = api.DeactivateUser(user.ID, user.Meta.Version)
 	if err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func DeactivateUserCmd(um uaa.UserManager, printer cli.Printer, username, origin
 	return nil
 }
 
-func DeactivateUserValidations(cfg uaa.Config, args []string) error {
+func DeactivateUserValidations(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -44,9 +44,14 @@ var deactivateUserCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := DeactivateUserCmd(um, cli.NewJsonPrinter(log), args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, cfg, log)
+
+		if zoneSubdomain == "" {
+			zoneSubdomain = cfg.ZoneSubdomain
+		}
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, zoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		err = DeactivateUserCmd(api, args[0], origin, attributes)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

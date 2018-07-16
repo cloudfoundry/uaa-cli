@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -14,8 +13,8 @@ import (
 
 var _ = Describe("SetClientSecret", func() {
 	BeforeEach(func() {
-		c := uaa.NewConfigWithServerURL(server.URL())
-		c.AddContext(uaa.NewContextWithToken("access_token"))
+		c := config.NewConfigWithServerURL(server.URL())
+		c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(c)
 	})
 
@@ -23,7 +22,7 @@ var _ = Describe("SetClientSecret", func() {
 		server.RouteToHandler("PUT", "/oauth/clients/shinyclient/secret", CombineHandlers(
 			VerifyRequest("PUT", "/oauth/clients/shinyclient/secret"),
 			VerifyJSON(`{"clientId":"shinyclient","secret":"shinysecret"}`),
-			VerifyHeaderKV("Authorization", "bearer access_token"),
+			VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 			RespondWith(http.StatusOK, "{}"),
 		),
 		)
@@ -38,7 +37,7 @@ var _ = Describe("SetClientSecret", func() {
 		server.RouteToHandler("PUT", "/oauth/clients/shinyclient/secret", CombineHandlers(
 			VerifyRequest("PUT", "/oauth/clients/shinyclient/secret"),
 			VerifyJSON(`{"clientId":"shinyclient","secret":"shinysecret"}`),
-			VerifyHeaderKV("Authorization", "bearer access_token"),
+			VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 			RespondWith(http.StatusUnauthorized, "{}"),
 		),
 		)
@@ -51,7 +50,7 @@ var _ = Describe("SetClientSecret", func() {
 	})
 
 	It("complains when there is no active target", func() {
-		config.WriteConfig(uaa.NewConfig())
+		config.WriteConfig(config.NewConfig())
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
 
 		Expect(session.Err).To(Say("You must set a target in order to use this command."))
@@ -59,8 +58,8 @@ var _ = Describe("SetClientSecret", func() {
 	})
 
 	It("complains when there is no active context", func() {
-		c := uaa.NewConfig()
-		t := uaa.NewTarget()
+		c := config.NewConfig()
+		t := config.NewTarget()
 		c.AddTarget(t)
 		config.WriteConfig(c)
 		session := runCommand("set-client-secret", "shinyclient", "-s", "shinysecret")
@@ -73,8 +72,8 @@ var _ = Describe("SetClientSecret", func() {
 		server.RouteToHandler("PUT", "/oauth/clients/shinyclient/secret", CombineHandlers(
 			VerifyRequest("PUT", "/oauth/clients/shinyclient/secret"),
 			VerifyJSON(`{"clientId":"shinyclient","secret":"shinysecret"}`),
-			VerifyHeaderKV("Authorization", "bearer access_token"),
-			VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+			VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+			VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 			RespondWith(http.StatusOK, "{}"),
 		),
 		)

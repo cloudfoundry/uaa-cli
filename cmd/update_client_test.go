@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -27,65 +26,28 @@ var _ = Describe("UpdateClient", func() {
 	  "name" : "Notifier Client"
 	}`
 
-	var ctx uaa.AuthContext
+	var ctx config.UaaContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
 			ctx = c.GetActiveContext()
 		})
 
-		Describe("when the --verbose option is used", func() {
-			It("shows extra output about the request on success", func() {
-				server.RouteToHandler("PUT", "/oauth/clients/notifier",
-					RespondWith(http.StatusOK, notifierClient),
-				)
-
-				session := runCommand("update-client",
-					"notifier",
-					"--authorized_grant_types", "client_credentials,authorization_code",
-					"--authorities", "notifications.write",
-					"--verbose")
-
-				Eventually(session).Should(Exit(0))
-				Expect(session.Out).To(Say("PUT /oauth/clients/notifier"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("200 OK"))
-			})
-
-			It("shows extra output about the request on error", func() {
-				server.RouteToHandler("PUT", "/oauth/clients/notifier",
-					RespondWith(http.StatusBadRequest, "garbage response"),
-				)
-
-				session := runCommand("update-client",
-					"notifier",
-					"--authorized_grant_types", "client_credentials,authorization_code",
-					"--authorities", "notifications.write",
-					"--verbose")
-
-				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("PUT /oauth/clients/notifier"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("400 Bad Request"))
-				Expect(session.Out).To(Say("garbage response"))
-			})
-		})
-
 		Describe("using the --zone flag", func() {
 			BeforeEach(func() {
-				c := uaa.NewConfigWithServerURL(server.URL())
-				c.AddContext(uaa.NewContextWithToken("access_token"))
+				c := config.NewConfigWithServerURL(server.URL())
+				c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 				config.WriteConfig(c)
 			})
 
 			It("adds a zone-switching header to the request", func() {
 				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
 					VerifyRequest("PUT", "/oauth/clients/notifier"),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+					VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 				))
 
 				runCommand("update-client", "notifier", "--zone", "twilight-zone")
@@ -96,15 +58,15 @@ var _ = Describe("UpdateClient", func() {
 
 		Describe("when successful", func() {
 			BeforeEach(func() {
-				c := uaa.NewConfigWithServerURL(server.URL())
-				c.AddContext(uaa.NewContextWithToken("access_token"))
+				c := config.NewConfigWithServerURL(server.URL())
+				c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 				config.WriteConfig(c)
 			})
 
 			It("displays a success message and prints the updated configuration", func() {
 				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
-					RespondWith(http.StatusOK, notifierClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(`{"client_id":"notifier","authorized_grant_types":["client_credentials"],"authorities":["notifications.write","notifications.read"]}`),
 				))
 
@@ -121,8 +83,8 @@ var _ = Describe("UpdateClient", func() {
 
 			It("knows about many flags", func() {
 				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
-					RespondWith(http.StatusOK, notifierClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
 				))
 
@@ -157,8 +119,8 @@ var _ = Describe("UpdateClient", func() {
 
 	Describe("when the client update fails", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfig()
-			c.AddContext(uaa.NewContextWithToken("old-token"))
+			c := config.NewConfig()
+			c.AddContext(config.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
@@ -182,8 +144,8 @@ var _ = Describe("UpdateClient", func() {
 	Describe("Validations", func() {
 		Describe("when called with no client id", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
-				c.AddContext(uaa.NewContextWithToken("access_token"))
+				c := config.NewConfigWithServerURL("http://localhost")
+				c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 				config.WriteConfig(c)
 				session := runCommand("update-client",
 					"--authorized_grant_types", "client_credentials",
@@ -199,7 +161,7 @@ var _ = Describe("UpdateClient", func() {
 
 		Describe("when no target was previously set", func() {
 			BeforeEach(func() {
-				config.WriteConfig(uaa.NewConfig())
+				config.WriteConfig(config.NewConfig())
 			})
 
 			It("tells the user to set a target", func() {

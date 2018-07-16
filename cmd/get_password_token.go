@@ -3,13 +3,13 @@ package cmd
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/cloudfoundry-community/go-uaa"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
+	"golang.org/x/oauth2"
 )
 
-func GetPasswordTokenValidations(cfg uaa.Config, args []string, clientSecret, username, password string) error {
+func GetPasswordTokenValidations(cfg config.Config, args []string , username, password string) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -25,25 +25,32 @@ func GetPasswordTokenValidations(cfg uaa.Config, args []string, clientSecret, us
 	return validateTokenFormatError(tokenFormat)
 }
 
-func GetPasswordTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clientSecret, username, password, tokenFormat string) error {
-	requestedType := uaa.TokenFormat(tokenFormat)
-
-	ccClient := uaa.ResourceOwnerPasswordClient{
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
-		Username:     username,
-		Password:     password,
+func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, password, tokenFormat string) error {
+	requestedType := uaa.OpaqueToken
+	if tokenFormat == uaa.JSONWebToken.String() {
+		requestedType = uaa.JSONWebToken
 	}
-	tokenResponse, err := ccClient.RequestToken(httpClient, cfg, requestedType)
+
+	api, err := uaa.NewWithPasswordCredentials(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, clientId, clientSecret, username, password, requestedType)
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")
 	}
 
+
+	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
+	token, err := transport.Source.Token()
+
+	if err != nil {
+		log.Info("Unable to retrieve token")
+		return errors.New("An error occurred while fetching token.")
+	}
+
 	activeContext := cfg.GetActiveContext()
-	activeContext.ClientID = clientId
-	activeContext.GrantType = uaa.PASSWORD
+	activeContext.ClientId = clientId
+	activeContext.GrantType = config.PASSWORD
 	activeContext.Username = username
-	activeContext.TokenResponse = tokenResponse
+
+	activeContext.Token = *token
 	cfg.AddContext(activeContext)
 	config.WriteConfig(cfg)
 	log.Info("Access token successfully fetched and added to context.")
@@ -56,11 +63,11 @@ var getPasswordToken = &cobra.Command{
 	Long:  help.PasswordGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetPasswordTokenValidations(cfg, args, clientSecret, username, password), cmd, log)
+		NotifyValidationErrors(GetPasswordTokenValidations(cfg, args, username, password), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, GetHttpClient(), args[0], clientSecret, username, password, tokenFormat), cfg, log)
+		NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, args[0], clientSecret, username, password, tokenFormat), log)
 	},
 }
 

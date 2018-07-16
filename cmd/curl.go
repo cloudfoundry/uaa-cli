@@ -6,11 +6,12 @@ import (
 	"strings"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func GetCurlValidations(cfg uaa.Config, args []string) error {
+func GetCurlValidations(cfg config.Config, args []string) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -20,8 +21,8 @@ func GetCurlValidations(cfg uaa.Config, args []string) error {
 	return nil
 }
 
-func CurlCmd(cm uaa.CurlManager, logger cli.Logger, path, method, data string, headers []string) error {
-	resHeaders, resBody, err := cm.Curl(path, method, data, headers)
+func CurlCmd(api *uaa.API, logger cli.Logger, path, method, data string, headers []string) error {
+	resHeaders, resBody, err := api.Curl(path, method, data, headers)
 	if err != nil {
 		return err
 	}
@@ -43,9 +44,10 @@ var curlCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
-		cm := uaa.CurlManager{GetHttpClient(), cfg}
-		err := CurlCmd(cm, log, args[0], method, data, headers)
-		NotifyErrorsWithRetry(err, cfg, log)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		err = CurlCmd(api, log, args[0], method, data, headers)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

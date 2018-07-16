@@ -1,20 +1,19 @@
 package cmd
 
 import (
-	"net/http"
-
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
+	"code.cloudfoundry.org/uaa-cli/config"
 )
 
-func UserinfoValidations(cfg uaa.Config) error {
+func UserinfoValidations(cfg config.Config) error {
 	return EnsureContextInConfig(cfg)
 }
 
-func UserinfoCmd(client *http.Client, cfg uaa.Config, printer cli.Printer) error {
-	i, err := uaa.Me(GetHttpClient(), GetSavedConfig())
+func UserinfoCmd(api *uaa.API) error {
+	i, err := api.GetMe()
 	if err != nil {
 		return err
 	}
@@ -31,10 +30,8 @@ var userinfoCmd = cobra.Command{
 		NotifyValidationErrors(UserinfoValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		printer := cli.NewJsonPrinter(log)
-		err := UserinfoCmd(GetHttpClient(), cfg, printer)
-		NotifyErrorsWithRetry(err, cfg, log)
+		err := UserinfoCmd(GetAPIFromSavedTokenInContext())
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

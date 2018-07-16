@@ -8,17 +8,16 @@ import (
 	"path"
 
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Config", func() {
-	var cfg uaa.Config
+	var cfg config.Config
 
 	BeforeEach(func() {
-		cfg = uaa.Config{}
-		cfg.AddContext(uaa.NewContextWithToken("foo"))
+		cfg = config.Config{}
+		cfg.AddContext(NewContextWithToken("foo"))
 	})
 
 	It("set appropriate permissions for persisted files", func() {

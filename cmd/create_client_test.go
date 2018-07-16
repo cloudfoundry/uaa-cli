@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -26,56 +25,17 @@ var _ = Describe("CreateClient", func() {
 	  "name" : "Notifier Client"
 	}`
 
-	var c uaa.Config
-	var ctx uaa.AuthContext
+	var c config.Config
+	var ctx config.UaaContext
 
 	BeforeEach(func() {
-		c = uaa.NewConfigWithServerURL(server.URL())
-		c.AddContext(uaa.NewContextWithToken("access_token"))
+		c = config.NewConfigWithServerURL(server.URL())
+		c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(c)
 		ctx = c.GetActiveContext()
 	})
 
 	Describe("and a target was previously set", func() {
-		Describe("when the --verbose option is used", func() {
-			It("shows extra output about the request on success", func() {
-				server.RouteToHandler("POST", "/oauth/clients",
-					RespondWith(http.StatusOK, notifierClient),
-				)
-
-				session := runCommand("create-client",
-					"notifier",
-					"--client_secret", "secret",
-					"--authorized_grant_types", "client_credentials",
-					"--authorities", "notifications.write",
-					"--verbose")
-
-				Eventually(session).Should(Exit(0))
-				Expect(session.Out).To(Say("POST /oauth/clients"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("200 OK"))
-			})
-
-			It("shows extra output about the request on error", func() {
-				server.RouteToHandler("POST", "/oauth/clients",
-					RespondWith(http.StatusBadRequest, "garbage response"),
-				)
-
-				session := runCommand("create-client",
-					"notifier",
-					"--client_secret", "secret",
-					"--authorized_grant_types", "client_credentials",
-					"--authorities", "notifications.write",
-					"--verbose")
-
-				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("POST /oauth/clients"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("400 Bad Request"))
-				Expect(session.Out).To(Say("garbage response"))
-			})
-		})
-
 		Describe("when successful", func() {
 			BeforeEach(func() {
 				config.WriteConfig(c)
@@ -83,9 +43,9 @@ var _ = Describe("CreateClient", func() {
 
 			It("displays a success message and prints the created configuration", func() {
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
-					RespondWith(http.StatusOK, notifierClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyJSON(`{"client_id":"notifier","client_secret":"secret","authorized_grant_types":["client_credentials"],"authorities":["notifications.write","notifications.read"]}`),
+					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+					VerifyJSON(`{"client_id":"notifier","client_secret":"secret","authorized_grant_types":["client_credentials"],"authorities":["notifications.write","notifications.read"] }`),
 				))
 
 				session := runCommand("create-client",
@@ -102,8 +62,8 @@ var _ = Describe("CreateClient", func() {
 
 			It("knows about many flags", func() {
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
-					RespondWith(http.StatusOK, notifierClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "client_secret" : "secret", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
 				))
 
@@ -129,8 +89,8 @@ var _ = Describe("CreateClient", func() {
 		Describe("using the --zone flag", func() {
 			It("adds a zone-switching header to the create request", func() {
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
-					VerifyHeaderKV("Authorization", "bearer access_token"),
-					VerifyHeaderKV("X-Identity-Zone-Subdomain", "twilight-zone"),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+					VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 				))
 
 				runCommand("create-client",
@@ -165,15 +125,15 @@ var _ = Describe("CreateClient", func() {
 			It("gets the specified client and creates a copy", func() {
 				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/shiny"),
-					RespondWith(http.StatusOK, shinyClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
-					RespondWith(http.StatusOK, shinyCopy),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyCopy, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(shinyCopy),
 				))
 
@@ -189,15 +149,15 @@ var _ = Describe("CreateClient", func() {
 			It("overrides other properties if specified", func() {
 				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/shiny"),
-					RespondWith(http.StatusOK, shinyClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client", "access_token_validity": 3600, "refresh_token_validity": 4500}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["foo.read"],"authorized_grant_types":["implicit"],"redirect_uri":["http://localhost:8001/*"],"authorities":["shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"foo client", "access_token_validity": 3600, "refresh_token_validity": 4500, "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
-					RespondWith(http.StatusOK, shinyCopy),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyCopy, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(shinyCopy),
 				))
 
@@ -222,7 +182,7 @@ var _ = Describe("CreateClient", func() {
 				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/shiny"),
 					RespondWith(http.StatusNotFound, ""),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
 				session := runCommand("create-client",
@@ -237,15 +197,15 @@ var _ = Describe("CreateClient", func() {
 			It("displays an error when the create fails", func() {
 				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/shiny"),
-					RespondWith(http.StatusOK, shinyClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusBadRequest, shinyCopy),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(shinyCopy),
 				))
 
@@ -261,15 +221,15 @@ var _ = Describe("CreateClient", func() {
 			It("still insists on a client_secret", func() {
 				server.RouteToHandler("GET", "/oauth/clients/shiny", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/shiny"),
-					RespondWith(http.StatusOK, shinyClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client"}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
-					RespondWith(http.StatusOK, shinyCopy),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, shinyCopy, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(shinyCopy),
 				))
 
@@ -281,34 +241,38 @@ var _ = Describe("CreateClient", func() {
 
 			It("does not require client_secret when cloning implicit grant type", func() {
 				var implicitClient = `{
-				  "scope" : [ "implicit.write" ],
-				  "client_id" : "myImplicitClient",
-				  "resource_ids" : [ ],
-				  "authorized_grant_types" : [ "implicit" ],
-				  "redirect_uri" : [ "http://localhost:8080/*" ],
-				  "authorities" : [ "implicit.write", "implicit.read" ],
-				  "token_salt" : "",
-				  "autoapprove" : ["true"],
-				  "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
-				  "name" : "Implicit Client"
+				 "scope" : [ "implicit.write" ],
+				 "client_id" : "myImplicitClient",
+				 "resource_ids" : [ ],
+				 "authorized_grant_types" : [ "implicit" ],
+				 "redirect_uri" : [ "http://localhost:8080/*" ],
+				 "authorities" : [ "implicit.write", "implicit.read" ],
+				 "token_salt" : "",
+				 "autoapprove" : ["true"],
+				 "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ],
+				 "name" : "Implicit Client",
+				 "autoapprove": [ "true" ] 
 				}`
+
 
 				server.RouteToHandler("GET", "/oauth/clients/myImplicitClient", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/myImplicitClient"),
-					RespondWith(http.StatusOK, implicitClient),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, implicitClient, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client" }`
+				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client", "autoapprove": [ "true" ] }`
 
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
-					RespondWith(http.StatusOK, implicitCopy),
-					VerifyHeaderKV("Authorization", "bearer access_token"),
+					RespondWith(http.StatusOK, implicitCopy, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 					VerifyJSON(implicitCopy),
 				))
 
+
 				session := runCommand("create-client", "implicitcopy", "--clone", "myImplicitClient")
+
 
 				Expect(session).Should(Exit(0))
 			})
@@ -317,8 +281,8 @@ var _ = Describe("CreateClient", func() {
 
 	Describe("when the client creation fails", func() {
 		BeforeEach(func() {
-			c = uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("old-token"))
+			c = config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
@@ -358,7 +322,7 @@ var _ = Describe("CreateClient", func() {
 
 		Describe("when no target was previously set", func() {
 			BeforeEach(func() {
-				config.WriteConfig(uaa.NewConfig())
+				config.WriteConfig(config.NewConfig())
 			})
 
 			It("tells the user to set a target", func() {
@@ -377,8 +341,8 @@ var _ = Describe("CreateClient", func() {
 
 		Describe("when no context with token was previously set", func() {
 			BeforeEach(func() {
-				c := uaa.NewConfig()
-				t := uaa.NewTarget()
+				c := config.NewConfig()
+				t := config.NewTarget()
 				c.AddTarget(t)
 				config.WriteConfig(c)
 			})

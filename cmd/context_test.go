@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -12,7 +11,7 @@ import (
 var _ = Describe("Context", func() {
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfig()
+			c := config.NewConfig()
 			config.WriteConfig(c)
 		})
 
@@ -27,7 +26,7 @@ var _ = Describe("Context", func() {
 
 	Describe("when a target was previously set but there is no active context", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
+			c := config.NewConfigWithServerURL("http://login.somewhere.com")
 			config.WriteConfig(c)
 		})
 
@@ -42,8 +41,8 @@ var _ = Describe("Context", func() {
 
 	Describe("when there is an active context", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
-			ctx := uaa.AuthContext{ClientID: "admin", Username: "woodstock"}
+			c := config.NewConfigWithServerURL("http://login.somewhere.com")
+			ctx := config.UaaContext{ClientId: "admin", Username: "woodstock"}
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 		})
@@ -53,13 +52,10 @@ var _ = Describe("Context", func() {
 			  "client_id": "admin",
 			  "grant_type": "",
 			  "username": "woodstock",
-			  "access_token": "",
-			  "refresh_token": "",
-			  "id_token": "",
-			  "token_type": "",
-			  "expires_in": 0,
-			  "scope": "",
-			  "jti": ""
+	          "Token": {
+                "access_token": "",
+                "expiry": "0001-01-01T00:00:00Z"
+              }
 			}`
 			session := runCommand("context")
 

@@ -4,17 +4,18 @@ import (
 	"errors"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func CreateGroupCmd(gm uaa.GroupManager, printer cli.Printer, name, description string) error {
+func CreateGroupCmd(api *uaa.API, printer cli.Printer, name, description string) error {
 	toCreate := uaa.Group{
 		DisplayName: name,
 		Description: description,
 	}
 
-	group, err := gm.Create(toCreate)
+	group, err := api.CreateGroup(toCreate)
 	if err != nil {
 		return err
 	}
@@ -22,7 +23,7 @@ func CreateGroupCmd(gm uaa.GroupManager, printer cli.Printer, name, description 
 	return printer.Print(group)
 }
 
-func CreateGroupValidation(cfg uaa.Config, args []string) error {
+func CreateGroupValidation(cfg config.Config, args []string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -41,9 +42,10 @@ var createGroupCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		gm := uaa.GroupManager{GetHttpClient(), cfg}
-		err := CreateGroupCmd(gm, cli.NewJsonPrinter(log), args[0], groupDescription)
-		NotifyErrorsWithRetry(err, cfg, log)
+		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+		NotifyErrorsWithRetry(err, log)
+		err = CreateGroupCmd(api, cli.NewJsonPrinter(log), args[0], groupDescription)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

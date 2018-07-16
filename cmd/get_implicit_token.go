@@ -4,29 +4,29 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
 )
 
-func SaveContext(ctx uaa.AuthContext, log *cli.Logger) {
+func SaveContext(ctx config.UaaContext, log *cli.Logger) {
 	c := GetSavedConfig()
 	c.AddContext(ctx)
 	config.WriteConfig(c)
 	log.Info("Access token added to active context.")
 }
 
-func addImplicitTokenToContext(clientId string, tokenResponse uaa.TokenResponse, log *cli.Logger) {
-	ctx := uaa.AuthContext{
-		GrantType:     uaa.IMPLICIT,
-		ClientID:      clientId,
-		TokenResponse: tokenResponse,
+func addImplicitTokenToContext(clientId string, token oauth2.Token, log *cli.Logger) {
+	ctx := config.UaaContext{
+		GrantType: config.IMPLICIT,
+		ClientId:  clientId,
+		Token:     token,
 	}
 
 	SaveContext(ctx, log)
 }
 
-func ImplicitTokenArgumentValidation(cfg uaa.Config, args []string, port int) error {
+func ImplicitTokenArgumentValidation(cfg config.Config, args []string, port int) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ var getImplicitToken = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
-		baseUrl := GetSavedConfig().GetActiveTarget().BaseURL
+		baseUrl := GetSavedConfig().GetActiveTarget().BaseUrl
 		implicitImp := cli.NewImplicitClientImpersonator(args[0], baseUrl, tokenFormat, scope, port, log, open.Run)
 		go ImplicitTokenCommandRun(done, args[0], implicitImp, GetLogger())
 		<-done

@@ -7,6 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"io/ioutil"
 	"net/url"
+	"time"
 )
 
 type TestLauncher struct {
@@ -74,9 +75,9 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 			tokenResponse := <-impersonator.Done()
 			Expect(tokenResponse.AccessToken).To(Equal("a_fake_token"))
 			Expect(tokenResponse.TokenType).To(Equal("bearer"))
-			Expect(tokenResponse.Scope).To(Equal("openid"))
-			Expect(tokenResponse.JTI).To(Equal("jti_value"))
-			Expect(tokenResponse.ExpiresIn).To(Equal(int32(4000)))
+			Expect(tokenResponse.Extra("scope")).To(Equal("openid"))
+			Expect(tokenResponse.Extra("jti")).To(Equal("jti_value"))
+			Expect(tokenResponse.Expiry).Should(BeTemporally("~", time.Now(), 4000 * time.Second))
 		})
 	})
 

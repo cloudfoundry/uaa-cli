@@ -4,11 +4,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
 )
 
-func GetTokenKeysCmd(client *http.Client, config uaa.Config) error {
-	key, err := uaa.TokenKeys(client, config)
+func GetTokenKeysCmd(api *uaa.API) error {
+	key, err := api.TokenKeys()
 
 	if err != nil {
 		return err
@@ -26,7 +25,7 @@ var getTokenKeysCmd = &cobra.Command{
 		NotifyValidationErrors(EnsureTargetInConfig(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(GetTokenKeysCmd(GetHttpClient(), GetSavedConfig()), GetSavedConfig(), log)
+		NotifyErrorsWithRetry(GetTokenKeysCmd(GetUnauthenticatedAPI()), log)
 	},
 }
 

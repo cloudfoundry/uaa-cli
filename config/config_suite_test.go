@@ -1,13 +1,13 @@
 package config_test
 
 import (
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"testing"
 
 	"code.cloudfoundry.org/uaa-cli/config"
+	"golang.org/x/oauth2"
 )
 
 func TestClient(t *testing.T) {
@@ -23,8 +23,11 @@ var _ = AfterEach(func() {
 	config.RemoveConfig()
 })
 
-func NewContextWithToken(accessToken string) uaa.AuthContext {
-	ctx := uaa.AuthContext{}
-	ctx.AccessToken = accessToken
+func NewContextWithToken(accessToken string) config.UaaContext {
+	ctx := config.UaaContext{
+		Token: oauth2.Token{
+			AccessToken: accessToken,
+		},
+	}
 	return ctx
 }

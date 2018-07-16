@@ -1,16 +1,15 @@
 package cmd
 
 import (
-	"errors"
-	"net/http"
-
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
+	"golang.org/x/oauth2"
+	"github.com/pkg/errors"
 )
 
-func GetClientCredentialsTokenValidations(cfg uaa.Config, args []string, clientSecret string) error {
+func GetClientCredentialsTokenValidations(cfg config.Config, args []string, clientSecret string) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -23,17 +22,30 @@ func GetClientCredentialsTokenValidations(cfg uaa.Config, args []string, clientS
 	return validateTokenFormatError(tokenFormat)
 }
 
-func GetClientCredentialsTokenCmd(cfg uaa.Config, httpClient *http.Client, clientId, clientSecret string) error {
-	ccClient := uaa.ClientCredentialsClient{ClientID: clientId, ClientSecret: clientSecret}
-	tokenResponse, err := ccClient.RequestToken(httpClient, cfg, uaa.TokenFormat(tokenFormat))
+func GetClientCredentialsTokenCmd(cfg config.Config, clientId, clientSecret string) error {
+	var uaaTokenFormat uaa.TokenFormat
+	//TODO: place in a method to determine uaaTokenFormat
+	if uaa.JSONWebToken.String() == tokenFormat {
+		uaaTokenFormat = uaa.JSONWebToken
+	} else {
+		uaaTokenFormat = uaa.OpaqueToken
+	}
+
+	api, err := uaa.NewWithClientCredentials(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, clientId, clientSecret, uaaTokenFormat)
 	if err != nil {
-		return errors.New("An error occurred while fetching token.")
+		return errors.Wrap(err, "An error occurred while building API with client credentials.")
+	}
+
+	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
+	token, err := transport.Source.Token()
+	if err != nil {
+		return errors.Wrap(err, "An error occurred while fetching token.")
 	}
 
 	activeContext := cfg.GetActiveContext()
-	activeContext.GrantType = uaa.CLIENTCREDENTIALS
-	activeContext.ClientID = clientId
-	activeContext.TokenResponse = tokenResponse
+	activeContext.GrantType = config.CLIENT_CREDENTIALS
+	activeContext.ClientId = clientId
+	activeContext.Token = *token
 
 	cfg.AddContext(activeContext)
 	config.WriteConfig(cfg)
@@ -51,7 +63,7 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(GetClientCredentialsTokenCmd(cfg, GetHttpClient(), args[0], clientSecret), cfg, log)
+		NotifyErrorsWithRetry(GetClientCredentialsTokenCmd(cfg, args[0], clientSecret), log)
 	},
 }
 

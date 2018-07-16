@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -30,35 +29,17 @@ var _ = Describe("GetPasswordToken", func() {
 	  "jti" : "bc4885d950854fed9a938e96b13ca519"
 	}`
 
-	var c uaa.Config
-	var ctx uaa.AuthContext
+	var c config.Config
+	var ctx config.UaaContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
-			c = uaa.NewConfigWithServerURL(server.URL())
+			c = config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
 			ctx = c.GetActiveContext()
 		})
 
-		Describe("when the --verbose option is used", func() {
-			It("shows extra output about the request on success", func() {
-				server.RouteToHandler("POST", "/oauth/token",
-					RespondWith(http.StatusOK, jwtTokenResponseJson),
-				)
-
-				session := runCommand("get-password-token",
-					"admin",
-					"-s", "adminsecret",
-					"-u", "woodstock",
-					"-p", "secret",
-					"--verbose")
-
-				Eventually(session).Should(Exit(0))
-				Expect(session.Out).To(Say("POST /oauth/token"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("200 OK"))
-			})
-
+		Context("not successful", func() {
 			It("shows extra output about the request on error", func() {
 				server.RouteToHandler("POST", "/oauth/token",
 					RespondWith(http.StatusBadRequest, "garbage response"),
@@ -72,10 +53,7 @@ var _ = Describe("GetPasswordToken", func() {
 					"--verbose")
 
 				Eventually(session).Should(Exit(1))
-				Expect(session.Out).To(Say("POST /oauth/token"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("400 Bad Request"))
-				Expect(session.Out).To(Say("garbage response"))
+				Expect(session.Out).To(Say("Unable to retrieve token"))
 			})
 		})
 
@@ -83,9 +61,12 @@ var _ = Describe("GetPasswordToken", func() {
 			BeforeEach(func() {
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-					RespondWith(http.StatusOK, jwtTokenResponseJson),
+					RespondWith(http.StatusOK, jwtTokenResponseJson, http.Header{
+						"Content-Type": []string{"application/json"},
+					}),
 					VerifyFormKV("client_id", "admin"),
-					VerifyFormKV("client_secret", "adminsecret"),
+					//base64 <<< 'admin:adminsecret'
+					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 					VerifyFormKV("grant_type", "password"),
 				),
 				)
@@ -109,28 +90,23 @@ var _ = Describe("GetPasswordToken", func() {
 					"-u", "woodstock",
 					"-p", "secret")
 
-				Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
-				Expect(config.ReadConfig().GetActiveContext().RefreshToken).To(Equal("eyJhbGciOiJSUzI1NiIsImtpZCI6ImtleS0xIiwidHlwIjoiSldUIn0.eyJqdGkiOiJlMTQ0NTE3N2YyYmU0YzQ3Yjk4MmIzNzI1MzllN2NkNy1yIiwic3ViIjoiODkwZmY4MWItMzMyNC00NDRiLTgwNTAtNDRmNWVjOGQ3MDUzIiwic2NvcGUiOlsib3BlbmlkIiwidXNlcl9hdHRyaWJ1dGVzIiwic2NpbS53cml0ZSIsInNjaW0ucmVhZCJdLCJpYXQiOjE1MDUwNzk4MjMsImV4cCI6MTUwNzY3MTgyMywiY2lkIjoiamF1dGhjb2RlIiwiY2xpZW50X2lkIjoiamF1dGhjb2RlIiwiaXNzIjoiaHR0cHM6Ly91YWEudWFhLWFjY2VwdGFuY2UuY2YtYXBwLmNvbS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJ1c2VyX25hbWUiOiJqaGFtb25AZ21haWwuY29tIiwib3JpZ2luIjoidWFhIiwidXNlcl9pZCI6Ijg5MGZmODFiLTMzMjQtNDQ0Yi04MDUwLTQ0ZjVlYzhkNzA1MyIsInJldl9zaWciOiI1NjFiNGRjMCIsImF1ZCI6WyJzY2ltIiwiamF1dGhjb2RlIiwib3BlbmlkIl19.hxTIL6pbybnpXwioYepdAEWHHwBB6hqJJjWW4atZJ4jeg1ZZCe6KKPM0xEo43mwLfuqcPim7Y7GAJFiJfcM9iqilzCLWAYvQi4aeliOgsYRrWpExYXSQ76bnJ584co7a4xSbxk6W_uXFGbcgBqJaOMlJ_TbIqtFqrvsf3CzGcDy7Mnir8caQru2tEr8Zlz4zuZImj6-FJ4AQkYW1RwXD2m94I2ZoCrv2eP-AVQjgbCDHgoN2jv9-Y1eyLagVqOXBgcd9KOQFqvm4D6ker3_grbq5VmZ-8QxwbsFZ5Sl6Q-Bk7y00nhQccLIKmNqECoAb520Zwm5OhcJERbq9jgTz9Q"))
-				Expect(config.ReadConfig().GetActiveContext().ClientID).To(Equal("admin"))
-				Expect(config.ReadConfig().GetActiveContext().Username).To(Equal("woodstock"))
-				Expect(config.ReadConfig().GetActiveContext().GrantType).To(Equal(uaa.PASSWORD))
-				Expect(config.ReadConfig().GetActiveContext().TokenType).To(Equal("bearer"))
-				Expect(config.ReadConfig().GetActiveContext().ExpiresIn).To(Equal(int32(43199)))
-				Expect(config.ReadConfig().GetActiveContext().Scope).To(Equal("clients.read emails.write scim.userids password.write idps.write notifications.write oauth.login scim.write critical_notifications.write"))
-				Expect(config.ReadConfig().GetActiveContext().JTI).To(Equal("bc4885d950854fed9a938e96b13ca519"))
+				Expect(config.ReadConfig().GetActiveContext().Token.AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
+				Expect(config.ReadConfig().GetActiveContext().Token.RefreshToken).To(Equal("eyJhbGciOiJSUzI1NiIsImtpZCI6ImtleS0xIiwidHlwIjoiSldUIn0.eyJqdGkiOiJlMTQ0NTE3N2YyYmU0YzQ3Yjk4MmIzNzI1MzllN2NkNy1yIiwic3ViIjoiODkwZmY4MWItMzMyNC00NDRiLTgwNTAtNDRmNWVjOGQ3MDUzIiwic2NvcGUiOlsib3BlbmlkIiwidXNlcl9hdHRyaWJ1dGVzIiwic2NpbS53cml0ZSIsInNjaW0ucmVhZCJdLCJpYXQiOjE1MDUwNzk4MjMsImV4cCI6MTUwNzY3MTgyMywiY2lkIjoiamF1dGhjb2RlIiwiY2xpZW50X2lkIjoiamF1dGhjb2RlIiwiaXNzIjoiaHR0cHM6Ly91YWEudWFhLWFjY2VwdGFuY2UuY2YtYXBwLmNvbS9vYXV0aC90b2tlbiIsInppZCI6InVhYSIsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJ1c2VyX25hbWUiOiJqaGFtb25AZ21haWwuY29tIiwib3JpZ2luIjoidWFhIiwidXNlcl9pZCI6Ijg5MGZmODFiLTMzMjQtNDQ0Yi04MDUwLTQ0ZjVlYzhkNzA1MyIsInJldl9zaWciOiI1NjFiNGRjMCIsImF1ZCI6WyJzY2ltIiwiamF1dGhjb2RlIiwib3BlbmlkIl19.hxTIL6pbybnpXwioYepdAEWHHwBB6hqJJjWW4atZJ4jeg1ZZCe6KKPM0xEo43mwLfuqcPim7Y7GAJFiJfcM9iqilzCLWAYvQi4aeliOgsYRrWpExYXSQ76bnJ584co7a4xSbxk6W_uXFGbcgBqJaOMlJ_TbIqtFqrvsf3CzGcDy7Mnir8caQru2tEr8Zlz4zuZImj6-FJ4AQkYW1RwXD2m94I2ZoCrv2eP-AVQjgbCDHgoN2jv9-Y1eyLagVqOXBgcd9KOQFqvm4D6ker3_grbq5VmZ-8QxwbsFZ5Sl6Q-Bk7y00nhQccLIKmNqECoAb520Zwm5OhcJERbq9jgTz9Q"))
+				Expect(config.ReadConfig().GetActiveContext().Token.TokenType).To(Equal("bearer"))
 			})
 		})
 	})
 
 	Describe("when the token request fails", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("old-token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
 				VerifyFormKV("client_id", "admin"),
-				VerifyFormKV("client_secret", "adminsecret"),
+				//base64 <<< 'admin:adminsecret'
+				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 				VerifyFormKV("grant_type", "password"),
 			),
 			)
@@ -151,22 +127,23 @@ var _ = Describe("GetPasswordToken", func() {
 				"-s", "adminsecret",
 				"-u", "woodstock",
 				"-p", "secret")
-			Expect(config.ReadConfig().GetActiveContext().AccessToken).To(Equal("old-token"))
+			Expect(config.ReadConfig().GetActiveContext().Token.AccessToken).To(Equal("old-token"))
 		})
 	})
 
 	Describe("configuring token format", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL(server.URL())
-			c.AddContext(uaa.NewContextWithToken("access_token"))
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
 		})
 
 		It("can request jwt token", func() {
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-				RespondWith(http.StatusOK, jwtTokenResponseJson),
+				RespondWith(http.StatusOK, jwtTokenResponseJson, contentTypeJson),
 				VerifyFormKV("client_id", "admin"),
-				VerifyFormKV("client_secret", "adminsecret"),
+				//base64 <<< 'admin:adminsecret'
+				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 				VerifyFormKV("grant_type", "password"),
 				VerifyFormKV("token_format", "jwt"),
 			))
@@ -180,9 +157,10 @@ var _ = Describe("GetPasswordToken", func() {
 
 		It("can request opaque token", func() {
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-				RespondWith(http.StatusOK, opaqueTokenResponseJson),
+				RespondWith(http.StatusOK, opaqueTokenResponseJson, contentTypeJson),
 				VerifyFormKV("client_id", "admin"),
-				VerifyFormKV("client_secret", "adminsecret"),
+				//base64 <<< 'admin:adminsecret'
+				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 				VerifyFormKV("grant_type", "password"),
 				VerifyFormKV("token_format", "opaque"),
 			))
@@ -196,9 +174,10 @@ var _ = Describe("GetPasswordToken", func() {
 
 		It("uses jwt format by default", func() {
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-				RespondWith(http.StatusOK, jwtTokenResponseJson),
+				RespondWith(http.StatusOK, jwtTokenResponseJson, contentTypeJson),
+				//base64 <<< 'admin:adminsecret'
+				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 				VerifyFormKV("client_id", "admin"),
-				VerifyFormKV("client_secret", "adminsecret"),
 				VerifyFormKV("grant_type", "password"),
 				VerifyFormKV("token_format", "jwt"),
 			))
@@ -223,7 +202,7 @@ var _ = Describe("GetPasswordToken", func() {
 	Describe("Validations", func() {
 		Describe("when called with no client id", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
+				c := config.NewConfigWithServerURL("http://localhost")
 				config.WriteConfig(c)
 				session := runCommand("get-password-token",
 					"-s", "adminsecret",
@@ -237,10 +216,10 @@ var _ = Describe("GetPasswordToken", func() {
 
 		Describe("when called with no client secret", func() {
 			It("succeeds", func() {
-				c := uaa.NewConfigWithServerURL(server.URL())
+				c := config.NewConfigWithServerURL(server.URL())
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token",
-					RespondWith(http.StatusOK, jwtTokenResponseJson),
+					RespondWith(http.StatusOK, jwtTokenResponseJson, contentTypeJson),
 				)
 
 				session := runCommand("get-password-token", "admin",
@@ -249,15 +228,13 @@ var _ = Describe("GetPasswordToken", func() {
 					"--verbose")
 
 				Eventually(session).Should(Exit(0))
-				Expect(session.Out).To(Say("POST /oauth/token"))
-				Expect(session.Out).To(Say("Accept: application/json"))
-				Expect(session.Out).To(Say("200 OK"))
+				Expect(session.Out).To(Say("Access token successfully fetched and added to context."))
 			})
 		})
 
 		Describe("when called with no username", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
+				c := config.NewConfigWithServerURL("http://localhost")
 				config.WriteConfig(c)
 				session := runCommand("get-password-token", "admin",
 					"-s", "adminsecret",
@@ -270,7 +247,7 @@ var _ = Describe("GetPasswordToken", func() {
 
 		Describe("when called with no password", func() {
 			It("displays help and does not panic", func() {
-				c := uaa.NewConfigWithServerURL("http://localhost")
+				c := config.NewConfigWithServerURL("http://localhost")
 				config.WriteConfig(c)
 				session := runCommand("get-password-token", "admin",
 					"-s", "adminsecret",
@@ -283,7 +260,7 @@ var _ = Describe("GetPasswordToken", func() {
 
 		Describe("when no target was previously set", func() {
 			BeforeEach(func() {
-				config.WriteConfig(uaa.NewConfig())
+				config.WriteConfig(config.NewConfig())
 			})
 
 			It("tells the user to set a target", func() {

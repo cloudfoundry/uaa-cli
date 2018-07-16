@@ -2,7 +2,6 @@ package cmd_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	"github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -12,7 +11,7 @@ import (
 var _ = Describe("Contexts", func() {
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfig()
+			c := config.NewConfig()
 			config.WriteConfig(c)
 		})
 
@@ -27,7 +26,7 @@ var _ = Describe("Contexts", func() {
 
 	Describe("when a target was previously set but there is no active context", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
+			c := config.NewConfigWithServerURL("http://login.somewhere.com")
 			config.WriteConfig(c)
 		})
 
@@ -42,8 +41,8 @@ var _ = Describe("Contexts", func() {
 
 	Describe("when there are contexts", func() {
 		BeforeEach(func() {
-			c := uaa.NewConfigWithServerURL("http://login.somewhere.com")
-			ctx1 := uaa.AuthContext{ClientID: "admin", Username: "woodstock", GrantType: uaa.PASSWORD}
+			c := config.NewConfigWithServerURL("http://login.somewhere.com")
+			ctx1 := config.UaaContext{ClientId: "admin", Username: "woodstock", GrantType: config.PASSWORD}
 			c.AddContext(ctx1)
 			config.WriteConfig(c)
 		})

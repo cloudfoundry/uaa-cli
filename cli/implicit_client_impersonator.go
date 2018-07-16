@@ -7,13 +7,14 @@ import (
 	"strconv"
 
 	"code.cloudfoundry.org/uaa-cli/utils"
-	"github.com/cloudfoundry-community/go-uaa"
+	"golang.org/x/oauth2"
+	"time"
 )
 
 type ClientImpersonator interface {
 	Start()
 	Authorize()
-	Done() chan uaa.TokenResponse
+	Done() chan oauth2.Token
 }
 
 type ImplicitClientImpersonator struct {
@@ -25,7 +26,7 @@ type ImplicitClientImpersonator struct {
 	Log                Logger
 	AuthCallbackServer CallbackServer
 	BrowserLauncher    func(string) error
-	done               chan uaa.TokenResponse
+	done               chan oauth2.Token
 }
 
 const CallbackCSS = `<style>
@@ -65,7 +66,7 @@ func NewImplicitClientImpersonator(clientId,
 		Port:            port,
 		BrowserLauncher: launcher,
 		Log:             log,
-		done:            make(chan uaa.TokenResponse),
+		done:            make(chan oauth2.Token),
 	}
 
 	callbackServer := NewAuthCallbackServer(implicitCallbackHTML, CallbackCSS, implicitCallbackJS, log, port)
@@ -85,15 +86,18 @@ func (ici ImplicitClientImpersonator) Start() {
 		urlValues := make(chan url.Values)
 		go ici.AuthCallbackServer.Start(urlValues)
 		values := <-urlValues
-		response := uaa.TokenResponse{
+		response := oauth2.Token{
 			AccessToken: values.Get("access_token"),
 			TokenType:   values.Get("token_type"),
-			Scope:       values.Get("scope"),
-			JTI:         values.Get("jti"),
 		}
-		expiry, err := strconv.Atoi(values.Get("expires_in"))
+		response = *response.WithExtra(map[string]interface{} {
+			"scope": values.Get("scope"),
+			"jti": values.Get("jti"),
+		})
+
+		expiresIn, err := strconv.Atoi(values.Get("expires_in"))
 		if err == nil {
-			response.ExpiresIn = int32(expiry)
+			response.Expiry = time.Now().Add(time.Duration(expiresIn) * time.Second)
 		}
 		ici.Done() <- response
 	}()
@@ -116,6 +120,6 @@ func (ici ImplicitClientImpersonator) Authorize() {
 	ici.Log.Info("Launching browser window to " + authUrl.String())
 	ici.BrowserLauncher(authUrl.String())
 }
-func (ici ImplicitClientImpersonator) Done() chan uaa.TokenResponse {
+func (ici ImplicitClientImpersonator) Done() chan oauth2.Token {
 	return ici.done
 }

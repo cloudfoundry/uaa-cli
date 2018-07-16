@@ -2,19 +2,20 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func ListClientsValidations(cfg uaa.Config) error {
+func ListClientsValidations(cfg config.Config) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListClientsCmd(cm *uaa.ClientManager) error {
-	clients, err := cm.List()
+func ListClientsCmd(api *uaa.API) error {
+	clients, err := api.ListAllClients("", "", uaa.SortAscending)
 	if err != nil {
 		return err
 	}
@@ -30,8 +31,7 @@ var listClientsCmd = &cobra.Command{
 		NotifyValidationErrors(ListClientsValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cm := &uaa.ClientManager{GetHttpClient(), GetSavedConfig()}
-		NotifyErrorsWithRetry(ListClientsCmd(cm), GetSavedConfig(), log)
+		NotifyErrorsWithRetry(ListClientsCmd(GetAPIFromSavedTokenInContext()), log)
 	},
 }
 

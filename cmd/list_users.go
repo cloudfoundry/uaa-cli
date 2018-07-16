@@ -2,20 +2,21 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
-func ListUserValidations(cfg uaa.Config) error {
+func ListUserValidations(cfg config.Config) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
 }
 
-func ListUsersCmd(um uaa.UserManager, printer cli.Printer, filter, sortBy, sortOrder, attributes string) error {
-	user, err := um.List(filter, sortBy, attributes, uaa.SortOrder(sortOrder))
+func ListUsersCmd(api *uaa.API, printer cli.Printer, filter, sortBy, sortOrder, attributes string) error {
+	user, err := api.ListAllUsers(filter, sortBy, attributes, uaa.SortOrder(sortOrder))
 	if err != nil {
 		return err
 	}
@@ -31,10 +32,8 @@ var listUsersCmd = &cobra.Command{
 		NotifyValidationErrors(ListUserValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		um := uaa.UserManager{GetHttpClient(), cfg}
-		err := ListUsersCmd(um, cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
-		NotifyErrorsWithRetry(err, cfg, log)
+		err := ListUsersCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
+		NotifyErrorsWithRetry(err, log)
 	},
 }
 

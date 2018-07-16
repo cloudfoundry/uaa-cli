@@ -2,14 +2,14 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"net/http"
+	"code.cloudfoundry.org/uaa-cli/config"
 )
 
-func SetClientSecretValidation(cfg uaa.Config, args []string, clientSecret string) error {
+func SetClientSecretValidation(cfg config.Config, args []string, clientSecret string) error {
 	if err := EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
@@ -22,9 +22,8 @@ func SetClientSecretValidation(cfg uaa.Config, args []string, clientSecret strin
 	return nil
 }
 
-func SetClientSecretCmd(cfg uaa.Config, httpClient *http.Client, log cli.Logger, clientId, clientSecret string) error {
-	cm := &uaa.ClientManager{httpClient, cfg}
-	err := cm.ChangeSecret(clientId, clientSecret)
+func SetClientSecretCmd(api *uaa.API, log cli.Logger, clientId, clientSecret string) error {
+	err := api.ChangeClientSecret(clientId, clientSecret)
 	if err != nil {
 		return errors.New("The secret for client " + clientId + " was not updated.")
 	}
@@ -39,8 +38,7 @@ var setClientSecretCmd = &cobra.Command{
 		NotifyValidationErrors(SetClientSecretValidation(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(SetClientSecretCmd(cfg, GetHttpClient(), log, args[0], clientSecret), cfg, log)
+		NotifyErrorsWithRetry(SetClientSecretCmd(GetAPIFromSavedTokenInContext(), log, args[0], clientSecret), log)
 	},
 }
 

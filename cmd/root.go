@@ -7,12 +7,11 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
-	"github.com/cloudfoundry-community/go-uaa"
 	"code.cloudfoundry.org/uaa-cli/version"
 	"github.com/spf13/cobra"
 )
 
-var cfgFile uaa.Config
+var cfgFile config.Config
 var log cli.Logger
 
 // Token flags
@@ -146,7 +145,7 @@ func GetLogger() *cli.Logger {
 	return &log
 }
 
-func GetSavedConfig() uaa.Config {
+func GetSavedConfig() config.Config {
 	cfgFile = config.ReadConfig()
 	cfgFile.Verbose = verbose
 	cfgFile.ZoneSubdomain = zoneSubdomain
