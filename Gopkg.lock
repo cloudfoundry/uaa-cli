@@ -85,6 +85,8 @@
     "gbytes",
     "gexec",
     "ghttp",
+    "gstruct",
+    "gstruct/errors",
     "internal/assertion",
     "internal/asyncassertion",
     "internal/oraclematcher",
@@ -207,6 +209,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "72b9f8ae3a5d1f8147ef205ec5dd820b3c5b3fb5968dccbf8ad9a7f4b11898f1"
+  inputs-digest = "523ecd8740a24f7689ba8d239b90f21369e43ecb18cda604e8d40e947f1474a1"
   solver-name = "gps-cdcl"
   solver-version = 1
