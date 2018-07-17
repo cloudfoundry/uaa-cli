@@ -8,11 +8,11 @@ import (
 
 func GetAPIFromSavedTokenInContext() *uaa.API {
 	config := GetSavedConfig()
-	api, err := uaa.NewWithToken(config.GetActiveTarget().BaseUrl, config.ZoneSubdomain, config.GetActiveContext().Token, config.GetActiveTarget().SkipSSLValidation)
-
+	api, err := uaa.NewWithToken(config.GetActiveTarget().BaseUrl, config.ZoneSubdomain, config.GetActiveContext().Token)
 	if err != nil {
 		panic(err)
 	}
+	api.SkipSSLValidation = config.GetActiveTarget().SkipSSLValidation
 
 	return api
 }
