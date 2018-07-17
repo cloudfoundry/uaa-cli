@@ -1,5 +1,4 @@
 *.xml
 .idea/
-vendor/
 uaa-cli
 build/

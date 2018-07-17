@@ -8,7 +8,7 @@
     ".",
     "passwordcredentials"
   ]
-  revision = "1994bd4b730ec543a7c5fad5c202bd910cbec474"
+  revision = "84748f8ce29aa693ed4959ba4fb48131d313e54c"
 
 [[projects]]
   name = "github.com/fatih/color"
