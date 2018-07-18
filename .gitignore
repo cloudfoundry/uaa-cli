@@ -1,4 +1,5 @@
 *.xml
 .idea/
+.vscode/
 uaa-cli
 build/
