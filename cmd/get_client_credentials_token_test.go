@@ -40,7 +40,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 				config.WriteConfig(c)
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusOK, opaqueTokenResponseJson, contentTypeJson),
-					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+					VerifyFormKV("client_id", "admin"),
+					VerifyFormKV("client_secret", "adminsecret"),
 					VerifyFormKV("grant_type", "client_credentials"),
 				),
 				)
@@ -63,7 +64,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			It("can request jwt token", func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusOK, jwtResponseJson, contentTypeJson),
-					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+					VerifyFormKV("client_id", "admin"),
+					VerifyFormKV("client_secret", "adminsecret"),
 					VerifyFormKV("grant_type", "client_credentials"),
 					VerifyFormKV("token_format", "jwt"),
 				))
@@ -74,7 +76,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			It("can request opaque token", func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusOK, opaqueTokenResponseJson, contentTypeJson),
-					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+					VerifyFormKV("client_id", "admin"),
+					VerifyFormKV("client_secret", "adminsecret"),
 					VerifyFormKV("grant_type", "client_credentials"),
 					VerifyFormKV("token_format", "opaque"),
 				))
@@ -85,7 +88,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			It("uses jwt format by default", func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusOK, jwtResponseJson, contentTypeJson),
-					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+					VerifyFormKV("client_id", "admin"),
+					VerifyFormKV("client_secret", "adminsecret"),
 					VerifyFormKV("grant_type", "client_credentials"),
 					VerifyFormKV("token_format", "jwt"),
 				))
@@ -108,7 +112,8 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			config.WriteConfig(c)
 			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
-				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+				VerifyFormKV("client_id", "admin"),
+				VerifyFormKV("client_secret", "adminsecret"),
 				VerifyFormKV("grant_type", "client_credentials"),
 			),
 			)
