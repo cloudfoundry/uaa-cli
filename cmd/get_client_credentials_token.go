@@ -4,9 +4,9 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
-	"github.com/pkg/errors"
 )
 
 func GetClientCredentialsTokenValidations(cfg config.Config, args []string, clientSecret string) error {

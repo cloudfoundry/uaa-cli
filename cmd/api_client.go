@@ -1,9 +1,9 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"net/http"
-	"code.cloudfoundry.org/uaa-cli/config"
 )
 
 func GetAPIFromSavedTokenInContext() *uaa.API {

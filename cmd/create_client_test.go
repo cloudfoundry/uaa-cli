@@ -254,7 +254,6 @@ var _ = Describe("CreateClient", func() {
 				 "autoapprove": [ "true" ] 
 				}`
 
-
 				server.RouteToHandler("GET", "/oauth/clients/myImplicitClient", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/myImplicitClient"),
 					RespondWith(http.StatusOK, implicitClient, contentTypeJson),
@@ -270,9 +269,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyJSON(implicitCopy),
 				))
 
-
 				session := runCommand("create-client", "implicitcopy", "--clone", "myImplicitClient")
-
 
 				Expect(session).Should(Exit(0))
 			})

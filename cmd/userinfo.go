@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"code.cloudfoundry.org/uaa-cli/config"
 )
 
 func UserinfoValidations(cfg config.Config) error {
