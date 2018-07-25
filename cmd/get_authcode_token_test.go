@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 	"github.com/onsi/gomega/gstruct"
+	"net/http"
 )
 
 var _ = Describe("GetAuthcodeToken", func() {
@@ -58,7 +58,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 

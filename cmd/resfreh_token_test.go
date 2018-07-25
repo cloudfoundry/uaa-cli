@@ -79,7 +79,7 @@ var _ = Describe("ResfrehToken", func() {
 			ctx := config.NewContextWithToken("old-token")
 			ctx.GrantType = config.PASSWORD
 			ctx.Token.RefreshToken = "refresh me"
-			ctx.ClientId= "shinyclient"
+			ctx.ClientId = "shinyclient"
 			ctx.Username = "woodstock"
 			c.AddContext(ctx)
 			config.WriteConfig(c)

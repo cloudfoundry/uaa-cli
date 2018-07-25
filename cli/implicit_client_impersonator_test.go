@@ -77,7 +77,7 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 			Expect(tokenResponse.TokenType).To(Equal("bearer"))
 			Expect(tokenResponse.Extra("scope")).To(Equal("openid"))
 			Expect(tokenResponse.Extra("jti")).To(Equal("jti_value"))
-			Expect(tokenResponse.Expiry).Should(BeTemporally("~", time.Now(), 4000 * time.Second))
+			Expect(tokenResponse.Expiry).Should(BeTemporally("~", time.Now(), 4000*time.Second))
 		})
 	})
 

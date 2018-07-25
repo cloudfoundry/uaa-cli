@@ -74,7 +74,7 @@ func (aci AuthcodeClientImpersonator) Start() {
 
 		tokenFormat := uaa.JSONWebToken //TODO: Use aci tokenformat to convert from string to int
 
-		api, err := uaa.NewWithAuthorizationCode(aci.config.GetActiveTarget().BaseUrl, aci.config.ZoneSubdomain, aci.ClientID, aci.ClientSecret, code, aci.config.GetActiveTarget().SkipSSLValidation, tokenFormat)
+		api, err := uaa.NewWithAuthorizationCode(aci.config.GetActiveTarget().BaseUrl, aci.config.ZoneSubdomain, aci.ClientID, aci.ClientSecret, code, tokenFormat, aci.config.GetActiveTarget().SkipSSLValidation)
 		if err != nil {
 			aci.Log.Error(err.Error())
 			aci.Log.Info("Retry with --verbose for more information.")

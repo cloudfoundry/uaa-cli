@@ -90,9 +90,9 @@ func (ici ImplicitClientImpersonator) Start() {
 			AccessToken: values.Get("access_token"),
 			TokenType:   values.Get("token_type"),
 		}
-		response = *response.WithExtra(map[string]interface{} {
+		response = *response.WithExtra(map[string]interface{}{
 			"scope": values.Get("scope"),
-			"jti": values.Get("jti"),
+			"jti":   values.Get("jti"),
 		})
 
 		expiresIn, err := strconv.Atoi(values.Get("expires_in"))
