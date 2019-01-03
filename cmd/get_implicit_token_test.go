@@ -7,8 +7,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
 	"github.com/onsi/gomega/gstruct"
+	"net/http"
 )
 
 type TestLauncher struct {
@@ -22,13 +22,11 @@ func (tl *TestLauncher) Run(target string) error {
 
 var _ = Describe("GetImplicitToken", func() {
 	var c config.Config
-	var ctx config.UaaContext
 	var logger cli.Logger
 
 	BeforeEach(func() {
 		c = config.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
-		ctx = c.GetActiveContext()
 		logger = cli.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 	})
 
@@ -46,7 +44,7 @@ var _ = Describe("GetImplicitToken", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 

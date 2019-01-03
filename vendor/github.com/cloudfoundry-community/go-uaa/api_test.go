@@ -10,7 +10,7 @@ import (
 
 	"io/ioutil"
 
-	"github.com/cloudfoundry-community/go-uaa"
+	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
 	"github.com/sclevine/spec/report"
@@ -119,20 +119,20 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 
 	when("NewWithPasswordCredentials()", func() {
 		it("fails if the target url is invalid", func() {
-			api, err := uaa.NewWithPasswordCredentials("(*#&^@%$&%)", "", "", "", "", "", uaa.OpaqueToken)
+			api, err := uaa.NewWithPasswordCredentials("(*#&^@%$&%)", "", "", "", "", "", uaa.OpaqueToken, true)
 			Expect(err).To(HaveOccurred())
 			Expect(api).To(BeNil())
 		})
 
 		it("returns an API with a TargetURL", func() {
-			api, err := uaa.NewWithPasswordCredentials("https://example.net", "", "", "", "", "", uaa.OpaqueToken)
+			api, err := uaa.NewWithPasswordCredentials("https://example.net", "", "", "", "", "", uaa.OpaqueToken, true)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.TargetURL.String()).To(Equal("https://example.net"))
 		})
 
 		it("returns an API with an HTTPClient", func() {
-			api, err := uaa.NewWithPasswordCredentials("https://example.net", "", "", "", "", "", uaa.OpaqueToken)
+			api, err := uaa.NewWithPasswordCredentials("https://example.net", "", "", "", "", "", uaa.OpaqueToken, true)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.AuthenticatedClient).NotTo(BeNil())
@@ -143,7 +143,6 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 		var (
 			s           *httptest.Server
 			returnToken bool
-			rawQuery    string
 			reqBody     []byte
 		)
 
@@ -151,7 +150,6 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 			returnToken = true
 			s = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 				var err error
-				rawQuery = req.URL.RawQuery
 				reqBody, err = ioutil.ReadAll(req.Body)
 				Expect(err).NotTo(HaveOccurred())
 
@@ -179,20 +177,20 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 		})
 
 		it("fails if the target url is invalid", func() {
-			api, err := uaa.NewWithAuthorizationCode("(*#&^@%$&%)", "", "", "", "", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithAuthorizationCode("(*#&^@%$&%)", "", "", "", "", uaa.OpaqueToken, false)
 			Expect(err).To(HaveOccurred())
 			Expect(api).To(BeNil())
 		})
 
 		it("returns an API with a TargetURL", func() {
-			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", uaa.OpaqueToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.TargetURL.String()).To(Equal(s.URL))
 		})
 
 		it("returns an API with an HTTPClient", func() {
-			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", uaa.OpaqueToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.AuthenticatedClient).NotTo(BeNil())
@@ -200,13 +198,13 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 
 		it("returns an error if the token cannot be retrieved", func() {
 			returnToken = false
-			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", uaa.OpaqueToken, false)
 			Expect(err).To(HaveOccurred())
 			Expect(api).To(BeNil())
 		})
 
 		it("ensure that auth code grant type params are set correctly", func() {
-			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithAuthorizationCode(s.URL, "", "", "", "", uaa.OpaqueToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 
@@ -258,27 +256,27 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 
 		it("fails if the refresh token is invalid", func() {
 			invalidRefreshToken := ""
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", invalidRefreshToken, false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", invalidRefreshToken, uaa.JSONWebToken, false)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError("oauth2: token expired and refresh token is not set"))
 			Expect(api).To(BeNil())
 		})
 
 		it("fails if the target url is invalid", func() {
-			api, err := uaa.NewWithRefreshToken("(*#&^@%$&%)", "", "", "", "refresh-token", false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken("(*#&^@%$&%)", "", "", "", "refresh-token", uaa.JSONWebToken, false)
 			Expect(err).To(HaveOccurred())
 			Expect(api).To(BeNil())
 		})
 
 		it("returns an API with a TargetURL", func() {
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", uaa.JSONWebToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.TargetURL.String()).To(Equal(s.URL))
 		})
 
 		it("returns an API with an HTTPClient", func() {
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", uaa.JSONWebToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 			Expect(api.AuthenticatedClient).NotTo(BeNil())
@@ -286,14 +284,14 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 
 		it("returns an error if the token cannot be retrieved", func() {
 			returnToken = false
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", uaa.JSONWebToken, false)
 			Expect(err).To(HaveOccurred())
 			Expect(err).To(MatchError("oauth2: server response missing access_token"))
 			Expect(api).To(BeNil())
 		})
 
 		it("ensure that refresh grant type params are set correctly", func() {
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", false, uaa.JSONWebToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", uaa.JSONWebToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 
@@ -303,7 +301,7 @@ func testNew(t *testing.T, when spec.G, it spec.S) {
 		})
 
 		it("ensure that refresh grant type params are set correctly for opaque tokens", func() {
-			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", false, uaa.OpaqueToken)
+			api, err := uaa.NewWithRefreshToken(s.URL, "", "", "", "refresh-token", uaa.OpaqueToken, false)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(api).NotTo(BeNil())
 

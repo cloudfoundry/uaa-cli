@@ -8,14 +8,13 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 	"github.com/onsi/gomega/gstruct"
+	"net/http"
 )
 
 var _ = Describe("GetAuthcodeToken", func() {
 	var (
 		c          config.Config
-		ctx        config.UaaContext
 		logger     cli.Logger
 		launcher   TestLauncher
 		httpClient *http.Client
@@ -24,7 +23,6 @@ var _ = Describe("GetAuthcodeToken", func() {
 	BeforeEach(func() {
 		c = config.NewConfigWithServerURL(server.URL())
 		config.WriteConfig(c)
-		ctx = c.GetActiveContext()
 		launcher = TestLauncher{}
 		logger = cli.NewLogger(GinkgoWriter, GinkgoWriter, GinkgoWriter, GinkgoWriter)
 		httpClient = &http.Client{}
@@ -58,7 +56,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 

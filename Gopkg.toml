@@ -8,4 +8,4 @@
 
 [[constraint]]
   name = "github.com/cloudfoundry-community/go-uaa"
-  branch = "master"
+  version = "0.1.1"

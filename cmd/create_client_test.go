@@ -26,13 +26,11 @@ var _ = Describe("CreateClient", func() {
 	}`
 
 	var c config.Config
-	var ctx config.UaaContext
 
 	BeforeEach(func() {
 		c = config.NewConfigWithServerURL(server.URL())
 		c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		config.WriteConfig(c)
-		ctx = c.GetActiveContext()
 	})
 
 	Describe("and a target was previously set", func() {
@@ -254,7 +252,6 @@ var _ = Describe("CreateClient", func() {
 				 "autoapprove": [ "true" ] 
 				}`
 
-
 				server.RouteToHandler("GET", "/oauth/clients/myImplicitClient", CombineHandlers(
 					VerifyRequest("GET", "/oauth/clients/myImplicitClient"),
 					RespondWith(http.StatusOK, implicitClient, contentTypeJson),
@@ -270,9 +267,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyJSON(implicitCopy),
 				))
 
-
 				session := runCommand("create-client", "implicitcopy", "--clone", "myImplicitClient")
-
 
 				Expect(session).Should(Exit(0))
 			})

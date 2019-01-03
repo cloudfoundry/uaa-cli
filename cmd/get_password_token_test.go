@@ -30,13 +30,11 @@ var _ = Describe("GetPasswordToken", func() {
 	}`
 
 	var c config.Config
-	var ctx config.UaaContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c = config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
-			ctx = c.GetActiveContext()
 		})
 
 		Context("not successful", func() {

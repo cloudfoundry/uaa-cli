@@ -59,7 +59,7 @@ func NewContextWithToken(accessToken string) UaaContext {
 	ctx := UaaContext{
 		Token: oauth2.Token{
 			AccessToken: accessToken,
-			Expiry: time.Now().Add(1 * time.Hour),
+			Expiry:      time.Now().Add(1 * time.Hour),
 		},
 	}
 	return ctx

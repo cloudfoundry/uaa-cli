@@ -56,6 +56,7 @@ var _ = Describe("Interactive inputs", func() {
 
 			Expect(err).NotTo(HaveOccurred())
 			Expect(input).To(Equal("somepassword"))
+			Expect(called).To(BeTrue())
 		})
 	})
 })

@@ -9,7 +9,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func GetPasswordTokenValidations(cfg config.Config, args []string , username, password string) error {
+func GetPasswordTokenValidations(cfg config.Config, args []string, username, password string) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
@@ -31,7 +31,7 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 		requestedType = uaa.JSONWebToken
 	}
 
-	api, err := uaa.NewWithPasswordCredentials(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, clientId, clientSecret, username, password, requestedType)
+	api, err := uaa.NewWithPasswordCredentials(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, clientId, clientSecret, username, password, requestedType, cfg.GetActiveTarget().SkipSSLValidation)
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")
 	}

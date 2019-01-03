@@ -27,6 +27,7 @@ func (a *API) Curl(path string, method string, data string, headers []string) (s
 		logRequest(req)
 	}
 
+	a.ensureTransport(a.AuthenticatedClient)
 	resp, err := a.AuthenticatedClient.Do(req)
 	if err != nil {
 		if a.Verbose {
