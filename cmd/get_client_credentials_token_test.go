@@ -1,13 +1,14 @@
 package cmd_test
 
 import (
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
 
 var _ = Describe("GetClientCredentialsToken", func() {
@@ -26,13 +27,11 @@ var _ = Describe("GetClientCredentialsToken", func() {
 	  "jti" : "bc4885d950854fed9a938e96b13ca519"
 	}`
 	var c config.Config
-	var context config.UaaContext
 
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c = config.NewConfigWithServerURL(server.URL())
 			config.WriteConfig(c)
-			context = c.GetActiveContext()
 		})
 
 		Describe("when successful", func() {

@@ -26,14 +26,11 @@ var _ = Describe("UpdateClient", func() {
 	  "name" : "Notifier Client"
 	}`
 
-	var ctx config.UaaContext
-
 	Describe("and a target was previously set", func() {
 		BeforeEach(func() {
 			c := config.NewConfigWithServerURL(server.URL())
 			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 			config.WriteConfig(c)
-			ctx = c.GetActiveContext()
 		})
 
 		Describe("using the --zone flag", func() {

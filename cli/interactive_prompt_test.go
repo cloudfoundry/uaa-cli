@@ -5,6 +5,7 @@ import (
 
 	"bufio"
 	"bytes"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -45,9 +46,7 @@ var _ = Describe("Interactive inputs", func() {
 
 	Describe("InteractiveSecret", func() {
 		It("gets user input with terminal.ReadPassword", func() {
-			called := false
 			ReadPassword = func(fd int) ([]byte, error) {
-				called = true
 				return []byte("somepassword"), nil
 			}
 
