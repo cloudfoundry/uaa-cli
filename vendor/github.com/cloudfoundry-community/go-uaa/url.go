@@ -3,6 +3,7 @@ package uaa
 import (
 	"fmt"
 	"net/url"
+	"path"
 	"strings"
 )
 
@@ -32,7 +33,7 @@ func BuildSubdomainURL(target string, zoneID string) (*url.URL, error) {
 }
 
 // urlWithPath copies the URL and sets the path on the copy.
-func urlWithPath(u url.URL, path string) url.URL {
-	u.Path = path
+func urlWithPath(u url.URL, p string) url.URL {
+	u.Path = path.Join(u.Path, p)
 	return u
 }

@@ -3,14 +3,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:890f8131e801673e326137e603aaf017765f3c3ba31b7a064546c5da3f576c30"
+  digest = "1:7352daf324699abd93f4a4d63d5912817aca847be5635c6e7f78a69a2d0fc248"
   name = "github.com/cloudfoundry-community/go-uaa"
   packages = [
     ".",
     "passwordcredentials",
   ]
   pruneopts = ""
-  revision = "84748f8ce29aa693ed4959ba4fb48131d313e54c"
+  revision = "d58dea9fa2c6692cd214e8cee99f01ad9441f3dc"
 
 [[projects]]
   digest = "1:c9bebdae4ac52d0c3bbe5876de3d72f3bb05b4986865cdb3f15e305e1dc4fbca"

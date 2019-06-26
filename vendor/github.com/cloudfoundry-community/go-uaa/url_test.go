@@ -7,12 +7,7 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestBuildSubdomainURL(t *testing.T) {
-	spec.Run(t, "BuildSubdomainURL", testBuildSubdomainURL, spec.Report(report.Terminal{}))
-}
 
 func testBuildSubdomainURL(t *testing.T, when spec.G, it spec.S) {
 	it.Before(func() {

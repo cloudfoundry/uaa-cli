@@ -37,7 +37,7 @@ var getClientCmd = &cobra.Command{
 		cfg := GetSavedConfig()
 		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
 		NotifyErrorsWithRetry(err, log)
-		api.SkipSSLValidation = cfg.GetActiveTarget().SkipSSLValidation
+		api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
 		NotifyErrorsWithRetry(GetClientCmd(api, args[0]), log)
 	},
 }

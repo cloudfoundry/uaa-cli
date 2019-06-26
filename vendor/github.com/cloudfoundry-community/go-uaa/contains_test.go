@@ -5,12 +5,7 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestContains(t *testing.T) {
-	spec.Run(t, "Contains", testContains, spec.Report(report.Terminal{}))
-}
 
 func testContains(t *testing.T, when spec.G, it spec.S) {
 	it.Before(func() {

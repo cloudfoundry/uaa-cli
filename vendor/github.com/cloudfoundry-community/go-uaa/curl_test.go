@@ -11,12 +11,7 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestCurl(t *testing.T) {
-	spec.Run(t, "Curl", testCurl, spec.Report(report.Terminal{}))
-}
 
 func testCurl(t *testing.T, when spec.G, it spec.S) {
 	var (

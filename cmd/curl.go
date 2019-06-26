@@ -46,7 +46,7 @@ var curlCmd = &cobra.Command{
 		NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
 		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
 		NotifyErrorsWithRetry(err, log)
-		api.SkipSSLValidation = cfg.GetActiveTarget().SkipSSLValidation
+		api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
 		err = CurlCmd(api, log, args[0], method, data, headers)
 		NotifyErrorsWithRetry(err, log)
 	},

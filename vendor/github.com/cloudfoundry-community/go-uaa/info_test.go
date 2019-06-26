@@ -11,12 +11,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestInfo(t *testing.T) {
-	spec.Run(t, "Info", testInfo, spec.Report(report.Terminal{}))
-}
 
 const InfoResponseJSON string = `{
 	"app": {

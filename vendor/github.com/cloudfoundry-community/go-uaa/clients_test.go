@@ -10,7 +10,6 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
 
 const clientResponse string = `{
@@ -47,10 +46,6 @@ var testClientValue uaa.Client = uaa.Client{
 }
 
 const testClientJSON string = `{"client_id": "00000000-0000-0000-0000-000000000001", "client_secret": "new_secret"}`
-
-func TestClientExtra(t *testing.T) {
-	spec.Run(t, "ClientExtra", testClientExtra, spec.Report(report.Terminal{}))
-}
 
 func testClientExtra(t *testing.T, when spec.G, it spec.S) {
 	it.Before(func() {

@@ -12,7 +12,6 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
 
 const userResponse string = `{
@@ -87,10 +86,6 @@ func newTrueP() *bool {
 func newFalseP() *bool {
 	b := false
 	return &b
-}
-
-func TestUsers(t *testing.T) {
-	spec.Run(t, "Users", testUsers, spec.Report(report.Terminal{}))
 }
 
 func testUsers(t *testing.T, when spec.G, it spec.S) {

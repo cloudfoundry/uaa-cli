@@ -9,12 +9,7 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestMe(t *testing.T) {
-	spec.Run(t, "Me", testMe, spec.Report(report.Terminal{}))
-}
 
 func testMe(t *testing.T, when spec.G, it spec.S) {
 	var (

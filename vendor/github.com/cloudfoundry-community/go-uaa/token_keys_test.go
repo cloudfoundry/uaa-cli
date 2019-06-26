@@ -9,12 +9,7 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestTokenKeys(t *testing.T) {
-	spec.Run(t, "TokenKey", testTokenKeys, spec.Report(report.Terminal{}))
-}
 
 func testTokenKeys(t *testing.T, when spec.G, it spec.S) {
 	var (

@@ -20,7 +20,7 @@ var _ = Describe("Userinfo", func() {
 		  "given_name": "Charlie",
 		  "family_name": "Brown",
 		  "email": "charlieb@peanuts.com",
-		  "phone_number": null,
+		  "phone_number": "",
 		  "previous_logon_time": 1503123277743,
 		  "name": "Charlie Brown"
 		}`

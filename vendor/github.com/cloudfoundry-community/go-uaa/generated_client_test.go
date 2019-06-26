@@ -12,12 +12,7 @@ import (
 	uaa "github.com/cloudfoundry-community/go-uaa"
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
-
-func TestClient(t *testing.T) {
-	spec.Run(t, "", testClient, spec.Report(report.Terminal{}))
-}
 
 func testClient(t *testing.T, when spec.G, it spec.S) {
 	var (

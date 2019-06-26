@@ -116,7 +116,7 @@ var _ = Describe("UpdateClient", func() {
 
 	Describe("when the client update fails", func() {
 		BeforeEach(func() {
-			c := config.NewConfig()
+			c := config.NewConfigWithServerURL("http://example/com")
 			c.AddContext(config.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
 			server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(

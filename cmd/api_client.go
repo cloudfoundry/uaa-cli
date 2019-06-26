@@ -7,12 +7,12 @@ import (
 )
 
 func GetAPIFromSavedTokenInContext() *uaa.API {
-	config := GetSavedConfig()
-	api, err := uaa.NewWithToken(config.GetActiveTarget().BaseUrl, config.ZoneSubdomain, config.GetActiveContext().Token)
+	cfg := GetSavedConfig()
+	api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
 	if err != nil {
 		panic(err)
 	}
-	api.SkipSSLValidation = config.GetActiveTarget().SkipSSLValidation
+	api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
 
 	return api
 }
@@ -29,11 +29,12 @@ func GetUnauthenticatedAPIFromConfig(cfg config.Config) *uaa.API {
 	}
 
 	client := &http.Client{Transport: http.DefaultTransport}
-	return &uaa.API{
+
+	api := &uaa.API{
 		UnauthenticatedClient: client,
-		SkipSSLValidation:     cfg.GetActiveTarget().SkipSSLValidation,
 		AuthenticatedClient:   nil,
 		TargetURL:             u,
 		ZoneID:                cfg.ZoneSubdomain,
 	}
+	return api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
 }

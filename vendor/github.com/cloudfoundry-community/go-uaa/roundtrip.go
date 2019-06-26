@@ -45,6 +45,7 @@ func (a *API) doJSONWithHeaders(method string, url *url.URL, headers map[string]
 func (a *API) doAndRead(req *http.Request, needsAuthentication bool) ([]byte, error) {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("X-Identity-Zone-Id", a.ZoneID)
+	req.Header.Set("User-Agent", a.UserAgent)
 	switch req.Method {
 	case http.MethodPut, http.MethodPost, http.MethodPatch:
 		req.Header.Add("Content-Type", "application/json")
@@ -61,10 +62,10 @@ func (a *API) doAndRead(req *http.Request, needsAuthentication bool) ([]byte, er
 		if a.AuthenticatedClient == nil {
 			return nil, errors.New("doAndRead: the HTTPClient cannot be nil")
 		}
-		a.ensureTransport(a.AuthenticatedClient)
+		a.ensureTransport(a.AuthenticatedClient.Transport)
 		resp, err = a.AuthenticatedClient.Do(req)
 	} else {
-		a.ensureTransport(a.UnauthenticatedClient)
+		a.ensureTransport(a.UnauthenticatedClient.Transport)
 		resp, err = a.UnauthenticatedClient.Do(req)
 	}
 
@@ -104,38 +105,44 @@ func (a *API) ensureTimeout() {
 	}
 }
 
-func (a *API) ensureTransport(c *http.Client) {
+func (a *API) ensureTransports() error {
+	if a.UnauthenticatedClient == nil {
+		return errors.New("UnauthenticatedClient is nil")
+	}
+	a.ensureTransport(a.UnauthenticatedClient.Transport)
+	if a.AuthenticatedClient == nil {
+		return errors.New("AuthenticatedClient is nil")
+	}
+	a.ensureTransport(a.AuthenticatedClient.Transport)
+	return nil
+}
+
+func (a *API) ensureTransport(c http.RoundTripper) {
 	if c == nil {
 		return
 	}
-	switch t := c.Transport.(type) {
+	switch t := c.(type) {
 	case *oauth2.Transport:
 		b, ok := t.Base.(*http.Transport)
 		if !ok {
 			return
 		}
-		if b.TLSClientConfig == nil && !a.SkipSSLValidation {
+		if b.TLSClientConfig == nil && !a.skipSSLValidation {
 			return
 		}
 		if b.TLSClientConfig == nil {
 			b.TLSClientConfig = &tls.Config{}
 		}
-		b.TLSClientConfig.InsecureSkipVerify = a.SkipSSLValidation
+		b.TLSClientConfig.InsecureSkipVerify = a.skipSSLValidation
 	case *tokenTransport:
-		if t.underlyingTransport.TLSClientConfig == nil && !a.SkipSSLValidation {
-			return
-		}
-		if t.underlyingTransport.TLSClientConfig == nil {
-			t.underlyingTransport.TLSClientConfig = &tls.Config{}
-		}
-		t.underlyingTransport.TLSClientConfig.InsecureSkipVerify = a.SkipSSLValidation
+		a.ensureTransport(t.underlyingTransport)
 	case *http.Transport:
-		if t.TLSClientConfig == nil && !a.SkipSSLValidation {
+		if t.TLSClientConfig == nil && !a.skipSSLValidation {
 			return
 		}
 		if t.TLSClientConfig == nil {
 			t.TLSClientConfig = &tls.Config{}
 		}
-		t.TLSClientConfig.InsecureSkipVerify = a.SkipSSLValidation
+		t.TLSClientConfig.InsecureSkipVerify = a.skipSSLValidation
 	}
 }

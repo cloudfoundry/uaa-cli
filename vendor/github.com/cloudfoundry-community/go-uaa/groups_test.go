@@ -11,7 +11,6 @@ import (
 
 	. "github.com/onsi/gomega"
 	"github.com/sclevine/spec"
-	"github.com/sclevine/spec/report"
 )
 
 const groupResponse string = `{
@@ -76,10 +75,6 @@ var testGroupValue uaa.Group = uaa.Group{
 }
 
 const testGroupJSON string = `{ "id" : "00000000-0000-0000-0000-000000000001", "displayName": "uaa.admin" }`
-
-func TestGroupsExtra(t *testing.T) {
-	spec.Run(t, "GroupsExtra", testGroupsExtra, spec.Report(report.Terminal{}))
-}
 
 func testGroupsExtra(t *testing.T, when spec.G, it spec.S) {
 	var (
