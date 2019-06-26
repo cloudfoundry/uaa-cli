@@ -79,7 +79,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 				  "jti" : "bc4885d950854fed9a938e96b13ca519"
 				}`, contentTypeJson),
 				VerifyRequest("POST", "/oauth/token"),
-				VerifyHeader(http.Header{"Authorization": []string{"Basic YXV0aGNvZGVJZDphdXRoY29kZXNlY3JldA=="},}),
+				VerifyHeader(http.Header{"Authorization": []string{"Basic YXV0aGNvZGVJZDphdXRoY29kZXNlY3JldA=="}}),
 				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&response_type=token&token_format=jwt`)),
 			),
 			)
@@ -95,7 +95,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 			}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 				gstruct.IgnoreExtras, gstruct.Fields{
 					"StatusCode": Equal(200),
-					"Body": Not(BeNil()),
+					"Body":       Not(BeNil()),
 				},
 			)))
 

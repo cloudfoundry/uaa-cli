@@ -5,12 +5,12 @@ import (
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gstruct"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"time"
-	"github.com/onsi/gomega/gstruct"
 )
 
 func serverUrl(port int) string {
@@ -65,7 +65,7 @@ var _ = Describe("AuthCallbackServer", func() {
 			}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 				gstruct.IgnoreExtras, gstruct.Fields{
 					"StatusCode": Equal(200),
-					"Body": Not(BeNil()),
+					"Body":       Not(BeNil()),
 				},
 			)))
 
@@ -93,7 +93,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 		Eventually(func() (*http.Response, error) {
@@ -101,7 +101,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 		Eventually(func() (*http.Response, error) {
@@ -109,7 +109,7 @@ var _ = Describe("AuthCallbackServer", func() {
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
-				"Body": Not(BeNil()),
+				"Body":       Not(BeNil()),
 			},
 		)))
 

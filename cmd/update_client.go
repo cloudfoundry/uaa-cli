@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
+	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"code.cloudfoundry.org/uaa-cli/config"
 )
 
 func UpdateClientValidations(cfg config.Config, args []string, clientSecret string) error {

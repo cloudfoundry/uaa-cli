@@ -9,7 +9,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func GetPasswordTokenValidations(cfg config.Config, args []string , username, password string) error {
+func GetPasswordTokenValidations(cfg config.Config, args []string, username, password string) error {
 	if err := EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
