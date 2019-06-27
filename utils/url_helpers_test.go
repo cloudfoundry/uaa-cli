@@ -21,5 +21,10 @@ var _ = Describe("UrlHelpers", func() {
 			url, _ = utils.BuildUrl("http://localhost:8080", "/foo")
 			Expect(url.String()).To(Equal("http://localhost:8080/foo"))
 		})
+
+		It("preserves the base path", func() {
+			url, _ := utils.BuildUrl("http://localhost:8080/uaa", "foo")
+			Expect(url.String()).To(Equal("http://localhost:8080/uaa/foo"))
+		})
 	})
 })
