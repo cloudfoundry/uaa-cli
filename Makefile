@@ -3,7 +3,7 @@
 BUILD_DEST = build/uaa
 INSTALL_DEST = $(GOPATH)/bin/uaa
 COMMIT_HASH=`git rev-parse --short HEAD`
-GOFILES_NOVENDOR=`find . -type f -name '*.go' -not -path "./vendor/*"`
+GOFILES=`find . -type f -name '*.go'`
 
 ifndef VERSION
 	VERSION = DEV
@@ -17,7 +17,7 @@ clean:
 		rm -rf build
 
 format:
-		gofmt -l -s -w ${GOFILES_NOVENDOR}
+		gofmt -l -s -w ${GOFILES}
 
 ginkgo:
 		bin/test 2>&1
@@ -27,9 +27,6 @@ test: format ginkgo
 dep:
 		go get github.com/onsi/ginkgo/ginkgo
 		go get github.com/onsi/gomega
-		go get -u github.com/golang/dep/cmd/dep
-		go install github.com/golang/dep/cmd/dep
-		dep ensure
 
 ci: ginkgo
 
