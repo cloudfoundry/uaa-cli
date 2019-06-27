@@ -11,8 +11,7 @@ Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golan
 
 ### Roadmap
 
-The immediate goal is to reach feature-parity with the uaac. Right now 
-tasks are being tracked in this [trello board](https://trello.com/b/Hw4Pz0Jd/uaa-cli).
+The immediate goal is to reach feature-parity with the uaac.
 
 ### Trying out the latest code
 
