@@ -17,3 +17,7 @@ require (
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 )
+
+// The go-uaa package depends on a newer version of oauth2
+// We need to pin it back to an older version until we fix undesirable behavior in go-uaa resulting from the upgrade
+replace golang.org/x/oauth2 => golang.org/x/oauth2 v0.0.0-20190604053449-3d292e4d0cdc
