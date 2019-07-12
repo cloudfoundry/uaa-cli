@@ -9,10 +9,6 @@ Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golan
 - To provide outputs that are machine-parseable whenever possible.
 - To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
 
-### Roadmap
-
-The immediate goal is to reach feature-parity with the uaac.
-
 ### Trying out the latest code
 
 ```
