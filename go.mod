@@ -3,7 +3,7 @@ module code.cloudfoundry.org/uaa-cli
 go 1.12
 
 require (
-	github.com/cloudfoundry-community/go-uaa v0.0.0-20190619031214-d58dea9fa2c6
+	github.com/cloudfoundry-community/go-uaa v0.2.2
 	github.com/fatih/color v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.2 // indirect
@@ -17,7 +17,3 @@ require (
 	golang.org/x/crypto v0.0.0-20190605123033-f99c8df09eb5
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 )
-
-// The go-uaa package depends on a newer version of oauth2
-// We need to pin it back to an older version until we fix undesirable behavior in go-uaa resulting from the upgrade
-replace golang.org/x/oauth2 => golang.org/x/oauth2 v0.0.0-20190604053449-3d292e4d0cdc
