@@ -1,6 +1,6 @@
 # UAA Command Line Interface
 
-Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golang. At this time it performs a limited subset of the features provided by the [uaac](https://github.com/cloudfoundry/cf-uaac) gem.
+CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golang. This is an alterntive to using uaac which is wirtten in Ruby.  At this time it performs a limited subset of the features provided by the [uaac](https://github.com/cloudfoundry/cf-uaac) gem.  The team plans to continue development on the golang CLI going forward, and once it's considered fully GA, intends to place it alongside uaac with a long-term intention of one day deprecating uaac.
 
 ### Goals
 
@@ -8,6 +8,7 @@ Experimental CLI for [UAA](https://github.com/cloudfoundry/uaa) written in golan
 - To more closely conform to the style of other widely used CLIs in the CF ecosystem, e.g. the cf CLI. Commands should be of the form VERB-NOUN, similar to `cf delete-app`.
 - To provide outputs that are machine-parseable whenever possible.
 - To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
+- To provide only the essential, highly used and/or required command options.
 
 ### Trying out the latest code
 
