@@ -104,6 +104,7 @@ var createClientCmd = &cobra.Command{
 		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
 		NotifyErrorsWithRetry(err, log)
 		api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
+		api.Verbose = verbose
 
 		err = CreateClientCmd(
 			api,

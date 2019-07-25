@@ -83,6 +83,24 @@ var _ = Describe("CreateClient", func() {
 				Eventually(session).Should(Say(`"client_credentials"`))
 				Eventually(session).Should(Exit(0))
 			})
+
+			It("with --verbose", func() {
+				server.RouteToHandler("POST", "/oauth/clients",
+					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
+				)
+
+				session := runCommand("create-client",
+					"notifier",
+					"--client_secret", "secret",
+					"--authorized_grant_types", "client_credentials",
+					"--authorities", "notifications.write,notifications.read",
+					"--verbose",
+				)
+
+				Eventually(session).Should(Say("POST /oauth/clients HTTP/1.1"))
+				Eventually(session).Should(Say("HTTP/1.1 200 OK"))
+				Eventually(session).Should(Exit(0))
+			})
 		})
 
 		Describe("using the --zone flag", func() {
