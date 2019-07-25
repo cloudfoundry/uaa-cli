@@ -35,6 +35,7 @@ func GetUnauthenticatedAPIFromConfig(cfg config.Config) *uaa.API {
 		AuthenticatedClient:   nil,
 		TargetURL:             u,
 		ZoneID:                cfg.ZoneSubdomain,
+		Verbose:               verbose,
 	}
 	return api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
 }
