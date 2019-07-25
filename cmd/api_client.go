@@ -13,6 +13,7 @@ func GetAPIFromSavedTokenInContext() *uaa.API {
 		panic(err)
 	}
 	api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
+	api.Verbose = verbose
 
 	return api
 }

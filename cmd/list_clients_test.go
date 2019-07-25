@@ -53,30 +53,48 @@ var _ = Describe("ListClients", func() {
 			config.WriteConfig(c)
 		})
 
-		It("shows the client configuration response", func() {
-			server.RouteToHandler("GET", "/oauth/clients",
-				CombineHandlers(
-					RespondWith(http.StatusOK, ClientsListResponseJsonPage1, contentTypeJson),
-					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
-				),
-			)
+		Context("when the request to /oauth/clients succeeds", func() {
+			BeforeEach(func() {
+				server.RouteToHandler("GET", "/oauth/clients",
+					CombineHandlers(
+						RespondWith(http.StatusOK, ClientsListResponseJsonPage1, contentTypeJson),
+						VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
+					),
+				)
+			})
 
-			session := runCommand("list-clients")
+			It("shows the client configuration response", func() {
+				session := runCommand("list-clients")
 
-			outputBytes := session.Out.Contents()
-			Expect(outputBytes).To(MatchJSON(`[{ "client_id" : "client1" }, { "client_id" : "client2" }]`))
-			Eventually(session).Should(Exit(0))
+				outputBytes := session.Out.Contents()
+				Expect(outputBytes).To(MatchJSON(`[{ "client_id" : "client1" }, { "client_id" : "client2" }]`))
+				Eventually(session).Should(Exit(0))
+			})
+
+			It("shows verbose output when passed --verbose", func() {
+				session := runCommand("list-clients", "--verbose")
+
+				Eventually(session).Should(Exit(0))
+				Expect(session.Out).To(Say("GET " + "/oauth/clients"))
+				Expect(session.Out).To(Say("Accept: application/json"))
+				Expect(session.Out).To(Say("200 OK"))
+			})
+
 		})
 
-		It("handles request errors", func() {
-			server.RouteToHandler("GET", "/oauth/clients",
-				RespondWith(http.StatusNotFound, ""),
-			)
+		Context("when the request to /oauth/clients fails", func() {
+			BeforeEach(func() {
+				server.RouteToHandler("GET", "/oauth/clients",
+					RespondWith(http.StatusNotFound, ""),
+				)
+			})
 
-			session := runCommand("list-clients")
+			It("handles request errors", func() {
+				session := runCommand("list-clients")
 
-			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients"))
-			Eventually(session).Should(Exit(1))
+				Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients"))
+				Eventually(session).Should(Exit(1))
+			})
 		})
 	})
 
