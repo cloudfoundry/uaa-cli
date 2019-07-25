@@ -82,11 +82,9 @@ var createUserCmd = &cobra.Command{
 		NotifyValidationErrors(CreateUserValidation(GetSavedConfig(), args, familyName, givenName, emails), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
-		NotifyErrorsWithRetry(err, log)
-		api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
-		err = CreateUserCmd(api, cli.NewJsonPrinter(log), args[0], familyName, givenName, userPassword, origin, emails, phoneNumbers)
+		api := NewApiFromSavedConfig()
+
+		err := CreateUserCmd(api, cli.NewJsonPrinter(log), args[0], familyName, givenName, userPassword, origin, emails, phoneNumbers)
 		NotifyErrorsWithRetry(err, log)
 	},
 }

@@ -41,11 +41,9 @@ var createGroupCmd = &cobra.Command{
 		NotifyValidationErrors(CreateGroupValidation(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := GetSavedConfig()
-		api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
-		NotifyErrorsWithRetry(err, log)
-		api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
-		err = CreateGroupCmd(api, cli.NewJsonPrinter(log), args[0], groupDescription)
+		api := NewApiFromSavedConfig()
+
+		err := CreateGroupCmd(api, cli.NewJsonPrinter(log), args[0], groupDescription)
 		NotifyErrorsWithRetry(err, log)
 	},
 }

@@ -8,6 +8,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/version"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
 
@@ -150,4 +151,13 @@ func GetSavedConfig() config.Config {
 	cfgFile.Verbose = verbose
 	cfgFile.ZoneSubdomain = zoneSubdomain
 	return cfgFile
+}
+
+func NewApiFromSavedConfig() *uaa.API {
+	cfg := GetSavedConfig()
+	api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+	NotifyErrorsWithRetry(err, log)
+	api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
+	api.Verbose = verbose
+	return api
 }
