@@ -15,7 +15,6 @@ import (
 
 var _ = Describe("ActivateUser", func() {
 	BeforeEach(func() {
-
 		c := config.NewConfigWithServerURL(server.URL())
 		ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 		c.AddContext(ctx)
