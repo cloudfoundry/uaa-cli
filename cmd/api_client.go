@@ -18,8 +18,8 @@ func GetAPIFromSavedTokenInContext() *uaa.API {
 }
 
 func GetUnauthenticatedAPI() *uaa.API {
-	config := GetSavedConfig()
-	return GetUnauthenticatedAPIFromConfig(config)
+	cfg := GetSavedConfig()
+	return GetUnauthenticatedAPIFromConfig(cfg)
 }
 
 func GetUnauthenticatedAPIFromConfig(cfg config.Config) *uaa.API {
