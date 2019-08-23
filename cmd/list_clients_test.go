@@ -92,7 +92,7 @@ var _ = Describe("ListClients", func() {
 			It("handles request errors", func() {
 				session := runCommand("list-clients")
 
-				Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients"))
+				Expect(session.Err).To(Say("An error occurred while calling " + server.URL() + "/oauth/clients"))
 				Eventually(session).Should(Exit(1))
 			})
 		})

@@ -5,6 +5,7 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"errors"
 	"fmt"
+	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -47,7 +48,13 @@ func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
 
 func NotifyErrorsWithRetry(err error, log cli.Logger) {
 	if err != nil {
-		log.Error(err.Error())
+		switch t := err.(type) {
+		case uaa.RequestError:
+			log.Error(err.Error())
+			cli.NewJsonPrinter(log).PrintError(t.ErrorResponse)
+		default:
+			log.Error(err.Error())
+		}
 		VerboseRetryMsg(GetSavedConfig())
 		os.Exit(1)
 	}

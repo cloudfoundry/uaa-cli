@@ -76,7 +76,7 @@ var _ = Describe("GetClient", func() {
 
 			session := runCommand("get-client", "clientid")
 
-			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/oauth/clients/clientid"))
+			Expect(session.Err).To(Say("An error occurred while calling " + server.URL() + "/oauth/clients/clientid"))
 			Eventually(session).Should(Exit(1))
 		})
 	})

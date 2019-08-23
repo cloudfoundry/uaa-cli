@@ -3,7 +3,7 @@ module code.cloudfoundry.org/uaa-cli
 go 1.12
 
 require (
-	github.com/cloudfoundry-community/go-uaa v0.2.4
+	github.com/cloudfoundry-community/go-uaa v0.2.5
 	github.com/fatih/color v1.7.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.2 // indirect

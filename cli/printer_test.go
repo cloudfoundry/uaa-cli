@@ -1,33 +1,53 @@
 package cli_test
 
 import (
+	"bytes"
 	. "code.cloudfoundry.org/uaa-cli/cli"
-
+	"encoding/json"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
-	"io/ioutil"
 )
 
 var _ = Describe("JsonPrinter", func() {
-	It("prints things to the Robots log", func() {
-		logBuf := NewBuffer()
-		printer := NewJsonPrinter(NewLogger(ioutil.Discard, logBuf, ioutil.Discard, ioutil.Discard))
+	var infoLogBuf, robotLogBuf, warnLogBuf, errorLogBuf *Buffer
+	var printer JsonPrinter
 
-		printer.Print(struct {
-			Foo string
-			Bar string
-		}{"foo", "bar"})
+	BeforeEach(func() {
+		infoLogBuf, robotLogBuf, warnLogBuf, errorLogBuf = NewBuffer(), NewBuffer(), NewBuffer(), NewBuffer()
+		printer = NewJsonPrinter(NewLogger(infoLogBuf, robotLogBuf, warnLogBuf, errorLogBuf))
+	})
+	Describe("Print", func() {
+		It("prints things to the Robots log", func() {
+			printer.Print(struct {
+				Foo string
+				Bar string
+			}{"foo", "bar"})
 
-		Expect(logBuf.Contents()).To(MatchJSON(`{"Foo":"foo","Bar":"bar"}`))
+			Expect(robotLogBuf.Contents()).To(MatchJSON(`{"Foo":"foo","Bar":"bar"}`))
+		})
+
+		It("returns error when cannot marhsal into json", func() {
+			unJsonifiableObj := make(chan bool)
+			err := printer.Print(unJsonifiableObj)
+
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
-	It("returns error when cannot marhsal into json", func() {
-		printer := NewJsonPrinter(NewLogger(ioutil.Discard, ioutil.Discard, ioutil.Discard, ioutil.Discard))
+	Describe("PrintError", func () {
+		It("prints a json buffer to Error log", func() {
+			jsonData := struct {
+				Foo string
+				Bar string
+			}{"foo", "bar"}
+			jsonRaw, _ := json.Marshal(jsonData)
+			var out bytes.Buffer
+			_ = json.Indent(&out, jsonRaw, "", "  ")
 
-		unJsonifiableObj := make(chan bool)
-		err := printer.Print(unJsonifiableObj)
+			printer.PrintError(jsonRaw)
 
-		Expect(err).To(HaveOccurred())
+			Expect(string(errorLogBuf.Contents())).To(ContainSubstring(out.String()))
+		})
 	})
 })

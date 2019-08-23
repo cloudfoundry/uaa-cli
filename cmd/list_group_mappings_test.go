@@ -18,29 +18,48 @@ var _ = Describe("ListGroupMappings", func() {
 		err := config.WriteConfig(cfg)
 		Expect(err).NotTo(HaveOccurred())
 	})
+	Describe("By default", func() {
 
-	It("requests group mappings from the backend with default parameters", func() {
-		server.RouteToHandler("GET", "/Groups/External", CombineHandlers(
-			VerifyRequest("GET", "/Groups/External", "startIndex=1&count=100"),
-			RespondWith(http.StatusOK, ExternalGroupsApiResponse, contentTypeJson),
-		))
+		It("requests group mappings from the backend with default parameters", func() {
+			server.RouteToHandler("GET", "/Groups/External", CombineHandlers(
+				VerifyRequest("GET", "/Groups/External", "startIndex=1&count=100"),
+				RespondWith(http.StatusOK, ExternalGroupsApiResponse, contentTypeJson),
+			))
 
-		session := runCommand("list-group-mappings")
+			session := runCommand("list-group-mappings")
 
-		Eventually(session).Should(Exit(0))
+			Eventually(session).Should(Exit(0))
 
-		// We can't verify that the right JSON was output
-		// There seems to be a gap in the tooling.
-		// We can test a regex against a buffer
-		// We can test JSON against a string
-		// But we can't test JSON against a buffer
-		Eventually(session.Out).Should(gbytes.Say("organizations.acme"))
+			// We can't verify that the right JSON was output
+			// There seems to be a gap in the tooling.
+			// We can test a regex against a buffer
+			// We can test JSON against a string
+			// But we can't test JSON against a buffer
+			Eventually(session.Out).Should(gbytes.Say("organizations.acme"))
+		})
+
+		It("prints a useful description in the help menu", func() {
+			session := runCommand("list-group-mappings", "-h")
+
+			Eventually(session).Should(Exit(0))
+			Eventually(session.Out).Should(gbytes.Say("List all the mappings between uaa scopes and external groups"))
+		})
 	})
+	Describe("When the context has insufficient scope", func() {
+		It("returns an error", func() {
+			server.RouteToHandler("GET", "/Groups/External", CombineHandlers(
+				VerifyRequest("GET", "/Groups/External", "startIndex=1&count=100"),
+				RespondWith(http.StatusForbidden, ExternalGroupsApiResponseInsufficientScope, contentTypeJson),
+			))
 
-	It("prints a useful description in the help menu", func() {
-		session := runCommand("list-group-mappings", "-h")
+			session := runCommand("list-group-mappings")
 
-		Eventually(session).Should(Exit(0))
-		Eventually(session.Out).Should(gbytes.Say("List all the mappings between uaa scopes and external groups"))
+			Eventually(session).Should(Exit(1))
+			Eventually(session.Err).Should(gbytes.Say(`An error occurred while calling http://127.0.0.1:(\d+)/Groups/External\?count=100&startIndex=1`))
+			Eventually(session.Err).Should(gbytes.Say(`"error": "insufficient_scope"`))
+			Eventually(session.Err).Should(gbytes.Say(`"error_description": "Insufficient scope for this resource"`))
+			Eventually(session.Err).Should(gbytes.Say(`"scope": "uaa.admin scim.read zones.uaa.admin"`))
+			Eventually(session.Out).Should(gbytes.Say("Retry with --verbose for more information."))
+		})
 	})
 })

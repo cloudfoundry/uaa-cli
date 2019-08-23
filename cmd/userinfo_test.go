@@ -54,7 +54,7 @@ var _ = Describe("Userinfo", func() {
 			session := runCommand("userinfo")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/userinfo"))
+			Expect(session.Err).To(Say("An error occurred while calling " + server.URL() + "/userinfo"))
 		})
 	})
 

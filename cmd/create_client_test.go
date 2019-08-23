@@ -231,7 +231,7 @@ var _ = Describe("CreateClient", func() {
 					"--clone", "shiny",
 					"--client_secret", "secretsecret")
 
-				Expect(session.Err).To(Say("An unknown error occurred while calling"))
+				Expect(session.Err).To(Say("An error occurred while calling"))
 				Expect(session).Should(Exit(1))
 			})
 
@@ -313,7 +313,7 @@ var _ = Describe("CreateClient", func() {
 				"--authorities", "notifications.write,notifications.read",
 			)
 
-			Eventually(session.Err).Should(Say("An unknown error occurred while calling"))
+			Eventually(session.Err).Should(Say("An error occurred while calling"))
 			Eventually(session).Should(Exit(1))
 		})
 	})

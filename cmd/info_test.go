@@ -38,7 +38,7 @@ var _ = Describe("Info", func() {
 			session := runCommand("info")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say("An unknown error occurred while calling " + server.URL() + "/info"))
+			Expect(session.Err).To(Say("An error occurred while calling " + server.URL() + "/info"))
 		})
 
 		Context("with --verbose", func() {

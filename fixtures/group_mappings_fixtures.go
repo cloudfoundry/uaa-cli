@@ -16,3 +16,9 @@ const ExternalGroupsApiResponse = `{
     "urn:scim:schemas:core:1.0"
   ]
 }`
+
+const ExternalGroupsApiResponseInsufficientScope = `{
+ "error": "insufficient_scope",
+ "error_description": "Insufficient scope for this resource",
+ "scope": "uaa.admin scim.read zones.uaa.admin"
+}`
