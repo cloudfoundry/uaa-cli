@@ -1,6 +1,8 @@
 package cmd_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 
 	"code.cloudfoundry.org/uaa-cli/config"
@@ -105,23 +107,49 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			c := config.NewConfigWithServerURL(server.URL())
 			c.AddContext(config.NewContextWithToken("old-token"))
 			config.WriteConfig(c)
-			server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
-				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
-				VerifyFormKV("grant_type", "client_credentials"),
-			),
-			)
 		})
 
-		It("displays help to the user", func() {
-			session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
-			Eventually(session).Should(Exit(1))
-			Eventually(session.Err).Should(Say("An error occurred while fetching token."))
+		Describe("when there is a 4** or 5** error ", func() {
+			BeforeEach(func() {
+				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+					RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
+					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
+					VerifyFormKV("grant_type", "client_credentials"),
+				))
+			})
+
+			It("displays help to the user", func() {
+				session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
+				Eventually(session).Should(Exit(1))
+				Eventually(session.Err).Should(Say(`An error occurred while calling ` + server.URL() + `/oauth/token`))
+				var out bytes.Buffer
+				_ = json.Indent(&out, []byte(`{"error":"unauthorized","error_description":"Bad credentials"}`), "", "  ")
+				Eventually(session.Err).Should(Say(string(out.Bytes())))
+			})
+
+			It("does not update the previously saved context", func() {
+				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
+				Expect(config.ReadConfig().GetActiveContext().Token.AccessToken).To(Equal("old-token"))
+			})
 		})
 
-		It("does not update the previously saved context", func() {
-			runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
-			Expect(config.ReadConfig().GetActiveContext().Token.AccessToken).To(Equal("old-token"))
+		Describe("when there is a 3** error", func() {
+			BeforeEach(func() {
+				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+					RespondWith(http.StatusMovedPermanently, ""),
+				))
+			})
+
+			It("displays help to the user", func() {
+				session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
+				Eventually(session).Should(Exit(1))
+				Eventually(session.Err).Should(Say("An error occurred while fetching token."))
+			})
+
+			It("does not update the previously saved context", func() {
+				runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
+				Expect(config.ReadConfig().GetActiveContext().Token.AccessToken).To(Equal("old-token"))
+			})
 		})
 	})
 

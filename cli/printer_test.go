@@ -35,7 +35,7 @@ var _ = Describe("JsonPrinter", func() {
 		})
 	})
 
-	Describe("PrintError", func () {
+	Describe("PrintError", func() {
 		It("prints a json buffer to Error log", func() {
 			jsonData := struct {
 				Foo string
