@@ -49,7 +49,7 @@ func NotifyErrorsWithRetry(err error, log Logger, c config.Config) {
 	if err != nil {
 		switch t := err.(type) {
 		case uaa.RequestError:
-			log.Error(err.Error())
+			log.Error(t.Error())
 			NewJsonPrinter(log).PrintError(t.ErrorResponse)
 		default:
 			log.Error(err.Error())

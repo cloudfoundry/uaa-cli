@@ -75,12 +75,7 @@ func (aci AuthcodeClientImpersonator) Start() {
 		tokenFormat := uaa.JSONWebToken //TODO: Use aci tokenformat to convert from string to int
 
 		redirectUrl, err := url.ParseRequestURI(aci.redirectUri())
-		if err != nil { //todo test this
-			aci.Log.Error(err.Error())
-			aci.Log.Info("Retry with --verbose for more information.")
-			os.Exit(1)
-			return
-		}
+		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 
 		api, err := uaa.NewWithAuthorizationCode(
 			aci.config.GetActiveTarget().BaseUrl,
@@ -92,22 +87,11 @@ func (aci AuthcodeClientImpersonator) Start() {
 			aci.config.GetActiveTarget().SkipSSLValidation,
 			redirectUrl,
 		)
-		if err != nil {
-			aci.Log.Error(err.Error())
-			aci.Log.Info("Retry with --verbose for more information.")
-			os.Exit(1)
-			return
-		}
+		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 
 		oauth2Transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
 		token, err := oauth2Transport.Source.Token()
-
-		if err != nil {
-			aci.Log.Error(err.Error())
-			aci.Log.Info("Retry with --verbose for more information.")
-			os.Exit(1)
-			return
-		}
+		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 
 		aci.Done() <- *token
 	}()
