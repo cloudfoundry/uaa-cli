@@ -110,7 +110,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 			err := AuthcodeTokenArgumentValidation(config.NewConfig(), []string{"clientid"}, "secret", "jwt", 8001)
 
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(MISSING_TARGET))
+			Expect(err.Error()).To(ContainSubstring(cli.MISSING_TARGET))
 		})
 	})
 })

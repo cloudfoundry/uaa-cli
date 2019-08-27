@@ -1,7 +1,6 @@
-package cmd
+package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"errors"
 	"fmt"
@@ -38,7 +37,7 @@ func EnsureContextInConfig(cfg config.Config) error {
 	return nil
 }
 
-func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
+func NotifyValidationErrors(err error, cmd *cobra.Command, log Logger) {
 	if err != nil {
 		log.Error(err.Error())
 		cmd.Usage()
@@ -46,21 +45,21 @@ func NotifyValidationErrors(err error, cmd *cobra.Command, log cli.Logger) {
 	}
 }
 
-func NotifyErrorsWithRetry(err error, log cli.Logger) {
+func NotifyErrorsWithRetry(err error, log Logger, c config.Config) {
 	if err != nil {
 		switch t := err.(type) {
 		case uaa.RequestError:
 			log.Error(err.Error())
-			cli.NewJsonPrinter(log).PrintError(t.ErrorResponse)
+			NewJsonPrinter(log).PrintError(t.ErrorResponse)
 		default:
 			log.Error(err.Error())
 		}
-		VerboseRetryMsg(GetSavedConfig())
+		verboseRetryMsg(log, c)
 		os.Exit(1)
 	}
 }
 
-func VerboseRetryMsg(c config.Config) {
+func verboseRetryMsg(log Logger, c config.Config) {
 	if !c.Verbose {
 		log.Info("Retry with --verbose for more information.")
 	}

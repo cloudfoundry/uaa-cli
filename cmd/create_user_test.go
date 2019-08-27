@@ -1,7 +1,7 @@
 package cmd_test
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cmd"
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
 	. "github.com/onsi/ginkgo"
@@ -26,7 +26,7 @@ var _ = Describe("CreateUser", func() {
 			session := runCommand("create-user")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say(cmd.MISSING_TARGET))
+			Expect(session.Err).To(Say(cli.MISSING_TARGET))
 		})
 
 		It("requires a token in context", func() {
@@ -35,7 +35,7 @@ var _ = Describe("CreateUser", func() {
 			session := runCommand("create-user")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say(cmd.MISSING_CONTEXT))
+			Expect(session.Err).To(Say(cli.MISSING_CONTEXT))
 		})
 
 		It("requires a username", func() {

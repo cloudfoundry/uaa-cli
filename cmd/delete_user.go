@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
@@ -24,7 +25,7 @@ func DeleteUserCmd(api *uaa.API, username, origin, attributes string) error {
 }
 
 func DeleteUserValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 
@@ -39,11 +40,11 @@ var deleteUserCmd = &cobra.Command{
 	Short: "Delete a user by username",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		err := DeleteUserValidations(GetSavedConfig(), args)
-		NotifyValidationErrors(err, cmd, log)
+		cli.NotifyValidationErrors(err, cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := DeleteUserCmd(GetAPIFromSavedTokenInContext(), args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

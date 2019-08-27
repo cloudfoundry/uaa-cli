@@ -9,7 +9,7 @@ import (
 )
 
 func UserinfoValidations(cfg config.Config) error {
-	return EnsureContextInConfig(cfg)
+	return cli.EnsureContextInConfig(cfg)
 }
 
 func UserinfoCmd(api *uaa.API) error {
@@ -27,11 +27,11 @@ var userinfoCmd = cobra.Command{
 	Aliases: []string{"me"},
 	Long:    help.Userinfo(),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(UserinfoValidations(GetSavedConfig()), cmd, log)
+		cli.NotifyValidationErrors(UserinfoValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := UserinfoCmd(GetAPIFromSavedTokenInContext())
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

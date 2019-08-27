@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"errors"
@@ -26,7 +27,7 @@ func DeactivateUserCmd(api *uaa.API, username, origin, attributes string) error 
 }
 
 func DeactivateUserValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 
@@ -40,7 +41,7 @@ var deactivateUserCmd = &cobra.Command{
 	Use:   "deactivate-user USERNAME",
 	Short: "Deactivate a user by username",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(DeactivateUserValidations(GetSavedConfig(), args), cmd, log)
+		cli.NotifyValidationErrors(DeactivateUserValidations(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
@@ -50,7 +51,7 @@ var deactivateUserCmd = &cobra.Command{
 		}
 		api := NewApiFromSavedConfig()
 		err := DeactivateUserCmd(api, args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

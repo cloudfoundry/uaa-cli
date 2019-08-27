@@ -1,6 +1,7 @@
 package cmd_test
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/cmd"
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
@@ -122,7 +123,7 @@ var _ = Describe("DeleteClient", func() {
 			err := cmd.DeleteClientValidations(cfg, []string{"clientid"})
 
 			Expect(err).To(HaveOccurred())
-			Expect(err.Error()).To(ContainSubstring(cmd.MISSING_CONTEXT))
+			Expect(err.Error()).To(ContainSubstring(cli.MISSING_CONTEXT))
 		})
 	})
 })

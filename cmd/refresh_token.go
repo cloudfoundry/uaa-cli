@@ -41,11 +41,11 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 }
 
 func RefreshTokenValidations(cfg config.Config, clientSecret string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if clientSecret == "" {
-		return MissingArgumentError("client_secret")
+		return cli.MissingArgumentError("client_secret")
 	}
 	if cfg.GetActiveContext().ClientId == "" {
 		return errors.New("A client_id was not found in the active context.")
@@ -63,11 +63,11 @@ var refreshTokenCmd = &cobra.Command{
 	Long:  help.RefreshToken(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(RefreshTokenValidations(cfg, clientSecret), cmd, log)
+		cli.NotifyValidationErrors(RefreshTokenValidations(cfg, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(RefreshTokenCmd(cfg, log, tokenFormat), log)
+		cli.NotifyErrorsWithRetry(RefreshTokenCmd(cfg, log, tokenFormat), log, GetSavedConfig())
 	},
 }
 

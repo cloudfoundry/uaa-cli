@@ -22,11 +22,11 @@ func arrayify(commaSeparatedStr string) []string {
 }
 
 func CreateClientPreRunValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	return nil
 }
@@ -96,7 +96,7 @@ var createClientCmd = &cobra.Command{
 	Long:  help.CreateClient(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(CreateClientPreRunValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(CreateClientPreRunValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api := NewApiFromSavedConfig()
@@ -112,7 +112,7 @@ var createClientCmd = &cobra.Command{
 			scope,
 			accessTokenValidity,
 			refreshTokenValidity)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

@@ -20,10 +20,10 @@ var infoCmd = &cobra.Command{
 	Short: "See version and global configurations for the targeted UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(EnsureTargetInConfig(cfg), cmd, log)
+		cli.NotifyValidationErrors(cli.EnsureTargetInConfig(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(InfoCmd(GetUnauthenticatedAPI()), log)
+		cli.NotifyErrorsWithRetry(InfoCmd(GetUnauthenticatedAPI()), log, GetSavedConfig())
 	},
 }
 

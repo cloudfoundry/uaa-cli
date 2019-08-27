@@ -9,7 +9,7 @@ import (
 )
 
 func ListUserValidations(cfg config.Config) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
@@ -29,11 +29,11 @@ var listUsersCmd = &cobra.Command{
 	Short:   "Search and list users with SCIM filters",
 	Long:    help.ListUsers(),
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(ListUserValidations(GetSavedConfig()), cmd, log)
+		cli.NotifyValidationErrors(ListUserValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := ListUsersCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

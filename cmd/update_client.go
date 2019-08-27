@@ -11,11 +11,11 @@ import (
 )
 
 func UpdateClientValidations(cfg config.Config, args []string, clientSecret string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if clientSecret != "" {
 		return errors.New(`Client not updated. Please see "uaa set-client-secret -h" to learn more about changing client secrets.`)
@@ -49,10 +49,10 @@ var updateClientCmd = &cobra.Command{
 	Use:   "update-client CLIENT_ID",
 	Short: "Update an OAuth client registration in the UAA",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(UpdateClientValidations(GetSavedConfig(), args, clientSecret), cmd, log)
+		cli.NotifyValidationErrors(UpdateClientValidations(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(UpdateClientCmd(GetAPIFromSavedTokenInContext(), args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope, accessTokenValidity, refreshTokenValidity), log)
+		cli.NotifyErrorsWithRetry(UpdateClientCmd(GetAPIFromSavedTokenInContext(), args[0], displayName, authorizedGrantTypes, authorities, redirectUri, scope, accessTokenValidity, refreshTokenValidity), log, GetSavedConfig())
 	},
 }
 

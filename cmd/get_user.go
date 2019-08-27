@@ -18,7 +18,7 @@ func GetUserCmd(api *uaa.API, printer cli.Printer, username, origin, attributes 
 }
 
 func GetUserValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 
@@ -32,11 +32,11 @@ var getUserCmd = &cobra.Command{
 	Use:   "get-user USERNAME",
 	Short: "Look up a user by username",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(GetUserValidations(GetSavedConfig(), args), cmd, log)
+		cli.NotifyValidationErrors(GetUserValidations(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := GetUserCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

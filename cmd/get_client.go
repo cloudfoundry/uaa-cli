@@ -17,11 +17,11 @@ func GetClientCmd(api *uaa.API, clientId string) error {
 }
 
 func GetClientValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	return nil
 }
@@ -31,11 +31,11 @@ var getClientCmd = &cobra.Command{
 	Short: "View client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetClientValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(GetClientValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api := NewApiFromSavedConfig()
-		NotifyErrorsWithRetry(GetClientCmd(api, args[0]), log)
+		cli.NotifyErrorsWithRetry(GetClientCmd(api, args[0]), log, GetSavedConfig())
 	},
 }
 

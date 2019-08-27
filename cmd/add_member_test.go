@@ -1,8 +1,7 @@
 package cmd_test
 
 import (
-	. "code.cloudfoundry.org/uaa-cli/cmd"
-
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
 	"github.com/cloudfoundry-community/go-uaa"
@@ -58,7 +57,7 @@ var _ = Describe("AddMember", func() {
 			session := runCommand("add-member", "uaa.admin", "woodstock")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say(MISSING_TARGET))
+			Expect(session.Err).To(Say(cli.MISSING_TARGET))
 		})
 	})
 
@@ -72,7 +71,7 @@ var _ = Describe("AddMember", func() {
 			session := runCommand("add-member", "uaa.admin", "woodstock")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say(MISSING_CONTEXT))
+			Expect(session.Err).To(Say(cli.MISSING_CONTEXT))
 		})
 	})
 

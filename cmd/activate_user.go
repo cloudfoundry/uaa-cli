@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"errors"
 
 	"code.cloudfoundry.org/uaa-cli/config"
@@ -27,7 +28,7 @@ func ActivateUserCmd(api *uaa.API, username, origin, attributes string) error {
 }
 
 func ActivateUserValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 
@@ -42,11 +43,11 @@ var activateUserCmd = &cobra.Command{
 	Short: "Activate a user by username",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		err := ActivateUserValidations(GetSavedConfig(), args)
-		NotifyValidationErrors(err, cmd, log)
+		cli.NotifyValidationErrors(err, cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := ActivateUserCmd(GetAPIFromSavedTokenInContext(), args[0], origin, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

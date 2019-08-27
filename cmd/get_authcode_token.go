@@ -19,17 +19,17 @@ func addAuthcodeTokenToContext(clientId string, token oauth2.Token, log *cli.Log
 }
 
 func AuthcodeTokenArgumentValidation(cfg config.Config, args []string, clientSecret string, tokenFormat string, port int) error {
-	if err := EnsureTargetInConfig(cfg); err != nil {
+	if err := cli.EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if port == 0 {
-		return MissingArgumentWithExplanationError("port", `The port number must correspond to a localhost redirect_uri specified in the client configuration.`)
+		return cli.MissingArgumentWithExplanationError("port", `The port number must correspond to a localhost redirect_uri specified in the client configuration.`)
 	}
 	if clientSecret == "" {
-		return MissingArgumentError("client_secret")
+		return cli.MissingArgumentError("client_secret")
 	}
 	return validateTokenFormatError(tokenFormat)
 }
@@ -47,12 +47,13 @@ var getAuthcodeToken = &cobra.Command{
 	Short: "Obtain an access token using the authorization_code grant type",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(AuthcodeTokenArgumentValidation(cfg, args, clientSecret, tokenFormat, port), cmd, log)
+		cli.NotifyValidationErrors(AuthcodeTokenArgumentValidation(cfg, args, clientSecret, tokenFormat, port), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)
-		authcodeImp := cli.NewAuthcodeClientImpersonator(GetSavedConfig(), args[0], clientSecret, tokenFormat, scope, port, log, open.Run)
-		go AuthcodeTokenCommandRun(done, args[0], authcodeImp, GetLogger())
+		clientId := args[0]
+		authcodeImp := cli.NewAuthcodeClientImpersonator(GetSavedConfig(), clientId, clientSecret, tokenFormat, scope, port, log, open.Run)
+		go AuthcodeTokenCommandRun(done, clientId, authcodeImp, GetLogger())
 		<-done
 	},
 }

@@ -12,11 +12,11 @@ import (
 )
 
 func GetCurlValidations(cfg config.Config, args []string) error {
-	if err := EnsureTargetInConfig(cfg); err != nil {
+	if err := cli.EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("path")
+		return cli.MissingArgumentError("path")
 	}
 	return nil
 }
@@ -43,12 +43,12 @@ var curlCmd = &cobra.Command{
 	Short: "CURL to a UAA endpoint",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(GetCurlValidations(cfg, args), cmd, log)
 
 		api := NewApiFromSavedConfig()
 
 		err := CurlCmd(api, log, args[0], method, data, headers)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 
