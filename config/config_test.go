@@ -6,6 +6,8 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
+	"os"
 )
 
 var _ = Describe("Config", func() {
@@ -52,7 +54,41 @@ var _ = Describe("Config", func() {
 		Expect(cfg2.GetActiveContext().Token.AccessToken).To(Equal("foo-token"))
 	})
 
-	It("places the config file in .uaa in the home directory", func() {
-		Expect(config.ConfigPath()).To(HaveSuffix(`/.uaa/config.json`))
+	Context("when UAA_HOME env var is not set", func() {
+		It("places the config file in .uaa in the home directory", func() {
+			homeDir := os.Getenv("HOME")
+			Expect(config.ConfigPath()).To(HavePrefix(homeDir))
+			Expect(config.ConfigPath()).To(HaveSuffix(`/.uaa/config.json`))
+		})
+	})
+
+	Context("when UAA_HOME env var is set", func() {
+		var uaaHome string
+
+		BeforeEach(func() {
+			var err error
+			uaaHome, err = ioutil.TempDir(os.TempDir(), "uaa-home")
+			Expect(err).ToNot(HaveOccurred())
+
+			err = os.Setenv("UAA_HOME", uaaHome)
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		AfterEach(func() {
+			if uaaHome != "" {
+				if _, err := os.Stat(uaaHome); !os.IsNotExist(err) {
+					err := os.RemoveAll(uaaHome)
+					Expect(err).NotTo(HaveOccurred())
+				}
+			}
+
+			err := os.Unsetenv("UAA_HOME")
+			Expect(err).ToNot(HaveOccurred())
+		})
+
+		It("places the config file in the directory pointed to by UAA_HOME", func() {
+			Expect(config.ConfigPath()).To(HavePrefix(uaaHome))
+			Expect(config.ConfigPath()).To(HaveSuffix(`config.json`))
+		})
 	})
 })
