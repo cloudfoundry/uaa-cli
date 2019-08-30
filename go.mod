@@ -18,4 +18,4 @@ require (
 	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 )
 
-//replace github.com/cloudfoundry-community/go-uaa => /Users/pivotal/go/src/github.com/cloudfoundry-community/go-uaa
+replace github.com/cloudfoundry-community/go-uaa => /Users/pivotal/go/src/github.com/cloudfoundry-community/go-uaa
