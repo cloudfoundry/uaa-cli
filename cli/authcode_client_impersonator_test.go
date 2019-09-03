@@ -80,7 +80,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 				}`, contentTypeJson),
 				VerifyRequest("POST", "/oauth/token"),
 				VerifyHeader(http.Header{"Authorization": []string{"Basic YXV0aGNvZGVJZDphdXRoY29kZXNlY3JldA=="}}),
-				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&response_type=token&token_format=jwt`)),
+				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&token_format=jwt`)),
 			),
 			)
 
