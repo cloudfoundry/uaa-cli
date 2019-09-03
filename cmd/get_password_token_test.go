@@ -1,6 +1,9 @@
 package cmd_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"code.cloudfoundry.org/uaa-cli/config"
@@ -67,8 +70,7 @@ var _ = Describe("GetPasswordToken", func() {
 					//base64 <<< 'admin:adminsecret'
 					VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 					VerifyFormKV("grant_type", "password"),
-				),
-				)
+				))
 			})
 
 			It("displays a success message", func() {
@@ -107,8 +109,7 @@ var _ = Describe("GetPasswordToken", func() {
 				//base64 <<< 'admin:adminsecret'
 				VerifyHeaderKV("Authorization", "Basic YWRtaW46YWRtaW5zZWNyZXQ="),
 				VerifyFormKV("grant_type", "password"),
-			),
-			)
+			))
 		})
 
 		It("displays help to the user", func() {
@@ -118,7 +119,12 @@ var _ = Describe("GetPasswordToken", func() {
 				"-p", "secret")
 
 			Eventually(session).Should(Exit(1))
-			Eventually(session.Err).Should(Say("An error occurred while fetching token."))
+			expectedOutput := fmt.Sprintf("An error occurred while calling %s/oauth/token", server.URL())
+			Eventually(session.Err).Should(Say(expectedOutput))
+
+			var unauthorizedErrorMsg bytes.Buffer
+			_ = json.Indent(&unauthorizedErrorMsg, []byte(`{"error":"unauthorized","error_description":"Bad credentials"}`), "", "  ")
+			Eventually(session.Err).Should(Say(unauthorizedErrorMsg.String()))
 		})
 
 		It("does not update the previously saved context", func() {

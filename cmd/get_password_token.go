@@ -32,7 +32,16 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 		requestedType = uaa.JSONWebToken
 	}
 
-	api, err := uaa.NewWithPasswordCredentials(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, clientId, clientSecret, username, password, requestedType, cfg.GetActiveTarget().SkipSSLValidation)
+	api, err := uaa.NewWithPasswordCredentials(
+		cfg.GetActiveTarget().BaseUrl,
+		cfg.ZoneSubdomain,
+		clientId,
+		clientSecret,
+		username,
+		password,
+		requestedType,
+		cfg.GetActiveTarget().SkipSSLValidation,
+	)
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")
 	}
@@ -42,7 +51,7 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 
 	if err != nil {
 		log.Info("Unable to retrieve token")
-		return errors.New("An error occurred while fetching token.")
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	activeContext := cfg.GetActiveContext()
@@ -67,7 +76,8 @@ var getPasswordToken = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		cli.NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, args[0], clientSecret, username, password, tokenFormat), log, GetSavedConfig())
+		clientId := args[0]
+		cli.NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, clientId, clientSecret, username, password, tokenFormat), log, GetSavedConfig())
 	},
 }
 
