@@ -39,7 +39,13 @@ func GetClientCredentialsTokenCmd(cfg config.Config, clientId, clientSecret stri
 	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
 	token, err := transport.Source.Token()
 	if err != nil {
-		return errors.Wrap(err, "An error occurred while fetching token.")
+		oauthErrorResponse, isRetrieveError := err.(*oauth2.RetrieveError)
+		if isRetrieveError {
+			url := oauthErrorResponse.Response.Request.URL.String()
+			return uaa.RequestError{Url: url, ErrorResponse: oauthErrorResponse.Body}
+		} else {
+			return errors.Wrap(err, "An error occurred while fetching token.")
+		}
 	}
 
 	activeContext := cfg.GetActiveContext()
