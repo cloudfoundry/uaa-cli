@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"errors"
@@ -10,17 +11,17 @@ import (
 )
 
 func GetPasswordTokenValidations(cfg config.Config, args []string, username, password string) error {
-	if err := EnsureTargetInConfig(cfg); err != nil {
+	if err := cli.EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if password == "" {
-		return MissingArgumentError("password")
+		return cli.MissingArgumentError("password")
 	}
 	if username == "" {
-		return MissingArgumentError("username")
+		return cli.MissingArgumentError("username")
 	}
 	return validateTokenFormatError(tokenFormat)
 }
@@ -62,11 +63,11 @@ var getPasswordToken = &cobra.Command{
 	Long:  help.PasswordGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetPasswordTokenValidations(cfg, args, username, password), cmd, log)
+		cli.NotifyValidationErrors(GetPasswordTokenValidations(cfg, args, username, password), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, args[0], clientSecret, username, password, tokenFormat), log)
+		cli.NotifyErrorsWithRetry(GetPasswordTokenCmd(cfg, args[0], clientSecret, username, password, tokenFormat), log, GetSavedConfig())
 	},
 }
 

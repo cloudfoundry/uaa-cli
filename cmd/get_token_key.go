@@ -21,10 +21,10 @@ var getTokenKeyCmd = &cobra.Command{
 	Aliases: []string{"token-key"},
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(EnsureTargetInConfig(cfg), cmd, log)
+		cli.NotifyValidationErrors(cli.EnsureTargetInConfig(cfg), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(GetTokenKeyCmd(GetUnauthenticatedAPI()), log)
+		cli.NotifyErrorsWithRetry(GetTokenKeyCmd(GetUnauthenticatedAPI()), log, GetSavedConfig())
 	},
 }
 

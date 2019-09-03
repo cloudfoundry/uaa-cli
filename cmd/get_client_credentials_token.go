@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"github.com/cloudfoundry-community/go-uaa"
@@ -10,14 +11,14 @@ import (
 )
 
 func GetClientCredentialsTokenValidations(cfg config.Config, args []string, clientSecret string) error {
-	if err := EnsureTargetInConfig(cfg); err != nil {
+	if err := cli.EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if clientSecret == "" {
-		return MissingArgumentError("client_secret")
+		return cli.MissingArgumentError("client_secret")
 	}
 	return validateTokenFormatError(tokenFormat)
 }
@@ -65,11 +66,11 @@ var getClientCredentialsTokenCmd = &cobra.Command{
 	Long:  help.ClientCredentials(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(GetClientCredentialsTokenValidations(cfg, args, clientSecret), cmd, log)
+		cli.NotifyValidationErrors(GetClientCredentialsTokenValidations(cfg, args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyErrorsWithRetry(GetClientCredentialsTokenCmd(cfg, args[0], clientSecret), log)
+		cli.NotifyErrorsWithRetry(GetClientCredentialsTokenCmd(cfg, args[0], clientSecret), log, GetSavedConfig())
 	},
 }
 

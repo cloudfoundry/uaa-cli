@@ -8,7 +8,7 @@ import (
 )
 
 func ListGroupValidations(cfg config.Config) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
@@ -27,11 +27,11 @@ var listGroupsCmd = &cobra.Command{
 	Aliases: []string{"groups", "get-groups", "search-groups"},
 	Short:   "Search and list groups with SCIM filters",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(ListGroupValidations(GetSavedConfig()), cmd, log)
+		cli.NotifyValidationErrors(ListGroupValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := ListGroupsCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), filter, sortBy, sortOrder, attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

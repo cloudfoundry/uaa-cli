@@ -19,7 +19,7 @@ func GetGroupCmd(api *uaa.API, printer cli.Printer, name, attributes string) err
 }
 
 func GetGroupValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 
@@ -33,11 +33,11 @@ var getGroupCmd = &cobra.Command{
 	Use:   "get-group GROUPNAME",
 	Short: "Look up a group by group name",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(GetGroupValidations(GetSavedConfig(), args), cmd, log)
+		cli.NotifyValidationErrors(GetGroupValidations(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := GetGroupCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), args[0], attributes)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

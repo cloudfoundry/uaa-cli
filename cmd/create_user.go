@@ -56,20 +56,20 @@ func CreateUserCmd(api *uaa.API, printer cli.Printer, username, familyName, give
 }
 
 func CreateUserValidation(cfg config.Config, args []string, familyName, givenName string, emails []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
 		return errors.New("The positional argument USERNAME must be specified.")
 	}
 	if familyName == "" {
-		return MissingArgumentError("familyName")
+		return cli.MissingArgumentError("familyName")
 	}
 	if givenName == "" {
-		return MissingArgumentError("givenName")
+		return cli.MissingArgumentError("givenName")
 	}
 	if len(emails) == 0 {
-		return MissingArgumentError("email")
+		return cli.MissingArgumentError("email")
 	}
 	return nil
 }
@@ -79,13 +79,13 @@ var createUserCmd = &cobra.Command{
 	Short:   "Create a user",
 	Aliases: []string{"add-user"},
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(CreateUserValidation(GetSavedConfig(), args, familyName, givenName, emails), cmd, log)
+		cli.NotifyValidationErrors(CreateUserValidation(GetSavedConfig(), args, familyName, givenName, emails), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api := NewApiFromSavedConfig()
 
 		err := CreateUserCmd(api, cli.NewJsonPrinter(log), args[0], familyName, givenName, userPassword, origin, emails, phoneNumbers)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 func AddMemberPreRunValidations(config cli_config.Config, args []string) error {
-	if err := EnsureContextInConfig(config); err != nil {
+	if err := cli.EnsureContextInConfig(config); err != nil {
 		return err
 	}
 
@@ -47,12 +47,12 @@ var addMemberCmd = &cobra.Command{
 	Short: "Add a user to a group",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(AddMemberPreRunValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(AddMemberPreRunValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		groupName := args[0]
 		userName := args[1]
-		NotifyErrorsWithRetry(AddMemberCmd(GetAPIFromSavedTokenInContext(), groupName, userName, log), log)
+		cli.NotifyErrorsWithRetry(AddMemberCmd(GetAPIFromSavedTokenInContext(), groupName, userName, log), log, GetSavedConfig())
 	},
 }
 

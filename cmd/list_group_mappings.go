@@ -19,11 +19,11 @@ var listGroupMappingsCmd = &cobra.Command{
 	Aliases: []string{},
 	Short:   "List all the mappings between uaa scopes and external groups",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(ListGroupValidations(GetSavedConfig()), cmd, log)
+		cli.NotifyValidationErrors(ListGroupValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := ListGroupMappingsCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log))
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

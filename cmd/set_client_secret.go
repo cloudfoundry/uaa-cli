@@ -10,14 +10,14 @@ import (
 )
 
 func SetClientSecretValidation(cfg config.Config, args []string, clientSecret string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if clientSecret == "" {
-		return MissingArgumentError("client_secret")
+		return cli.MissingArgumentError("client_secret")
 	}
 	return nil
 }
@@ -35,10 +35,10 @@ var setClientSecretCmd = &cobra.Command{
 	Use:   "set-client-secret CLIENT_ID -s CLIENT_SECRET",
 	Short: "Update secret for a client",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(SetClientSecretValidation(GetSavedConfig(), args, clientSecret), cmd, log)
+		cli.NotifyValidationErrors(SetClientSecretValidation(GetSavedConfig(), args, clientSecret), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(SetClientSecretCmd(GetAPIFromSavedTokenInContext(), log, args[0], clientSecret), log)
+		cli.NotifyErrorsWithRetry(SetClientSecretCmd(GetAPIFromSavedTokenInContext(), log, args[0], clientSecret), log, GetSavedConfig())
 	},
 }
 

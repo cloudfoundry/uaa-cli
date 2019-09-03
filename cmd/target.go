@@ -63,9 +63,9 @@ var targetCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
 		if len(args) == 0 {
-			NotifyErrorsWithRetry(ShowTargetCmd(GetUnauthenticatedAPI(), cfg, log), log)
+			cli.NotifyErrorsWithRetry(ShowTargetCmd(GetUnauthenticatedAPI(), cfg, log), log, GetSavedConfig())
 		} else {
-			NotifyErrorsWithRetry(UpdateTargetCmd(cfg, args[0], log), log)
+			cli.NotifyErrorsWithRetry(UpdateTargetCmd(cfg, args[0], log), log, GetSavedConfig())
 		}
 	},
 }

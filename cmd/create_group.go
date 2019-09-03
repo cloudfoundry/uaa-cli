@@ -24,7 +24,7 @@ func CreateGroupCmd(api *uaa.API, printer cli.Printer, name, description string)
 }
 
 func CreateGroupValidation(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
@@ -38,13 +38,13 @@ var createGroupCmd = &cobra.Command{
 	Short:   "Create a group",
 	Aliases: []string{"add-group"},
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(CreateGroupValidation(GetSavedConfig(), args), cmd, log)
+		cli.NotifyValidationErrors(CreateGroupValidation(GetSavedConfig(), args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api := NewApiFromSavedConfig()
 
 		err := CreateGroupCmd(api, cli.NewJsonPrinter(log), args[0], groupDescription)
-		NotifyErrorsWithRetry(err, log)
+		cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
 	},
 }
 

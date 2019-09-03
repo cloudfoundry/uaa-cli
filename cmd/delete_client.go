@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
 	"github.com/cloudfoundry-community/go-uaa"
@@ -8,11 +9,11 @@ import (
 )
 
 func DeleteClientValidations(cfg config.Config, args []string) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	return nil
 }
@@ -32,11 +33,11 @@ var deleteClientCmd = &cobra.Command{
 	Short: "Delete a client registration",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(DeleteClientValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(DeleteClientValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		api := NewApiFromSavedConfig()
-		NotifyErrorsWithRetry(DeleteClientCmd(api, args[0]), log)
+		cli.NotifyErrorsWithRetry(DeleteClientCmd(api, args[0]), log, GetSavedConfig())
 	},
 }
 

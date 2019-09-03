@@ -11,7 +11,7 @@ import (
 )
 
 func RemoveMemberPreRunValidations(config cli_config.Config, args []string) error {
-	if err := EnsureContextInConfig(config); err != nil {
+	if err := cli.EnsureContextInConfig(config); err != nil {
 		return err
 	}
 
@@ -48,12 +48,12 @@ var removeMemberCmd = &cobra.Command{
 	Short: "Remove a user from a group",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(RemoveMemberPreRunValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(RemoveMemberPreRunValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		groupName := args[0]
 		userName := args[1]
-		NotifyErrorsWithRetry(RemoveMemberCmd(GetAPIFromSavedTokenInContext(), groupName, userName, log), log)
+		cli.NotifyErrorsWithRetry(RemoveMemberCmd(GetAPIFromSavedTokenInContext(), groupName, userName, log), log, GetSavedConfig())
 	},
 }
 

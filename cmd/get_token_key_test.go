@@ -1,7 +1,7 @@
 package cmd_test
 
 import (
-	"code.cloudfoundry.org/uaa-cli/cmd"
+	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -72,7 +72,7 @@ var _ = Describe("GetTokenKey", func() {
 			session := runCommand("get-token-key")
 
 			Eventually(session).Should(Exit(1))
-			Expect(session.Err).To(Say(cmd.MISSING_TARGET))
+			Expect(session.Err).To(Say(cli.MISSING_TARGET))
 		})
 	})
 })

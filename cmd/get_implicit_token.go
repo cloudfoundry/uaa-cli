@@ -27,14 +27,14 @@ func addImplicitTokenToContext(clientId string, token oauth2.Token, log *cli.Log
 }
 
 func ImplicitTokenArgumentValidation(cfg config.Config, args []string, port int) error {
-	if err := EnsureTargetInConfig(cfg); err != nil {
+	if err := cli.EnsureTargetInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) < 1 {
-		return MissingArgumentError("client_id")
+		return cli.MissingArgumentError("client_id")
 	}
 	if port == 0 {
-		return MissingArgumentError("port")
+		return cli.MissingArgumentError("port")
 	}
 	return validateTokenFormatError(tokenFormat)
 }
@@ -53,7 +53,7 @@ var getImplicitToken = &cobra.Command{
 	Long:  help.ImplicitGrant(),
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		NotifyValidationErrors(ImplicitTokenArgumentValidation(cfg, args, port), cmd, log)
+		cli.NotifyValidationErrors(ImplicitTokenArgumentValidation(cfg, args, port), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		done := make(chan bool)

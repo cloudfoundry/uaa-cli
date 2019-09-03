@@ -8,7 +8,7 @@ import (
 )
 
 func ListClientsValidations(cfg config.Config) error {
-	if err := EnsureContextInConfig(cfg); err != nil {
+	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	return nil
@@ -28,10 +28,10 @@ var listClientsCmd = &cobra.Command{
 	Short:   "See all clients in the targeted UAA",
 	Aliases: []string{"clients"},
 	PreRun: func(cmd *cobra.Command, args []string) {
-		NotifyValidationErrors(ListClientsValidations(GetSavedConfig()), cmd, log)
+		cli.NotifyValidationErrors(ListClientsValidations(GetSavedConfig()), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		NotifyErrorsWithRetry(ListClientsCmd(GetAPIFromSavedTokenInContext()), log)
+		cli.NotifyErrorsWithRetry(ListClientsCmd(GetAPIFromSavedTokenInContext()), log, GetSavedConfig())
 	},
 }
 
