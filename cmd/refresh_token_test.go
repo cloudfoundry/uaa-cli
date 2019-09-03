@@ -1,7 +1,10 @@
 package cmd_test
 
 import (
+	"bytes"
 	"code.cloudfoundry.org/uaa-cli/config"
+	"encoding/json"
+	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -88,15 +91,19 @@ var _ = Describe("ResfrehToken", func() {
 				RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
 				VerifyHeaderKV("Authorization", "Basic c2hpbnljbGllbnQ6c2VjcmV0c2VjcmV0"),
 				VerifyFormKV("grant_type", "refresh_token"),
-			),
-			)
+			))
 		})
 
 		It("displays help to the user", func() {
 			session := runCommand("refresh-token", "-s", "secretsecret")
 
 			Eventually(session).Should(Exit(1))
-			Eventually(session.Err).Should(Say("an error occurred while accessing API with refresh token"))
+			expectedOutput := fmt.Sprintf("An error occurred while calling %s/oauth/token", server.URL())
+			Eventually(session.Err).Should(Say(expectedOutput))
+
+			var unauthorizedErrorMsg bytes.Buffer
+			_ = json.Indent(&unauthorizedErrorMsg, []byte(`{"error":"unauthorized","error_description":"Bad credentials"}`), "", "  ")
+			Eventually(session.Err).Should(Say(unauthorizedErrorMsg.String()))
 		})
 
 		It("does not update the previously saved context", func() {

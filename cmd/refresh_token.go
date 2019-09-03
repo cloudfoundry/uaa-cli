@@ -12,17 +12,24 @@ import (
 )
 
 func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) error {
-
 	//TODO: use library function to perform conversion
 	format := uaa.JSONWebToken
 	if tokenFormat == "opaque" {
 		format = uaa.OpaqueToken
 	}
 
-	api, err := uaa.NewWithRefreshToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().ClientId, clientSecret, cfg.GetActiveContext().Token.RefreshToken, format, cfg.GetActiveTarget().SkipSSLValidation)
+	api, err := uaa.NewWithRefreshToken(
+		cfg.GetActiveTarget().BaseUrl,
+		cfg.ZoneSubdomain,
+		cfg.GetActiveContext().ClientId,
+		clientSecret,
+		cfg.GetActiveContext().Token.RefreshToken,
+		format,
+		cfg.GetActiveTarget().SkipSSLValidation,
+	)
 	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
 	if err != nil {
-		return errors.New("an error occurred while accessing API with refresh token")
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	ctx := cfg.GetActiveContext()
@@ -30,7 +37,7 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
 	token, err := transport.Source.Token()
 	if err != nil {
-		return errors.New("an error occurred while fetching token.")
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	ctx.Token = *token
