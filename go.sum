@@ -19,6 +19,9 @@ github.com/cloudfoundry-community/go-uaa v0.2.5 h1:wn/f4n4hDxPF4NtpjG6dT5yFyAxYp
 github.com/cloudfoundry-community/go-uaa v0.2.5/go.mod h1:8xbs4AE7Onyn0879a757RewaLbRrUw41CPNxn8EdmRM=
 github.com/cloudfoundry-community/go-uaa v0.2.7-0.20190903221238-95cd8cf8ca62 h1:mDHYMlQ5kTmDSDIyx+GNxepIhvUCNyidBcrpG2kE2pg=
 github.com/cloudfoundry-community/go-uaa v0.2.7-0.20190903221238-95cd8cf8ca62/go.mod h1:5Cb7KTQLqX5Nn7cUd6ksPfnbfIp1g/j5Oo7nHeD0d3Q=
+github.com/cloudfoundry-community/go-uaa v0.2.7-0.20190903232307-13393aaacf42/go.mod h1:5Cb7KTQLqX5Nn7cUd6ksPfnbfIp1g/j5Oo7nHeD0d3Q=
+github.com/cloudfoundry-community/go-uaa v0.2.7 h1:3M+b7JrzNcatZJwVnKXQeudkyosB1UPu4zI1VrDtmhc=
+github.com/cloudfoundry-community/go-uaa v0.2.7/go.mod h1:5Cb7KTQLqX5Nn7cUd6ksPfnbfIp1g/j5Oo7nHeD0d3Q=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/bbolt v1.3.3/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
