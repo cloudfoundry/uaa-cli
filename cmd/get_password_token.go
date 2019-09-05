@@ -4,10 +4,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
+	"context"
 	"errors"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"golang.org/x/oauth2"
 )
 
 func GetPasswordTokenValidations(cfg config.Config, args []string, username, password string) error {
@@ -46,12 +46,10 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 		return errors.New("An error occurred while fetching token.")
 	}
 
-	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
-	token, err := transport.Source.Token()
-
+	token, err := api.Token(context.Background())
 	if err != nil {
 		log.Info("Unable to retrieve token")
-		return uaa.RequestErrorFromOauthError(err)
+		return err
 	}
 
 	activeContext := cfg.GetActiveContext()

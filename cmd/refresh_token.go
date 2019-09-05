@@ -5,10 +5,10 @@ import (
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/utils"
+	"context"
 	"errors"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"golang.org/x/oauth2"
 )
 
 func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) error {
@@ -29,15 +29,14 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 	)
 	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
 	if err != nil {
-		return uaa.RequestErrorFromOauthError(err)
+		return err
 	}
 
 	ctx := cfg.GetActiveContext()
 
-	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
-	token, err := transport.Source.Token()
+	token, err := api.Token(context.Background()) //TODO: stop making this request for a second time
 	if err != nil {
-		return uaa.RequestErrorFromOauthError(err)
+		return err
 	}
 
 	ctx.Token = *token
