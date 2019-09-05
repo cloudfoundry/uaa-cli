@@ -51,7 +51,7 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 
 	if err != nil {
 		log.Info("Unable to retrieve token")
-		return cli.RequestErrorFromOauthError(err)
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	activeContext := cfg.GetActiveContext()

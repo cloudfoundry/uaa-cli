@@ -29,7 +29,7 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 	)
 	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
 	if err != nil {
-		return cli.RequestErrorFromOauthError(err)
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	ctx := cfg.GetActiveContext()
@@ -37,7 +37,7 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
 	token, err := transport.Source.Token()
 	if err != nil {
-		return cli.RequestErrorFromOauthError(err)
+		return uaa.RequestErrorFromOauthError(err)
 	}
 
 	ctx.Token = *token
