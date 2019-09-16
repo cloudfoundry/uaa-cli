@@ -1,6 +1,8 @@
 cloud.google.com/go v0.34.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/cloudfoundry-community/go-uaa v0.2.8 h1:jXRea4uJ8Bul5SABS4cqSZWuXPEw8e8EUyD5rqJp43E=
 github.com/cloudfoundry-community/go-uaa v0.2.8/go.mod h1:5Cb7KTQLqX5Nn7cUd6ksPfnbfIp1g/j5Oo7nHeD0d3Q=
+github.com/cloudfoundry-community/go-uaa v0.3.0 h1:S2qly/ji+q18UWGZEkypjfeQMN75SGTiqCapAq42r80=
+github.com/cloudfoundry-community/go-uaa v0.3.0/go.mod h1:fp8EYsDGWsAq5Lv9K9BdY1Q3Z0g+aAwpD7oP1Q52jGo=
 github.com/fatih/color v1.7.0 h1:DkWD4oS2D8LGGgTQ6IvwJJXSL5Vp2ffcQg58nFV38Ys=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
