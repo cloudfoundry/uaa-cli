@@ -9,13 +9,17 @@ import (
 
 func GetAPIFromSavedTokenInContext() *uaa.API {
 	cfg := GetSavedConfig()
-	api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+	token := cfg.GetActiveContext().Token
+	api, err := uaa.New(
+		cfg.GetActiveTarget().BaseUrl,
+		uaa.WithToken(&token),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
+	)
 	if err != nil {
 		panic(err)
 	}
-	api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
-	api.Verbose = verbose
-
 	return api
 }
 
@@ -25,19 +29,17 @@ func GetUnauthenticatedAPI() *uaa.API {
 }
 
 func GetUnauthenticatedAPIFromConfig(cfg config.Config) *uaa.API {
-	u, err := uaa.BuildTargetURL(cfg.GetActiveTarget().BaseUrl)
+	client := &http.Client{Transport: http.DefaultTransport}
+	api, err := uaa.New(
+		cfg.GetActiveTarget().BaseUrl,
+		uaa.WithNoAuthentication(),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
+		uaa.WithClient(client),
+	)
 	if err != nil {
 		panic(err)
 	}
-
-	client := &http.Client{Transport: http.DefaultTransport}
-
-	api := &uaa.API{
-		UnauthenticatedClient: client,
-		AuthenticatedClient:   nil,
-		TargetURL:             u,
-		ZoneID:                cfg.ZoneSubdomain,
-		Verbose:               verbose,
-	}
-	return api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
+	return api
 }

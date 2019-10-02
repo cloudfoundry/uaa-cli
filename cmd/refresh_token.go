@@ -19,14 +19,16 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 		format = uaa.OpaqueToken
 	}
 
-	api, err := uaa.NewWithRefreshToken(
+	api, err := uaa.New(
 		cfg.GetActiveTarget().BaseUrl,
-		cfg.ZoneSubdomain,
-		cfg.GetActiveContext().ClientId,
-		clientSecret,
-		cfg.GetActiveContext().Token.RefreshToken,
-		format,
-		cfg.GetActiveTarget().SkipSSLValidation,
+		uaa.WithRefreshToken(
+			cfg.GetActiveContext().ClientId,
+			clientSecret,
+			cfg.GetActiveContext().Token.RefreshToken,
+			format,
+		),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
 	)
 	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
 	if err != nil {

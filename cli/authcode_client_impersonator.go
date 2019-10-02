@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -77,20 +78,20 @@ func (aci AuthcodeClientImpersonator) Start() {
 		redirectUrl, err := url.ParseRequestURI(aci.redirectUri())
 		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 
-		api, err := uaa.NewWithAuthorizationCode(
+		api, err := uaa.New(
 			aci.config.GetActiveTarget().BaseUrl,
-			aci.config.ZoneSubdomain,
-			aci.ClientID,
-			aci.ClientSecret,
-			code,
-			tokenFormat,
-			aci.config.GetActiveTarget().SkipSSLValidation,
-			redirectUrl,
+			uaa.WithAuthorizationCode(
+				aci.ClientID,
+				aci.ClientSecret,
+				code,
+				tokenFormat,
+				redirectUrl,
+			),
+			uaa.WithZoneID(aci.config.ZoneSubdomain),
+			uaa.WithSkipSSLValidation(aci.config.GetActiveTarget().SkipSSLValidation),
 		)
 		NotifyErrorsWithRetry(err, aci.Log, aci.config)
-
-		oauth2Transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
-		token, err := oauth2Transport.Source.Token()
+		token, err := api.Token(context.Background())
 		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 
 		aci.Done() <- *token

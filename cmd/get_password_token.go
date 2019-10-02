@@ -33,15 +33,17 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 		requestedType = uaa.JSONWebToken
 	}
 
-	api, err := uaa.NewWithPasswordCredentials(
+	api, err := uaa.New(
 		cfg.GetActiveTarget().BaseUrl,
-		cfg.ZoneSubdomain,
-		clientId,
-		clientSecret,
-		username,
-		password,
-		requestedType,
-		cfg.GetActiveTarget().SkipSSLValidation,
+		uaa.WithPasswordCredentials(
+			clientId,
+			clientSecret,
+			username,
+			password,
+			requestedType,
+		),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
 	)
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")

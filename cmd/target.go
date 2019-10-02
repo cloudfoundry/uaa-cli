@@ -63,8 +63,14 @@ var targetCmd = &cobra.Command{
 	Short:   "Set the url of the UAA you'd like to target",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
+		target := cfg.GetActiveTarget()
+
 		if len(args) == 0 {
-			cli.NotifyErrorsWithRetry(ShowTargetCmd(GetUnauthenticatedAPI(), cfg, log), log, GetSavedConfig())
+			var api *uaa.API
+			if target.BaseUrl != "" {
+				api = GetUnauthenticatedAPI()
+			}
+			cli.NotifyErrorsWithRetry(ShowTargetCmd(api, cfg, log), log, GetSavedConfig())
 		} else {
 			cli.NotifyErrorsWithRetry(UpdateTargetCmd(cfg, args[0], log), log, GetSavedConfig())
 		}
