@@ -6,12 +6,13 @@ import (
 	"net/http"
 	"net/url"
 
+	"time"
+
 	cliConfig "code.cloudfoundry.org/uaa-cli/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/ghttp"
 	"github.com/onsi/gomega/gstruct"
-	"time"
 )
 
 var _ = Describe("AuthcodeClientImpersonator", func() {

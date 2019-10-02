@@ -1,12 +1,13 @@
 package cli
 
 import (
-	"code.cloudfoundry.org/uaa-cli/config"
 	"errors"
 	"fmt"
+	"os"
+
+	"code.cloudfoundry.org/uaa-cli/config"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
-	"os"
 )
 
 const MISSING_TARGET = "You must set a target in order to use this command."

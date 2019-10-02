@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"context"
+	"errors"
+
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
 	"code.cloudfoundry.org/uaa-cli/utils"
-	"context"
-	"errors"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
