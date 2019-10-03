@@ -155,9 +155,14 @@ func GetSavedConfig() config.Config {
 
 func NewApiFromSavedConfig() *uaa.API {
 	cfg := GetSavedConfig()
-	api, err := uaa.NewWithToken(cfg.GetActiveTarget().BaseUrl, cfg.ZoneSubdomain, cfg.GetActiveContext().Token)
+	token := cfg.GetActiveContext().Token
+	api, err := uaa.New(
+		cfg.GetActiveTarget().BaseUrl,
+		uaa.WithToken(&token),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
+	)
 	cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
-	api = api.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation)
-	api.Verbose = verbose
 	return api
 }

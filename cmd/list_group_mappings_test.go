@@ -1,6 +1,8 @@
 package cmd_test
 
 import (
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/config"
 	. "code.cloudfoundry.org/uaa-cli/fixtures"
 	. "github.com/onsi/ginkgo"
@@ -8,7 +10,6 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
 
 var _ = Describe("ListGroupMappings", func() {

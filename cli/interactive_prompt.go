@@ -3,12 +3,13 @@ package cli
 import (
 	"bufio"
 	"fmt"
-	"github.com/fatih/color"
-	"golang.org/x/crypto/ssh/terminal"
 	"io"
 	"os"
 	"strings"
 	"syscall"
+
+	"github.com/fatih/color"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var InteractiveOutput io.Writer = os.Stdout

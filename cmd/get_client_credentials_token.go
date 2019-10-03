@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"context"
+
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/help"
@@ -32,19 +34,21 @@ func GetClientCredentialsTokenCmd(cfg config.Config, clientId, clientSecret stri
 		uaaTokenFormat = uaa.OpaqueToken
 	}
 
-	api, err := uaa.NewWithClientCredentials(
+	api, err := uaa.New(
 		cfg.GetActiveTarget().BaseUrl,
-		cfg.ZoneSubdomain,
-		clientId,
-		clientSecret,
-		uaaTokenFormat,
-		cfg.GetActiveTarget().SkipSSLValidation)
+		uaa.WithClientCredentials(
+			clientId,
+			clientSecret,
+			uaaTokenFormat,
+		),
+		uaa.WithZoneID(cfg.ZoneSubdomain),
+		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+	)
 	if err != nil {
 		return errors.Wrap(err, "An error occurred while building API with client credentials.")
 	}
 
-	transport := api.AuthenticatedClient.Transport.(*oauth2.Transport)
-	token, err := transport.Source.Token()
+	token, err := api.Token(context.Background())
 	if err != nil {
 		oauthErrorResponse, isRetrieveError := err.(*oauth2.RetrieveError)
 		if isRetrieveError {
