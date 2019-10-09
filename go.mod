@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-isatty v0.0.9 // indirect
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.0-20170719101040-be5337e7b39e
-	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/ginkgo v1.10.2
 	github.com/onsi/gomega v1.7.0
 	github.com/pkg/errors v0.8.1
 	github.com/skratchdot/open-golang v0.0.0-20160302144031-75fb7ed4208c
