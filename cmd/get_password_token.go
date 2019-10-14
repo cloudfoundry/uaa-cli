@@ -44,6 +44,7 @@ func GetPasswordTokenCmd(cfg config.Config, clientId, clientSecret, username, pa
 		),
 		uaa.WithZoneID(cfg.ZoneSubdomain),
 		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
 	)
 	if err != nil {
 		return errors.New("An error occurred while fetching token.")

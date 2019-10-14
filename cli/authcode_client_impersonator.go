@@ -89,6 +89,7 @@ func (aci AuthcodeClientImpersonator) Start() {
 			),
 			uaa.WithZoneID(aci.config.ZoneSubdomain),
 			uaa.WithSkipSSLValidation(aci.config.GetActiveTarget().SkipSSLValidation),
+			uaa.WithVerbosity(aci.config.Verbose),
 		)
 		NotifyErrorsWithRetry(err, aci.Log, aci.config)
 		token, err := api.Token(context.Background())

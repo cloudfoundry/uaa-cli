@@ -43,6 +43,7 @@ func GetClientCredentialsTokenCmd(cfg config.Config, clientId, clientSecret stri
 		),
 		uaa.WithZoneID(cfg.ZoneSubdomain),
 		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
 	)
 	if err != nil {
 		return errors.Wrap(err, "An error occurred while building API with client credentials.")

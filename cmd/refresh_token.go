@@ -29,6 +29,7 @@ func RefreshTokenCmd(cfg config.Config, log cli.Logger, tokenFormat string) erro
 		),
 		uaa.WithZoneID(cfg.ZoneSubdomain),
 		uaa.WithSkipSSLValidation(cfg.GetActiveTarget().SkipSSLValidation),
+		uaa.WithVerbosity(verbose),
 	)
 	log.Infof("Using the refresh_token from the active context to request a new access token for client %v.", utils.Emphasize(cfg.GetActiveContext().ClientId))
 	if err != nil {
