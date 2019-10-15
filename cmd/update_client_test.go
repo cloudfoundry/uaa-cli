@@ -18,7 +18,7 @@ var _ = Describe("UpdateClient", func() {
 	  "client_secret" : "secret",
 	  "resource_ids" : [ ],
 	  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
-	  "redirect_uri" : [ "http://localhost:8080/*" ],
+	  "redirect_uri" : [ "http://localhost:9090/*" ],
 	  "authorities" : [ "notifications.write", "notifications.read" ],
 	  "token_salt" : "",
 	  "autoapprove" : ["true"],
@@ -82,14 +82,14 @@ var _ = Describe("UpdateClient", func() {
 				server.RouteToHandler("PUT", "/oauth/clients/notifier", CombineHandlers(
 					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
-					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
+					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:9090/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
 				))
 
 				session := runCommand("update-client",
 					"notifier",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 					"--display_name", "Display name",
 					"--access_token_validity", "3600",
@@ -129,7 +129,7 @@ var _ = Describe("UpdateClient", func() {
 				"notifier",
 				"--authorized_grant_types", "client_credentials",
 				"--scope", "notifications.write",
-				"--redirect_uri", "http://localhost:8080/*",
+				"--redirect_uri", "http://localhost:9090/*",
 				"--authorities", "notifications.write,notifications.read",
 			)
 
@@ -147,7 +147,7 @@ var _ = Describe("UpdateClient", func() {
 				session := runCommand("update-client",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
 
@@ -166,7 +166,7 @@ var _ = Describe("UpdateClient", func() {
 					"notifier",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))

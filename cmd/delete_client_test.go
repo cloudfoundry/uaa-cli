@@ -110,7 +110,7 @@ var _ = Describe("DeleteClient", func() {
 
 	Describe("Validations", func() {
 		It("requires a client id", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 			cfg.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 
 			err := cmd.DeleteClientValidations(cfg, []string{})
@@ -120,7 +120,7 @@ var _ = Describe("DeleteClient", func() {
 		})
 
 		It("requires token in context to have been set", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 			err := cmd.DeleteClientValidations(cfg, []string{"clientid"})
 
 			Expect(err).To(HaveOccurred())

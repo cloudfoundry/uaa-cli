@@ -33,7 +33,7 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 	Describe("NewImplicitClientImpersonator", func() {
 		BeforeEach(func() {
 			launcher := TestLauncher{}
-			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 9090, logger, launcher.Run)
 		})
 
 		Describe("configures an AuthCallbackListener", func() {
@@ -44,7 +44,7 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 			})
 
 			It("with the desired port", func() {
-				Expect(impersonator.AuthCallbackServer.Port()).To(Equal(8080))
+				Expect(impersonator.AuthCallbackServer.Port()).To(Equal(9090))
 			})
 
 			It("with its logger", func() {
@@ -67,7 +67,7 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 	Describe("#Start", func() {
 		BeforeEach(func() {
 			launcher := TestLauncher{}
-			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 9090, logger, launcher.Run)
 			impersonator.AuthCallbackServer = FakeCallbackServer{}
 		})
 
@@ -85,11 +85,11 @@ var _ = Describe("ImplicitClientImpersonator", func() {
 	Describe("#Authorize", func() {
 		It("launches a browser to the authorize page", func() {
 			launcher := TestLauncher{}
-			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewImplicitClientImpersonator("implicitId", "http://uaa.com", "jwt", "openid", 9090, logger, launcher.Run)
 
 			impersonator.Authorize()
 
-			Expect(launcher.TargetUrl).To(Equal("http://uaa.com/oauth/authorize?client_id=implicitId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
+			Expect(launcher.TargetUrl).To(Equal("http://uaa.com/oauth/authorize?client_id=implicitId&redirect_uri=http%3A%2F%2Flocalhost%3A9090&response_type=token&scope=openid&token_format=jwt"))
 		})
 	})
 })

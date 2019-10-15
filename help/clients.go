@@ -17,7 +17,7 @@ EXAMPLE USAGE
   uaa create-client shinymail \
                     --client_secret secret \
                     --authorized_grant_types authorization_code \
-                    --redirect_uri http://localhost:8080/*,http://email-sass.om/callback \
+                    --redirect_uri http://localhost:9090/*,http://email-sass.om/callback \
                     --scope mail.send,mail.read \
                     --display_name "Shinymail Web Mail Reader"
 
@@ -29,7 +29,7 @@ EXAMPLE USAGE
 
   uaa create-client single_page_todo_app \
                     --authorized_grant_types implicit \
-                    --redirect_uri http://localhost:8080/*,http://reactapp.com/callback \
+                    --redirect_uri http://localhost:9090/*,http://reactapp.com/callback \
                     --scope todo.read,todo.write \
                     --display_name "A Single-Page Todo App"
 

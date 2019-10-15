@@ -231,7 +231,7 @@ var _ = Describe("ResfrehToken", func() {
 
 		Describe("when no context was previously set", func() {
 			BeforeEach(func() {
-				config.WriteConfig(config.NewConfigWithServerURL("http://localhost:8080"))
+				config.WriteConfig(config.NewConfigWithServerURL("http://localhost:9090"))
 			})
 
 			It("tells the user to set a target", func() {

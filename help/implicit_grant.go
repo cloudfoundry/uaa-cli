@@ -25,8 +25,8 @@ func ImplicitGrant() string {
     uaa create-client my_implicit_client \
             --authorized_grant_types \
             --scope cloud_controller.read,cloud_controller.write \
-            --redirect_uri https://myprodsite.com/**,http://localhost:8080/**
-    uaa get-implicit-token my_implicit_client --port 8080
+            --redirect_uri https://myprodsite.com/**,http://localhost:9090/**
+    uaa get-implicit-token my_implicit_client --port 9090
     uaa context
 
   The important thing to notice in the above example is that the port given in

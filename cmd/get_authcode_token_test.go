@@ -48,12 +48,12 @@ var _ = Describe("GetAuthcodeToken", func() {
 
 		doneRunning := make(chan bool)
 
-		imp := cli.NewAuthcodeClientImpersonator(c, "shinyclient", "shinysecret", "jwt", "openid", 8080, logger, launcher.Run)
+		imp := cli.NewAuthcodeClientImpersonator(c, "shinyclient", "shinysecret", "jwt", "openid", 9090, logger, launcher.Run)
 		go AuthcodeTokenCommandRun(doneRunning, "shinyclient", imp, &logger)
 
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
 		Eventually(func() (*http.Response, error) {
-			return httpClient.Get("http://localhost:8080/?code=ASDFGHJKL")
+			return httpClient.Get("http://localhost:9090/?code=ASDFGHJKL")
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
@@ -63,7 +63,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 
 		Eventually(doneRunning, AuthCallbackTimeout, AuthCallbackPollInterval).Should(Receive())
 
-		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code&scope=openid"))
+		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A9090&response_type=code&scope=openid"))
 		Expect(GetSavedConfig().GetActiveContext().Token.AccessToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		Expect(GetSavedConfig().GetActiveContext().Token.RefreshToken).To(Equal("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gSADFJSKADJFLsdfandydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
 		Expect(GetSavedConfig().GetActiveContext().Token.TokenType).To(Equal("bearer"))
@@ -71,7 +71,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 
 	Describe("Validations", func() {
 		It("requires a client id", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 
 			err := AuthcodeTokenArgumentValidation(cfg, []string{}, "secret", "jwt", 8001)
 
@@ -80,7 +80,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		})
 
 		It("requires a client secret", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 
 			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "", "jwt", 8001)
 
@@ -89,7 +89,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		})
 
 		It("requires a port", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 
 			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "secret", "jwt", 0)
 
@@ -98,7 +98,7 @@ var _ = Describe("GetAuthcodeToken", func() {
 		})
 
 		It("rejects invalid token formats", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 
 			err := AuthcodeTokenArgumentValidation(cfg, []string{"clientid"}, "secret", "bogus-format", 8001)
 

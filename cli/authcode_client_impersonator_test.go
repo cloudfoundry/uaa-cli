@@ -36,7 +36,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 	Describe("NewAuthcodeClientImpersonator", func() {
 		BeforeEach(func() {
 			launcher := TestLauncher{}
-			impersonator = NewAuthcodeClientImpersonator(config, "authcodeClientId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeClientId", "authcodesecret", "jwt", "openid", 9090, logger, launcher.Run)
 		})
 
 		Describe("configures an AuthCallbackListener", func() {
@@ -46,7 +46,7 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 			})
 
 			It("with the desired port", func() {
-				Expect(impersonator.AuthCallbackServer.Port()).To(Equal(8080))
+				Expect(impersonator.AuthCallbackServer.Port()).To(Equal(9090))
 			})
 
 			It("with its logger", func() {
@@ -81,18 +81,18 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 				}`, contentTypeJson),
 				VerifyRequest("POST", "/oauth/token"),
 				VerifyHeader(http.Header{"Authorization": []string{"Basic YXV0aGNvZGVJZDphdXRoY29kZXNlY3JldA=="}}),
-				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&token_format=jwt`)),
+				VerifyBody([]byte(`code=secretcode&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A9090&response_type=token&token_format=jwt`)),
 			),
 			)
 
-			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 9090, logger, launcher.Run)
 
 			// Start the callback server
 			go impersonator.Start()
 
 			// Hit the callback server with an authcode
 			Eventually(func() (*http.Response, error) {
-				return httpClient.Get("http://localhost:8080/?code=secretcode")
+				return httpClient.Get("http://localhost:9090/?code=secretcode")
 			}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 				gstruct.IgnoreExtras, gstruct.Fields{
 					"StatusCode": Equal(200),
@@ -112,11 +112,11 @@ var _ = Describe("AuthcodeClientImpersonator", func() {
 
 	Describe("#Authorize", func() {
 		It("launches a browser to the authorize page", func() {
-			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 8080, logger, launcher.Run)
+			impersonator = NewAuthcodeClientImpersonator(config, "authcodeId", "authcodesecret", "jwt", "openid", 9090, logger, launcher.Run)
 
 			impersonator.Authorize()
 
-			Expect(launcher.TargetUrl).To(Equal(uaaServer.URL() + "/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=code&scope=openid"))
+			Expect(launcher.TargetUrl).To(Equal(uaaServer.URL() + "/oauth/authorize?client_id=authcodeId&redirect_uri=http%3A%2F%2Flocalhost%3A9090&response_type=code&scope=openid"))
 		})
 	})
 })

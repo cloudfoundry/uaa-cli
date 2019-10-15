@@ -35,13 +35,13 @@ var _ = Describe("GetImplicitToken", func() {
 		launcher := TestLauncher{}
 		doneRunning := make(chan bool)
 
-		imp := cli.NewImplicitClientImpersonator("shinyclient", server.URL(), "jwt", "openid", 8080, logger, launcher.Run)
+		imp := cli.NewImplicitClientImpersonator("shinyclient", server.URL(), "jwt", "openid", 9090, logger, launcher.Run)
 		go ImplicitTokenCommandRun(doneRunning, "shinyclient", imp, &logger)
 
 		httpClient := &http.Client{}
 		// UAA sends the user to this redirect_uri after they auth and grant approvals
 		Eventually(func() (*http.Response, error) {
-			return httpClient.Get("http://localhost:8080/?access_token=foo&scope=openid&token_type=bearer")
+			return httpClient.Get("http://localhost:9090/?access_token=foo&scope=openid&token_type=bearer")
 		}, AuthCallbackTimeout, AuthCallbackPollInterval).Should(gstruct.PointTo(gstruct.MatchFields(
 			gstruct.IgnoreExtras, gstruct.Fields{
 				"StatusCode": Equal(200),
@@ -51,7 +51,7 @@ var _ = Describe("GetImplicitToken", func() {
 
 		Eventually(doneRunning, AuthCallbackTimeout, AuthCallbackPollInterval).Should(Receive())
 
-		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A8080&response_type=token&scope=openid&token_format=jwt"))
+		Expect(launcher.Target).To(Equal(server.URL() + "/oauth/authorize?client_id=shinyclient&redirect_uri=http%3A%2F%2Flocalhost%3A9090&response_type=token&scope=openid&token_format=jwt"))
 		Expect(GetSavedConfig().GetActiveContext().Token.AccessToken).To(Equal("foo"))
 		Expect(GetSavedConfig().GetActiveContext().Token.TokenType).To(Equal("bearer"))
 	})

@@ -18,7 +18,7 @@ var _ = Describe("CreateClient", func() {
 	  "client_secret" : "secret",
 	  "resource_ids" : [ ],
 	  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
-	  "redirect_uri" : [ "http://localhost:8080/*" ],
+	  "redirect_uri" : [ "http://localhost:9090/*" ],
 	  "authorities" : [ "notifications.write", "notifications.read" ],
 	  "token_salt" : "",
 	  "autoapprove" : ["true"],
@@ -63,7 +63,7 @@ var _ = Describe("CreateClient", func() {
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					RespondWith(http.StatusOK, notifierClient, contentTypeJson),
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
-					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "client_secret" : "secret", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
+					VerifyJSON(`{ "scope" : [ "notifications.write" ], "client_id" : "notifier", "client_secret" : "secret", "authorized_grant_types" : [ "client_credentials" ], "redirect_uri" : [ "http://localhost:9090/*" ], "authorities" : [ "notifications.write", "notifications.read" ], "name" : "Display name", "access_token_validity": 3600, "refresh_token_validity": 4500 }`),
 				))
 
 				session := runCommand("create-client",
@@ -71,7 +71,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 					"--display_name", "Display name",
 					"--access_token_validity", "3600",
@@ -130,7 +130,7 @@ var _ = Describe("CreateClient", func() {
 			  "client_id" : "shiny",
 			  "resource_ids" : [ ],
 			  "authorized_grant_types" : [ "client_credentials", "authorization_code" ],
-			  "redirect_uri" : [ "http://localhost:8080/*" ],
+			  "redirect_uri" : [ "http://localhost:9090/*" ],
 			  "authorities" : [ "shiny.write", "shiny.read" ],
 			  "token_salt" : "",
 			  "autoapprove" : ["true"],
@@ -146,7 +146,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:9090/*"],"authorities":["shiny.write","shiny.read"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusOK, shinyCopy, contentTypeJson),
@@ -218,7 +218,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "authorities":["shiny.write","shiny.read"], "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:9090/*"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusBadRequest, shinyCopy),
@@ -242,7 +242,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:8080/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
+				shinyCopy := `{"client_id":"shinycopy","client_secret":"secretsecret", "scope":["shiny.write"],"authorized_grant_types":["client_credentials","authorization_code"],"redirect_uri":["http://localhost:9090/*"],"authorities":["shiny.write","shiny.read"],"autoapprove":["true"],"allowedproviders":["uaa","ldap","my-saml-provider"],"name":"The Shiniest Client", "autoapprove": [ "true" ]}`
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
 					RespondWith(http.StatusOK, shinyCopy, contentTypeJson),
@@ -262,7 +262,7 @@ var _ = Describe("CreateClient", func() {
 				 "client_id" : "myImplicitClient",
 				 "resource_ids" : [ ],
 				 "authorized_grant_types" : [ "implicit" ],
-				 "redirect_uri" : [ "http://localhost:8080/*" ],
+				 "redirect_uri" : [ "http://localhost:9090/*" ],
 				 "authorities" : [ "implicit.write", "implicit.read" ],
 				 "token_salt" : "",
 				 "autoapprove" : ["true"],
@@ -277,7 +277,7 @@ var _ = Describe("CreateClient", func() {
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
 				))
 
-				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:8080/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client", "autoapprove": [ "true" ] }`
+				implicitCopy := `{ "scope" : [ "implicit.write" ], "client_id" : "implicitcopy", "authorized_grant_types" : [ "implicit" ], "redirect_uri" : [ "http://localhost:9090/*" ], "authorities" : [ "implicit.write", "implicit.read" ], "allowedproviders" : [ "uaa", "ldap", "my-saml-provider" ], "name" : "Implicit Client", "autoapprove": [ "true" ] }`
 
 				server.RouteToHandler("POST", "/oauth/clients", CombineHandlers(
 					VerifyRequest("POST", "/oauth/clients"),
@@ -309,7 +309,7 @@ var _ = Describe("CreateClient", func() {
 				"--client_secret", "secret",
 				"--authorized_grant_types", "client_credentials",
 				"--scope", "notifications.write",
-				"--redirect_uri", "http://localhost:8080/*",
+				"--redirect_uri", "http://localhost:9090/*",
 				"--authorities", "notifications.write,notifications.read",
 			)
 
@@ -325,7 +325,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
 
@@ -345,7 +345,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))
@@ -367,7 +367,7 @@ var _ = Describe("CreateClient", func() {
 					"--client_secret", "secret",
 					"--authorized_grant_types", "client_credentials",
 					"--scope", "notifications.write",
-					"--redirect_uri", "http://localhost:8080/*",
+					"--redirect_uri", "http://localhost:9090/*",
 					"--authorities", "notifications.write,notifications.read",
 				)
 				Eventually(session).Should(Exit(1))

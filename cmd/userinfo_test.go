@@ -66,7 +66,7 @@ var _ = Describe("Userinfo", func() {
 		})
 
 		It("requires a context", func() {
-			cfg := config.NewConfigWithServerURL("http://localhost:8080")
+			cfg := config.NewConfigWithServerURL("http://localhost:9090")
 
 			err := cmd.UserinfoValidations(cfg)
 			Expect(err).To(HaveOccurred())
