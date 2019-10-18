@@ -3,6 +3,8 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"net/http"
 	"strings"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
@@ -22,7 +24,7 @@ func GetCurlValidations(cfg config.Config, args []string) error {
 }
 
 func CurlCmd(api *uaa.API, logger cli.Logger, path, method, data string, headers []string) error {
-	resHeaders, resBody, err := api.Curl(path, method, data, headers)
+	resHeaders, resBody, status, err := api.Curl(path, method, data, headers)
 	if err != nil {
 		return err
 	}
@@ -34,7 +36,12 @@ func CurlCmd(api *uaa.API, logger cli.Logger, path, method, data string, headers
 			bodyPrinter = logger.Robots
 		}
 	}
+
+	if status >= http.StatusBadRequest {
+		return errors.New(resBody)
+	}
 	bodyPrinter(resBody)
+
 	return nil
 }
 

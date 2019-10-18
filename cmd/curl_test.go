@@ -2,6 +2,7 @@ package cmd_test
 
 import (
 	"fmt"
+	"github.com/onsi/gomega/gbytes"
 	"net/http"
 
 	"code.cloudfoundry.org/uaa-cli/config"
@@ -58,6 +59,24 @@ var _ = Describe("Curl", func() {
 			"-H", "Accept: application/json")
 
 		Eventually(session).Should(Exit(0))
+	})
+
+	When("when the server returns a 4xx or 5xx", func() {
+		Context("status code 400", func() {
+			itShouldFailWhenServerReturns(http.StatusBadRequest)
+		})
+
+		Context("status code 404", func() {
+			itShouldFailWhenServerReturns(http.StatusNotFound)
+		})
+
+		Context("status code 500", func() {
+			itShouldFailWhenServerReturns(http.StatusInternalServerError)
+		})
+
+		Context("status code 503", func() {
+			itShouldFailWhenServerReturns(http.StatusServiceUnavailable)
+		})
 	})
 
 	It("can send DELETE request", func() {
@@ -128,3 +147,18 @@ var _ = Describe("Curl", func() {
 		Eventually(session).Should(Exit(0))
 	})
 })
+
+func itShouldFailWhenServerReturns(statusCode int) {
+	BeforeEach(func() {
+		server.RouteToHandler("POST", "/Users", CombineHandlers(
+			VerifyRequest("POST", "/Users", ""),
+			RespondWith(statusCode, "test-response"),
+		))
+	})
+
+	It("returns a nonzero status code", func() {
+		session := runCommand("curl", "/Users", "-X", "POST", "-H", "Accept: application/json")
+		Eventually(session).Should(Exit(1))
+		Eventually(session.Err).Should(gbytes.Say("test-response"))
+	})
+}
