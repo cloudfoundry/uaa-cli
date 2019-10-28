@@ -24,44 +24,61 @@ var _ = Describe("MapGroup", func() {
 		return cfg
 	}
 
+	mockGroupLookup := func(id, groupname string) {
+		server.RouteToHandler("GET", "/Groups", CombineHandlers(
+			VerifyRequest("GET", "/Groups", fmt.Sprintf("filter=displayName+eq+%%22%s%%22&startIndex=1&count=100", groupname)),
+			RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{ID: id, DisplayName: groupname})),
+		))
+	}
+
+	mockExternalGroupMapping := func(externalGroupname, internalGroupId, internalGroupname, origin string) {
+		server.RouteToHandler("POST", "/Groups/External", CombineHandlers(
+			VerifyRequest("POST", "/Groups/External"),
+			VerifyJSONRepresenting(map[string]interface{}{
+				"groupId":       internalGroupId,
+				"externalGroup": externalGroupname,
+				"origin":        origin,
+			}),
+			RespondWith(http.StatusCreated, fixtures.EntityResponse(
+				uaa.GroupMapping{
+					GroupID:       internalGroupId,
+					ExternalGroup: externalGroupname,
+					DisplayName:   internalGroupname,
+					Origin:        origin,
+					Schemas:       []string{"urn:scim:schemas:core:1.0"},
+				})),
+		))
+	}
+
 	Describe("by default", func() {
-		mockGroupLookup := func(id, groupname string) {
-			server.RouteToHandler("GET", "/Groups", CombineHandlers(
-				VerifyRequest("GET", "/Groups", fmt.Sprintf("filter=displayName+eq+%%22%s%%22&startIndex=1&count=100", groupname)),
-				RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.Group{ID: id, DisplayName: groupname})),
-			))
-		}
-
-		mockExternalGroupMapping := func(externalGroupname, internalGroupId, internalGroupname string) {
-			server.RouteToHandler("POST", "/Groups/External", CombineHandlers(
-				VerifyRequest("POST", "/Groups/External"),
-				VerifyJSONRepresenting(map[string]interface{}{
-					"groupId":       internalGroupId,
-					"externalGroup": externalGroupname,
-					"origin":        "ldap",
-				}),
-				RespondWith(http.StatusCreated, fixtures.EntityResponse(
-					uaa.GroupMapping{
-						GroupID:       internalGroupId,
-						ExternalGroup: externalGroupname,
-						DisplayName:   internalGroupname,
-						Origin:        "ldap",
-						Schemas:       []string{"urn:scim:schemas:core:1.0"},
-					})),
-			))
-		}
-
 		BeforeEach(func() {
 			config.WriteConfig(buildConfig(server.URL()))
 		})
 
 		It("Resolves the group name and performs the mapping", func() {
 			mockGroupLookup("internal-group-id", "internal-group")
-			mockExternalGroupMapping("external-group", "internal-group-id", "internal-group")
+			mockExternalGroupMapping("external-group", "internal-group-id", "internal-group", "ldap")
 
 			session := runCommand("map-group", "external-group", "internal-group")
 			//Successfully mapped dan_test_group to external-jeremy-group for origin ldap
 			Eventually(session).Should(Say(`Successfully mapped internal-group to external-group for origin ldap`))
+			Eventually(session).Should(Exit(0))
+			Expect(server.ReceivedRequests()).Should(HaveLen(2))
+		})
+	})
+
+	Describe("with origin", func() {
+		BeforeEach(func() {
+			config.WriteConfig(buildConfig(server.URL()))
+		})
+
+		It("Resolves the group name and performs the mapping", func() {
+			mockGroupLookup("internal-group-id", "internal-group")
+			mockExternalGroupMapping("external-group", "internal-group-id", "internal-group", "saml")
+
+			session := runCommand("map-group", "external-group", "internal-group", "--origin", "saml")
+			//Successfully mapped dan_test_group to external-jeremy-group for origin ldap
+			Eventually(session).Should(Say(`Successfully mapped internal-group to external-group for origin saml`))
 			Eventually(session).Should(Exit(0))
 			Expect(server.ReceivedRequests()).Should(HaveLen(2))
 		})
