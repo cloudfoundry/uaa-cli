@@ -31,8 +31,7 @@ var _ = Describe("UnmapGroup", func() {
 		))
 	}
 
-	mockExternalGroupUnmapping := func(externalGroupname, internalGroupId, internalGroupname string) {
-		origin := "ldap"
+	mockExternalGroupUnmapping := func(externalGroupname, internalGroupId, internalGroupname, origin string) {
 		path := fmt.Sprintf("/Groups/External/groupId/%s/externalGroup/%s/origin/%s", internalGroupId, externalGroupname, origin)
 		server.RouteToHandler("DELETE", path, CombineHandlers(
 			VerifyRequest("DELETE", path),
@@ -54,10 +53,26 @@ var _ = Describe("UnmapGroup", func() {
 
 		It("Resolves the group name and performs the unmapping", func() {
 			mockGroupLookup("internal-group-id", "internal-group")
-			mockExternalGroupUnmapping("external-group", "internal-group-id", "internal-group")
+			mockExternalGroupUnmapping("external-group", "internal-group-id", "internal-group", "ldap")
 
 			session := runCommand("unmap-group", "external-group", "internal-group")
 			Eventually(session).Should(Say(`Successfully unmapped internal-group from external-group for origin ldap`))
+			Eventually(session).Should(Exit(0))
+			Expect(server.ReceivedRequests()).Should(HaveLen(2))
+		})
+	})
+
+	Describe("with origin", func() {
+		BeforeEach(func() {
+			config.WriteConfig(buildConfig(server.URL()))
+		})
+
+		It("Resolves the group name and performs the unmapping", func() {
+			mockGroupLookup("internal-group-id", "internal-group")
+			mockExternalGroupUnmapping("external-group", "internal-group-id", "internal-group", "saml")
+
+			session := runCommand("unmap-group", "external-group", "internal-group", "--origin", "saml")
+			Eventually(session).Should(Say(`Successfully unmapped internal-group from external-group for origin saml`))
 			Eventually(session).Should(Exit(0))
 			Expect(server.ReceivedRequests()).Should(HaveLen(2))
 		})

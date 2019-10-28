@@ -55,4 +55,6 @@ func init() {
 	RootCmd.AddCommand(unmapGroupCmd)
 	unmapGroupCmd.Annotations = make(map[string]string)
 	unmapGroupCmd.Annotations[GROUP_CRUD_CATEGORY] = "true"
+
+	unmapGroupCmd.Flags().StringVarP(&origin, "origin", "", "", "map uaa group to external group for this origin. Defaults to ldap.")
 }
