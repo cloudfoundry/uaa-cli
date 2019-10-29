@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"code.cloudfoundry.org/uaa-cli/cli"
-	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/utils"
-	"errors"
 	"github.com/cloudfoundry-community/go-uaa"
 	"github.com/spf13/cobra"
 )
@@ -27,24 +25,12 @@ func UnmapGroupCmd(api *uaa.API, printer cli.Printer, externalGroupName, groupNa
 	return nil
 }
 
-func UnmapGroupValidations(cfg config.Config, args []string) error {
-	if err := cli.EnsureContextInConfig(cfg); err != nil {
-		return err
-	}
-
-	if len(args) != 2 {
-		return errors.New("The positional arguments EXTERNAL_GROUPNAME and GROUPNAME must be specified.")
-	}
-
-	return nil
-}
-
 var unmapGroupCmd = &cobra.Command{
 	Use:   "unmap-group EXTERNAL_GROUPNAME GROUPNAME",
 	Short: "Unmaps an external group defined within an external identity provider from a uaa group (scope)",
 	PreRun: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
-		cli.NotifyValidationErrors(UnmapGroupValidations(cfg, args), cmd, log)
+		cli.NotifyValidationErrors(GroupMappingValidations(cfg, args), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := UnmapGroupCmd(GetAPIFromSavedTokenInContext(), cli.NewJsonPrinter(log), args[0], args[1], origin)
