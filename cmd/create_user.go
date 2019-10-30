@@ -63,12 +63,6 @@ func CreateUserValidation(cfg config.Config, args []string, familyName, givenNam
 	if len(args) == 0 {
 		return errors.New("The positional argument USERNAME must be specified.")
 	}
-	if familyName == "" {
-		return cli.MissingArgumentError("familyName")
-	}
-	if givenName == "" {
-		return cli.MissingArgumentError("givenName")
-	}
 	if len(emails) == 0 {
 		return cli.MissingArgumentError("email")
 	}
