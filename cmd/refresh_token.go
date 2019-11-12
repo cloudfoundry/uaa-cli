@@ -54,9 +54,6 @@ func RefreshTokenValidations(cfg config.Config, clientSecret string) error {
 	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
-	if clientSecret == "" {
-		return cli.MissingArgumentError("client_secret")
-	}
 	if cfg.GetActiveContext().ClientId == "" {
 		return errors.New("A client_id was not found in the active context.")
 	}

@@ -74,6 +74,27 @@ var _ = Describe("ResfrehToken", func() {
 				Expect(config.ReadConfig().GetActiveContext().Token.TokenType).To(Equal("bearer"))
 			})
 		})
+
+		Describe("with an empty string client secret", func() {
+			BeforeEach(func() {
+				config.WriteConfig(c)
+
+				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+					RespondWith(http.StatusOK, jwtTokenResponseJson, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Basic c2hpbnljbGllbnQ6"),
+					VerifyFormKV("refresh_token", "refresh me"),
+					VerifyFormKV("grant_type", "refresh_token"),
+				),
+				)
+			})
+
+			It("displays a success message", func() {
+				session := runCommand("refresh-token", "-s", "")
+
+				Eventually(session).Should(Exit(0))
+				Eventually(session).Should(Say("Access token successfully fetched and added to active context."))
+			})
+		})
 	})
 
 	Describe("when the token request fails", func() {
@@ -166,23 +187,6 @@ var _ = Describe("ResfrehToken", func() {
 	})
 
 	Describe("Validations", func() {
-		Describe("when called with no client_secret", func() {
-			It("displays help and does not panic", func() {
-				ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
-				ctx.GrantType = config.PASSWORD
-				ctx.Token.RefreshToken = "refresh me"
-				ctx.ClientId = "shinyclient"
-				ctx.Username = "woodstock"
-				c.AddContext(ctx)
-				config.WriteConfig(c)
-
-				session := runCommand("refresh-token")
-
-				Eventually(session).Should(Exit(1))
-				Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
-			})
-		})
-
 		Describe("when called with no refresh token in the saved context", func() {
 			It("displays help and does not panic", func() {
 				c := config.NewConfigWithServerURL("http://localhost")
