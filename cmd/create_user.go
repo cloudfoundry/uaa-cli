@@ -63,12 +63,6 @@ func CreateUserValidation(cfg config.Config, args []string, familyName, givenNam
 	if len(args) == 0 {
 		return errors.New("The positional argument USERNAME must be specified.")
 	}
-	if familyName == "" {
-		return cli.MissingArgumentError("familyName")
-	}
-	if givenName == "" {
-		return cli.MissingArgumentError("givenName")
-	}
 	if len(emails) == 0 {
 		return cli.MissingArgumentError("email")
 	}
@@ -95,8 +89,8 @@ func init() {
 	createUserCmd.Annotations = make(map[string]string)
 	createUserCmd.Annotations[USER_CRUD_CATEGORY] = "true"
 
-	createUserCmd.Flags().StringVarP(&familyName, "familyName", "", "", "family name (required)")
-	createUserCmd.Flags().StringVarP(&givenName, "givenName", "", "", "given name (required)")
+	createUserCmd.Flags().StringVarP(&familyName, "familyName", "", "", "family name (optional)")
+	createUserCmd.Flags().StringVarP(&givenName, "givenName", "", "", "given name (optional)")
 	createUserCmd.Flags().StringVarP(&userPassword, "password", "p", "", `user password (required for "uaa" origin)`)
 	createUserCmd.Flags().StringVarP(&origin, "origin", "o", "uaa", "user origin")
 	createUserCmd.Flags().StringSliceVarP(&emails, "email", "", []string{}, "email address (required, multiple may be specified)")
