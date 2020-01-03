@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.1
-	github.com/fatih/color v1.7.0
+	github.com/fatih/color v1.8.0
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
