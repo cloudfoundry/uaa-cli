@@ -13,7 +13,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.0-20170719101040-be5337e7b39e
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.0
 	github.com/skratchdot/open-golang v0.0.0-20160302144031-75fb7ed4208c
 	github.com/spf13/cobra v0.0.0-20170820023359-4a7b7e65864c
 	github.com/spf13/pflag v1.0.0 // indirect
