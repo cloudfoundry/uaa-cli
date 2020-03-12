@@ -18,6 +18,11 @@ cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
 make && make install
 uaa -h
 ```
+Or, install it using brew.  It's been made available as part of the [cloudfoundry tap](https://github.com/cloudfoundry/homebrew-tap)
+
+```
+brew install cloudfoundry/tap/uaa-cli
+```
 
 ## Development notes
 
