@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.1
-	github.com/fatih/color v1.9.0
+	github.com/fatih/color v1.11.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.0-20170719101040-be5337e7b39e
