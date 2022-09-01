@@ -9,7 +9,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.2 // indirect
 	github.com/olekukonko/tablewriter v0.0.0-20170719101040-be5337e7b39e
 	github.com/onsi/ginkgo v1.16.5
-	github.com/onsi/gomega v1.20.0
+	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/skratchdot/open-golang v0.0.0-20160302144031-75fb7ed4208c
 	github.com/spf13/cobra v0.0.0-20170820023359-4a7b7e65864c
