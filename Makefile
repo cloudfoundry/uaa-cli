@@ -25,8 +25,7 @@ ginkgo:
 test: format ginkgo
 
 dep:
-		go get github.com/onsi/ginkgo/ginkgo
-		go get github.com/onsi/gomega
+		go install github.com/onsi/ginkgo/ginkgo@latest
 
 ci: ginkgo
 
