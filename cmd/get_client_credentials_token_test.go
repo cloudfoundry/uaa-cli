@@ -109,7 +109,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			config.WriteConfig(c)
 		})
 
-		Describe("when there is a 4** or 5** error ", func() {
+		Describe("when there is a 401 response", func() {
 			BeforeEach(func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusUnauthorized, `{"error":"unauthorized","error_description":"Bad credentials"}`),
@@ -133,7 +133,7 @@ var _ = Describe("GetClientCredentialsToken", func() {
 			})
 		})
 
-		Describe("when there is a 3** error", func() {
+		Describe("when there is a 301 response", func() {
 			BeforeEach(func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
 					RespondWith(http.StatusMovedPermanently, `{"error":"permanently_moved","error_description":"The auth server URL has been permanently moved"}`),
