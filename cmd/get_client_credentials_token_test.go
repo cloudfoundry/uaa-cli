@@ -136,14 +136,17 @@ var _ = Describe("GetClientCredentialsToken", func() {
 		Describe("when there is a 3** error", func() {
 			BeforeEach(func() {
 				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
-					RespondWith(http.StatusMovedPermanently, ""),
+					RespondWith(http.StatusMovedPermanently, `{"error":"permanently_moved","error_description":"The auth server URL has been permanently moved"}`),
 				))
 			})
 
 			It("displays help to the user", func() {
 				session := runCommand("get-client-credentials-token", "admin", "-s", "adminsecret")
 				Eventually(session).Should(Exit(1))
-				Eventually(session.Err).Should(Say("An error occurred while fetching token."))
+				Eventually(session.Err).Should(Say(`An error occurred while calling ` + server.URL() + `/oauth/token`))
+				var out bytes.Buffer
+				_ = json.Indent(&out, []byte(`{"error":"permanently_moved","error_description":"The auth server URL has been permanently moved"}`), "", "  ")
+				Eventually(session.Err).Should(Say(string(out.Bytes())))
 			})
 
 			It("does not update the previously saved context", func() {
