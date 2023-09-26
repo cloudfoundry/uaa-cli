@@ -35,6 +35,7 @@ build:
 
 build_all:
 		mkdir -p build
+		GOOS=darwin GOARCH=arm64 go build $(GOFLAGS) -o $(BUILD_DEST)-darwin-arm64
 		GOOS=darwin GOARCH=amd64 go build $(GOFLAGS) -o $(BUILD_DEST)-darwin-amd64
 		GOOS=linux GOARCH=amd64 go build $(GOFLAGS) -o $(BUILD_DEST)-linux-amd64
 		GOOS=windows GOARCH=amd64 go build $(GOFLAGS) -o $(BUILD_DEST)-windows-amd64
