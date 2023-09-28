@@ -1,6 +1,6 @@
 module code.cloudfoundry.org/uaa-cli
 
-go 1.20
+go 1.21
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.2

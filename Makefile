@@ -31,7 +31,7 @@ ci: ginkgo
 
 build:
 		mkdir -p build
-		go build $(GOFLAGS) -o $(BUILD_DEST)
+		CGO_ENABLED=0 go build $(GOFLAGS) -o $(BUILD_DEST)
 
 build_all:
 		mkdir -p build
