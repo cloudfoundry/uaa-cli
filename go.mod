@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.2
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.33.1
