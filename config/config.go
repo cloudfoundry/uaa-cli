@@ -16,6 +16,7 @@ const (
 	IMPLICIT           = GrantType("implicit")
 	PASSWORD           = GrantType("password")
 	CLIENT_CREDENTIALS = GrantType("client_credentials")
+	UAA_HOME_ENV_VAR   = "UAA_HOME"
 )
 
 type Config struct {
@@ -110,6 +111,10 @@ func (uc UaaContext) name() string {
 }
 
 func ConfigDir() string {
+	if path, found := os.LookupEnv(UAA_HOME_ENV_VAR); found {
+		return path
+	}
+
 	return path.Join(userHomeDir(), ".uaa")
 }
 
