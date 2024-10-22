@@ -6,7 +6,7 @@ toolchain go1.22.5
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.3
-	github.com/fatih/color v1.17.0
+	github.com/fatih/color v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.34.2
