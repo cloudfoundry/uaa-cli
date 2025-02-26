@@ -5,7 +5,7 @@ package config_test
 
 import (
 	"code.cloudfoundry.org/uaa-cli/config"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 

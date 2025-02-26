@@ -20,7 +20,7 @@ format:
 		go fmt ./...
 
 ginkgo:
-		go run github.com/onsi/ginkgo/ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race
+		go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race
 
 test: format ginkgo
 
@@ -40,3 +40,6 @@ build_all:
 install:
 		rm -rf $(INSTALL_DEST)
 		cp $(BUILD_DEST) $(INSTALL_DEST)
+
+cve: build
+		grype file:$(BUILD_DEST)

@@ -3,7 +3,7 @@ package cli_test
 import (
 	. "code.cloudfoundry.org/uaa-cli/cli"
 	"fmt"
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gstruct"
 	"io/ioutil"
@@ -25,10 +25,6 @@ var _ = Describe("AuthCallbackServer", func() {
 		randPort   int
 		logger     Logger
 	)
-
-	BeforeSuite(func() {
-		rand.Seed(time.Now().Unix())
-	})
 
 	BeforeEach(func() {
 		randPort = rand.Intn(50000-8000) + 8000
