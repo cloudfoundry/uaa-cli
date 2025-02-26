@@ -2,8 +2,8 @@
 
 BUILD_DEST = build/uaa
 INSTALL_DEST = $(GOPATH)/bin/uaa
-COMMIT_HASH=`git rev-parse --short HEAD`
-GOFILES=`find . -type f -name '*.go'`
+COMMIT_HASH=$(shell git rev-parse --short HEAD)
+GOFILES=$(shell find . -type f -name '*.go')
 
 ifndef VERSION
 	VERSION = DEV
