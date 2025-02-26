@@ -1,4 +1,4 @@
-.PHONY: all build ci clean dep format ginkgo test install
+.PHONY: all build ci clean format ginkgo test install
 
 BUILD_DEST = build/uaa
 INSTALL_DEST = $(GOPATH)/bin/uaa
@@ -11,7 +11,7 @@ endif
 
 GOFLAGS := -v -ldflags "-X code.cloudfoundry.org/uaa-cli/version.Version=${VERSION} -X code.cloudfoundry.org/uaa-cli/version.Commit=${COMMIT_HASH}"
 
-all: dep test clean build
+all: test clean build
 
 clean:
 		rm -rf build
@@ -20,12 +20,9 @@ format:
 		gofmt -l -s -w ${GOFILES}
 
 ginkgo:
-		bin/test 2>&1
+		go run github.com/onsi/ginkgo/ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race
 
 test: format ginkgo
-
-dep:
-		go install github.com/onsi/ginkgo/ginkgo@latest
 
 ci: ginkgo
 
