@@ -17,7 +17,7 @@ clean:
 		rm -rf build
 
 format:
-		gofmt -l -s -w ${GOFILES}
+		go fmt ./...
 
 ginkgo:
 		go run github.com/onsi/ginkgo/ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race
