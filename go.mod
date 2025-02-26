@@ -1,8 +1,7 @@
 module code.cloudfoundry.org/uaa-cli
 
 go 1.22.0
-
-toolchain go1.22.10
+toolchain go1.23.6
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.3
@@ -13,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/skratchdot/open-golang v0.0.0-20160302144031-75fb7ed4208c
 	github.com/spf13/cobra v1.9.1
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.35.0
 	golang.org/x/oauth2 v0.26.0
 )
 
