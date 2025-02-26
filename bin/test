@@ -2,4 +2,4 @@
 
 set -x
 
-ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race $@
+go run github.com/onsi/ginkgo/ginkgo -v -r -randomizeSuites -randomizeAllSpecs -race $@
