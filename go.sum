@@ -1,5 +1,5 @@
-github.com/cloudfoundry-community/go-uaa v0.3.4 h1:+pMMwP6x5b4sV05BBCLRqnSCdtQ9f/jhqGDbblN9B8Q=
-github.com/cloudfoundry-community/go-uaa v0.3.4/go.mod h1:r1+XbkiLC7Ct6NMWlxPaPxGIRlMeq/6XMs0t+l8xRYY=
+github.com/cloudfoundry-community/go-uaa v0.3.5 h1:w1ssRROOkdSslibe3rczThD2XSFidtfFrGNZxQpig2g=
+github.com/cloudfoundry-community/go-uaa v0.3.5/go.mod h1:gH8gdgmUJQj/zZ3WZNWmzFLc7x15fQH9oAuoi4A+rxI=
 github.com/cpuguy83/go-md2man/v2 v2.0.6/go.mod h1:oOW0eioCTA6cOiMLiUPZOpcVxMig6NIQQ7OS05n1F4g=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

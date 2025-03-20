@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.0
 
 require (
-	github.com/cloudfoundry-community/go-uaa v0.3.4
+	github.com/cloudfoundry-community/go-uaa v0.3.5
 	github.com/fatih/color v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.23.1
