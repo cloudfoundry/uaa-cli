@@ -2,14 +2,12 @@ module code.cloudfoundry.org/uaa-cli
 
 go 1.24
 
-toolchain go1.24.0
-
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.5
 	github.com/fatih/color v1.18.0
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/onsi/ginkgo/v2 v2.23.3
-	github.com/onsi/gomega v1.36.2
+	github.com/onsi/gomega v1.37.0
 	github.com/pkg/errors v0.9.1
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.9.1
