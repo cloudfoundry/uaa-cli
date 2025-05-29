@@ -27,11 +27,11 @@ var contextsCmd = cobra.Command{
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"ClientID", "Username", "Grant Type"})
+		table.Header("ClientID", "Username", "Grant Type")
 		for _, context := range c.GetActiveTarget().Contexts {
-			table.Append([]string{context.ClientId, context.Username, string(context.GrantType)})
+			_ = table.Append(context.ClientId, context.Username, string(context.GrantType))
 		}
-		table.Render()
+		_ = table.Render()
 	},
 }
 

@@ -12,7 +12,7 @@ var _ = Describe("Contexts", func() {
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
 			c := config.NewConfig()
-			config.WriteConfig(c)
+			Expect(config.WriteConfig(c)).Error().ShouldNot(HaveOccurred())
 		})
 
 		It("tells the user to set a target", func() {
@@ -27,7 +27,7 @@ var _ = Describe("Contexts", func() {
 	Describe("when a target was previously set but there is no active context", func() {
 		BeforeEach(func() {
 			c := config.NewConfigWithServerURL("http://login.somewhere.com")
-			config.WriteConfig(c)
+			Expect(config.WriteConfig(c)).Error().ShouldNot(HaveOccurred())
 		})
 
 		It("tells the user to set a context", func() {
@@ -44,14 +44,14 @@ var _ = Describe("Contexts", func() {
 			c := config.NewConfigWithServerURL("http://login.somewhere.com")
 			ctx1 := config.UaaContext{ClientId: "admin", Username: "woodstock", GrantType: config.PASSWORD}
 			c.AddContext(ctx1)
-			config.WriteConfig(c)
+			Expect(config.WriteConfig(c)).Error().ShouldNot(HaveOccurred())
 		})
 
 		It("prints a table of results", func() {
 			session := runCommand("contexts")
 
 			// Headings
-			Expect(session.Out).Should(Say("CLIENTID"))
+			Expect(session.Out).Should(Say("CLIENT ID"))
 			Expect(session.Out).Should(Say("USERNAME"))
 			Expect(session.Out).Should(Say("GRANT TYPE"))
 
