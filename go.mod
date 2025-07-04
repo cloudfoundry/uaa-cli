@@ -5,7 +5,7 @@ go 1.24
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.5
 	github.com/fatih/color v1.18.0
-	github.com/olekukonko/tablewriter v1.0.7
+	github.com/olekukonko/tablewriter v1.0.8
 	github.com/onsi/ginkgo/v2 v2.23.4
 	github.com/onsi/gomega v1.37.0
 	github.com/pkg/errors v0.9.1
