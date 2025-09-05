@@ -28,6 +28,12 @@ var (
 	verbose           bool
 )
 
+// Context flags
+var (
+	showAccessToken bool
+	showAuthHeader  bool
+)
+
 // Client flags
 var (
 	clientSecret         string
