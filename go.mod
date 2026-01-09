@@ -3,7 +3,7 @@ module code.cloudfoundry.org/uaa-cli
 go 1.24.0
 
 require (
-	github.com/cloudfoundry-community/go-uaa v0.3.5
+	github.com/cloudfoundry-community/go-uaa v0.3.6
 	github.com/fatih/color v1.18.0
 	github.com/olekukonko/tablewriter v1.1.2
 	github.com/onsi/ginkgo/v2 v2.27.4
