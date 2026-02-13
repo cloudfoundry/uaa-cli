@@ -1,0 +1,26 @@
+name: Go
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: stable
+        check-latest: true
+
+    - name: Build
+      run: go build -v ./...
+
+    - name: Test
+      run: go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race
