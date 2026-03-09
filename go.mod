@@ -1,6 +1,6 @@
 module code.cloudfoundry.org/uaa-cli
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.6
@@ -12,7 +12,7 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.10.2
 	golang.org/x/crypto v0.48.0
-	golang.org/x/oauth2 v0.35.0
+	golang.org/x/oauth2 v0.36.0
 )
 
 require (
