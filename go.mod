@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/cloudfoundry-community/go-uaa v0.3.6
-	github.com/fatih/color v1.18.0
+	github.com/fatih/color v1.19.0
 	github.com/olekukonko/tablewriter v1.1.3
 	github.com/onsi/ginkgo/v2 v2.28.1
 	github.com/onsi/gomega v1.39.1
