@@ -1,5 +1,7 @@
 # userinfo
 
+[← Command Reference](../commands.md)
+
 Display claims about the currently authenticated user by calling the UAA's `/userinfo` endpoint.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa userinfo
 **Got a token but `userinfo` returns an error:**
 - Verify your token is still valid by running another authenticated command.
 - Check that `openid` appears in the scopes listed by `uaa context`. The `/userinfo` endpoint requires the `openid` scope. Update your client registration to include `openid` in its `scope` list if needed.
+
+---
+
+[← Command Reference](../commands.md)

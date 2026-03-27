@@ -1,5 +1,7 @@
 # deactivate-user
 
+[← Command Reference](../commands.md)
+
 Deactivate a user account by username. The account is suspended but not deleted.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa deactivate-user bob --zone my-zone
 
 - [activate-user](activate-user.md)
 - [delete-user](delete-user.md)
+
+---
+
+[← Command Reference](../commands.md)

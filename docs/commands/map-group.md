@@ -1,5 +1,7 @@
 # map-group
 
+[← Command Reference](../commands.md)
+
 Map a UAA group (scope) to an external group defined within an external identity provider.
 
 ## Usage
@@ -36,3 +38,7 @@ uaa map-group "developers" cloud_controller.read --origin okta
 
 - [unmap-group](unmap-group.md)
 - [list-group-mappings](list-group-mappings.md)
+
+---
+
+[← Command Reference](../commands.md)

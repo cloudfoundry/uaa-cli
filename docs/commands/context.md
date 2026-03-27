@@ -1,5 +1,7 @@
 # context
 
+[← Command Reference](../commands.md)
+
 Display information about the currently active CLI context, including the cached access token and its metadata.
 
 ## Usage
@@ -35,3 +37,7 @@ uaa context --access_token
 # Show the Authorization header value
 uaa context --auth_header
 ```
+
+---
+
+[← Command Reference](../commands.md)

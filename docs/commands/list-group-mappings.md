@@ -1,5 +1,7 @@
 # list-group-mappings
 
+[← Command Reference](../commands.md)
+
 List all mappings between UAA groups (scopes) and external groups from identity providers.
 
 ## Usage
@@ -24,3 +26,7 @@ uaa list-group-mappings
 
 - [map-group](map-group.md)
 - [unmap-group](unmap-group.md)
+
+---
+
+[← Command Reference](../commands.md)

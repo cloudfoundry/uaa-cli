@@ -1,5 +1,7 @@
 # list-clients
 
+[← Command Reference](../commands.md)
+
 List all client registrations in the targeted UAA.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa list-clients --zone my-zone
 
 - [get-client](get-client.md)
 - [create-client](create-client.md)
+
+---
+
+[← Command Reference](../commands.md)

@@ -1,5 +1,7 @@
 # create-user
 
+[← Command Reference](../commands.md)
+
 Create a user account in the UAA.
 
 ## Usage
@@ -57,3 +59,7 @@ uaa create-user carol \
 - [get-user](get-user.md)
 - [list-users](list-users.md)
 - [delete-user](delete-user.md)
+
+---
+
+[← Command Reference](../commands.md)

@@ -1,5 +1,7 @@
 # update-client
 
+[← Command Reference](../commands.md)
+
 Update an existing OAuth client registration in the UAA.
 
 ## Usage
@@ -40,3 +42,7 @@ uaa update-client my-app --access_token_validity 3600
 - [create-client](create-client.md)
 - [get-client](get-client.md)
 - [set-client-secret](set-client-secret.md)
+
+---
+
+[← Command Reference](../commands.md)

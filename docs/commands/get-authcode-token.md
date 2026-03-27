@@ -1,5 +1,7 @@
 # get-authcode-token
 
+[← Command Reference](../commands.md)
+
 Obtain an access token using the `authorization_code` grant type and save it to the active context. Opens a browser window for the user to authenticate.
 
 ## Usage
@@ -44,3 +46,7 @@ uaa context
 **Token does not have expected scopes:**
 - Check the `scope` field of the client registration.
 - Verify the user has the correct group memberships.
+
+---
+
+[← Command Reference](../commands.md)

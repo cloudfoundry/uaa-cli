@@ -1,5 +1,7 @@
 # add-member
 
+[← Command Reference](../commands.md)
+
 Add a user to a group.
 
 ## Usage
@@ -25,3 +27,7 @@ uaa add-member cloud_controller.read bob
 - [remove-member](remove-member.md)
 - [get-group](get-group.md)
 - [create-group](create-group.md)
+
+---
+
+[← Command Reference](../commands.md)

@@ -1,5 +1,7 @@
 # get-group
 
+[← Command Reference](../commands.md)
+
 Look up a group by group name.
 
 ## Usage
@@ -33,3 +35,7 @@ uaa get-group cloud_controller.read --attributes id,displayName,members
 - [list-groups](list-groups.md)
 - [create-group](create-group.md)
 - [add-member](add-member.md)
+
+---
+
+[← Command Reference](../commands.md)

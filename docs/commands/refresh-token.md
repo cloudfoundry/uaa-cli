@@ -1,5 +1,7 @@
 # refresh-token
 
+[← Command Reference](../commands.md)
+
 Obtain a new access token using the `refresh_token` grant type and update the active context.
 
 ## Usage
@@ -41,3 +43,7 @@ uaa context                          # access_token should now be updated
 - **Implicit grant:** Implicit clients cannot maintain secrets and are never issued refresh tokens.
 - **Authorization code / password grant:** The client must include `refresh_token` in its `authorized_grant_types`. Run `uaa get-client CLIENT_ID` to verify.
 - **Client credentials grant:** Refresh tokens are never issued for `client_credentials`. Re-authenticate using `get-client-credentials-token` at any time.
+
+---
+
+[← Command Reference](../commands.md)

@@ -1,5 +1,7 @@
 # delete-client
 
+[← Command Reference](../commands.md)
+
 Delete an OAuth client registration from the UAA.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa delete-client my-app --zone my-zone
 
 - [create-client](create-client.md)
 - [list-clients](list-clients.md)
+
+---
+
+[← Command Reference](../commands.md)

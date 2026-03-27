@@ -1,5 +1,7 @@
 # version
 
+[← Command Reference](../commands.md)
+
 Print the CLI version.
 
 ## Usage
@@ -13,3 +15,7 @@ uaa version
 ```bash
 uaa version
 ```
+
+---
+
+[← Command Reference](../commands.md)

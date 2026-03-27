@@ -1,5 +1,7 @@
 # remove-member
 
+[← Command Reference](../commands.md)
+
 Remove a user from a group.
 
 ## Usage
@@ -24,3 +26,7 @@ uaa remove-member cloud_controller.read bob
 
 - [add-member](add-member.md)
 - [get-group](get-group.md)
+
+---
+
+[← Command Reference](../commands.md)

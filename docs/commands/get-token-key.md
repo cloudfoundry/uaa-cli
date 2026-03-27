@@ -1,5 +1,7 @@
 # get-token-key
 
+[← Command Reference](../commands.md)
+
 View the key the UAA uses to sign JWT tokens.
 
 ## Usage
@@ -26,3 +28,7 @@ uaa get-token-key
 ## See Also
 
 - [get-token-keys](get-token-keys.md) — view all signing keys the UAA has used
+
+---
+
+[← Command Reference](../commands.md)

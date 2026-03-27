@@ -1,5 +1,7 @@
 # curl
 
+[← Command Reference](../commands.md)
+
 Make an authenticated HTTP request to a UAA endpoint.
 
 ## Usage
@@ -42,3 +44,7 @@ uaa curl /Users \
     -H "Accept: application/json" \
     -H "X-Identity-Zone-Id: my-zone"
 ```
+
+---
+
+[← Command Reference](../commands.md)

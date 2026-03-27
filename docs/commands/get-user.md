@@ -1,5 +1,7 @@
 # get-user
 
+[← Command Reference](../commands.md)
+
 Look up a user account by username.
 
 ## Usage
@@ -35,3 +37,7 @@ uaa get-user bob --attributes id,userName,emails
 - [list-users](list-users.md)
 - [create-user](create-user.md)
 - [delete-user](delete-user.md)
+
+---
+
+[← Command Reference](../commands.md)

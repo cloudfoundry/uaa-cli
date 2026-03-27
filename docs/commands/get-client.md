@@ -1,5 +1,7 @@
 # get-client
 
+[← Command Reference](../commands.md)
+
 View the registration details for an OAuth client.
 
 ## Usage
@@ -32,3 +34,7 @@ uaa get-client my-app --zone my-zone
 - [list-clients](list-clients.md)
 - [create-client](create-client.md)
 - [update-client](update-client.md)
+
+---
+
+[← Command Reference](../commands.md)

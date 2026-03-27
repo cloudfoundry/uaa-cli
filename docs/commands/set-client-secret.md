@@ -1,5 +1,7 @@
 # set-client-secret
 
+[← Command Reference](../commands.md)
+
 Update the secret for an OAuth client registration.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa set-client-secret my-app -s new-secret --zone my-zone
 ## See Also
 
 - [update-client](update-client.md)
+
+---
+
+[← Command Reference](../commands.md)

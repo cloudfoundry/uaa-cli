@@ -1,5 +1,7 @@
 # delete-user
 
+[← Command Reference](../commands.md)
+
 Delete a user account by username.
 
 ## Usage
@@ -31,3 +33,7 @@ uaa delete-user bob --origin ldap
 
 - [get-user](get-user.md)
 - [deactivate-user](deactivate-user.md)
+
+---
+
+[← Command Reference](../commands.md)

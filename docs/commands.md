@@ -2,6 +2,8 @@
 
 All commands support `-v` / `--verbose` to print detailed HTTP request/response information.
 
+Each command name below links to a page with a full description, including all available flags and usage examples.
+
 ## Getting Started
 
 | Command | Description |

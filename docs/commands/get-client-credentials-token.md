@@ -1,5 +1,7 @@
 # get-client-credentials-token
 
+[← Command Reference](../commands.md)
+
 Obtain an access token using the `client_credentials` grant type and save it to the active context.
 
 ## Usage
@@ -45,3 +47,7 @@ uaa context
 
 **Token does not have expected scopes:**
 - Check the `authorities` field of the client registration — this controls scopes in `client_credentials` tokens, not the `scope` field.
+
+---
+
+[← Command Reference](../commands.md)

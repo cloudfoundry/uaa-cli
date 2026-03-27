@@ -1,5 +1,7 @@
 # list-groups
 
+[← Command Reference](../commands.md)
+
 Search and list groups using SCIM filters.
 
 ## Usage
@@ -44,3 +46,7 @@ uaa list-groups --attributes id,displayName
 
 - [get-group](get-group.md)
 - [create-group](create-group.md)
+
+---
+
+[← Command Reference](../commands.md)

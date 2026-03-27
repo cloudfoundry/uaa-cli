@@ -1,5 +1,7 @@
 # activate-user
 
+[← Command Reference](../commands.md)
+
 Activate a previously deactivated user account by username.
 
 ## Usage
@@ -24,3 +26,7 @@ uaa activate-user bob
 
 - [deactivate-user](deactivate-user.md)
 - [get-user](get-user.md)
+
+---
+
+[← Command Reference](../commands.md)

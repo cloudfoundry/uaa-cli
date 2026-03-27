@@ -1,5 +1,7 @@
 # target
 
+[← Command Reference](../commands.md)
+
 Set the URL of the UAA you'd like to target, or display the current target.
 
 ## Usage
@@ -37,3 +39,7 @@ uaa target https://uaa.example.com --skip-ssl-validation
 # Display the current target
 uaa target
 ```
+
+---
+
+[← Command Reference](../commands.md)

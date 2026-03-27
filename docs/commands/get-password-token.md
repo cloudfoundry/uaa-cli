@@ -1,5 +1,7 @@
 # get-password-token
 
+[← Command Reference](../commands.md)
+
 Obtain an access token using the resource owner password credentials (`password`) grant type and save it to the active context.
 
 ## Usage
@@ -46,3 +48,7 @@ uaa context
 **Token does not have expected scopes:**
 - Check the `scope` field of the client registration.
 - Verify the user has the correct group memberships. Token scopes are the intersection of the client's `scope` and the user's group memberships.
+
+---
+
+[← Command Reference](../commands.md)

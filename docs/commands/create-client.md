@@ -1,5 +1,7 @@
 # create-client
 
+[← Command Reference](../commands.md)
+
 Create an OAuth client registration in the UAA.
 
 ## Usage
@@ -72,3 +74,7 @@ uaa create-client trusted-cli-copy \
 - [delete-client](delete-client.md)
 - [get-client](get-client.md)
 - [list-clients](list-clients.md)
+
+---
+
+[← Command Reference](../commands.md)

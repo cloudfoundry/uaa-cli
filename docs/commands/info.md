@@ -1,5 +1,7 @@
 # info
 
+[← Command Reference](../commands.md)
+
 Display version and global configuration information for the targeted UAA.
 
 ## Usage
@@ -19,3 +21,7 @@ uaa info
 ```bash
 uaa info
 ```
+
+---
+
+[← Command Reference](../commands.md)

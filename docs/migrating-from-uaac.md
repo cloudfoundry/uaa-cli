@@ -1,6 +1,7 @@
 # Migrating from uaac
 
 This guide helps users of the Ruby-based [cf-uaac](https://github.com/cloudfoundry/cf-uaac) (`uaac`) CLI transition to the Go-based `uaa` CLI.
+See the [UAA-CLI Command Reference](docs/commands.md) for the full list of `uaa` commands and their options.
 
 ## Key Differences
 

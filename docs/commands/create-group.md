@@ -1,5 +1,7 @@
 # create-group
 
+[← Command Reference](../commands.md)
+
 Create a group (scope) in the UAA.
 
 ## Usage
@@ -34,3 +36,7 @@ uaa create-group my-scope --zone my-zone
 - [get-group](get-group.md)
 - [list-groups](list-groups.md)
 - [add-member](add-member.md)
+
+---
+
+[← Command Reference](../commands.md)

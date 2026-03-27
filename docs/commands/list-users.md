@@ -1,5 +1,7 @@
 # list-users
 
+[← Command Reference](../commands.md)
+
 Search and list user accounts using SCIM filters.
 
 ## Usage
@@ -57,3 +59,7 @@ uaa list-users --filter 'userName eq "bob@example.com"'
 
 - [get-user](get-user.md)
 - [create-user](create-user.md)
+
+---
+
+[← Command Reference](../commands.md)
