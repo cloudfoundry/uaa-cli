@@ -14,7 +14,6 @@ uaa update-client CLIENT_ID [flags]
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
-| `--client_secret` | `-s` | | Client secret |
 | `--authorized_grant_types` | | | Comma-separated list of grant types allowed for this client |
 | `--scope` | | | Comma-separated scopes for `authorization_code`, `implicit`, or `password` grants |
 | `--authorities` | | | Comma-separated scopes for `client_credentials` grant |
@@ -36,6 +35,8 @@ uaa update-client CLIENT_ID [flags]
 uaa update-client my-app --scope openid,profile,email
 uaa update-client my-app --access_token_validity 3600
 ```
+
+> To change a client's secret, use [`set-client-secret`](set-client-secret.md) — `update-client` does not support secret rotation.
 
 ## See Also
 

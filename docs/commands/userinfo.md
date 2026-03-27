@@ -18,7 +18,7 @@ uaa userinfo
 
 ## Background
 
-The `userinfo` command calls the UAA's `/userinfo` endpoint, which is implemented in accordance with the OIDC 1.1 spec. It returns claims about the authenticated user using the access token saved in the current context.
+The `userinfo` command calls the UAA's `/userinfo` endpoint, which is implemented in accordance with the OpenID Connect Core 1.0 spec. It returns claims about the authenticated user using the access token saved in the current context.
 
 ## Examples
 
