@@ -20,6 +20,7 @@ When called with no arguments, displays the currently targeted UAA URL and its s
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
 | `--skip-ssl-validation` | `-k` | `false` | Disable SSL certificate validation for requests to this target |
+| `--force` | `-f` | `false` | Save the target without verifying connectivity (skip the `/info` check) |
 
 ## Global Flags
 
@@ -35,6 +36,9 @@ uaa target https://uaa.example.com
 
 # Set a target, skipping SSL validation
 uaa target https://uaa.example.com --skip-ssl-validation
+
+# Set a target without checking connectivity (useful for unreachable or not-yet-running UAAs)
+uaa target https://uaa.example.com --force
 
 # Display the current target
 uaa target
