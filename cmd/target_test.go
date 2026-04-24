@@ -118,6 +118,32 @@ var _ = Describe("Target", func() {
 			})
 		})
 
+		Describe("when --force is set", func() {
+			It("saves the target without making a connectivity check", func() {
+				// No handler registered — any real request would cause the test server to fail.
+				// We verify no /info call is made by not registering a handler and still expecting success.
+				session := runCommand("target", server.URL(), "--force")
+
+				Eventually(session).Should(Exit(0))
+				Eventually(session.Out).Should(Say("Target set to " + server.URL()))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal(server.URL()))
+			})
+
+			It("saves the target even when the UAA is unreachable", func() {
+				session := runCommand("target", "http://does-not-exist.invalid", "--force")
+
+				Eventually(session).Should(Exit(0))
+				Eventually(session.Out).Should(Say("Target set to http://does-not-exist.invalid"))
+				Expect(config.ReadConfig().GetActiveTarget().BaseUrl).To(Equal("http://does-not-exist.invalid"))
+			})
+
+			It("respects --skip-ssl-validation together with --force", func() {
+				runCommand("target", server.URL(), "--force", "--skip-ssl-validation")
+
+				Expect(config.ReadConfig().GetActiveTarget().SkipSSLValidation).To(BeTrue())
+			})
+		})
+
 		Describe("when the UAA cannot be reached", func() {
 			BeforeEach(func() {
 				server.RouteToHandler("GET", "/info",

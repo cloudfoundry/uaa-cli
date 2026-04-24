@@ -45,11 +45,12 @@ func UpdateTargetCmd(cfg config.Config, newTarget string, log cli.Logger) error 
 	}
 	cfg.AddTarget(target)
 
-	api := GetUnauthenticatedAPIFromConfig(cfg)
-	_, err := api.GetInfo()
-
-	if err != nil {
-		return errors.New(fmt.Sprintf("The target %s could not be set: %v", newTarget, err.Error()))
+	if !forceTarget {
+		api := GetUnauthenticatedAPIFromConfig(cfg)
+		_, err := api.GetInfo()
+		if err != nil {
+			return errors.New(fmt.Sprintf("The target %s could not be set: %v", newTarget, err.Error()))
+		}
 	}
 
 	config.WriteConfig(cfg)
@@ -77,9 +78,12 @@ var targetCmd = &cobra.Command{
 	},
 }
 
+var forceTarget bool
+
 func init() {
 	RootCmd.AddCommand(targetCmd)
 	targetCmd.Flags().BoolVarP(&skipSSLValidation, "skip-ssl-validation", "k", false, "Disable security validation on requests to this target")
+	targetCmd.Flags().BoolVarP(&forceTarget, "force", "f", false, "Set target without verifying connectivity")
 	targetCmd.Annotations = make(map[string]string)
 	targetCmd.Annotations[INTRO_CATEGORY] = "true"
 }
