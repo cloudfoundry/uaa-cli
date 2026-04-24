@@ -9,6 +9,7 @@ Each command name below links to a page with a full description, including all a
 | Command | Description |
 |---------|-------------|
 | [`target`](commands/target.md) | Set the URL of the UAA you'd like to target |
+| [`targets`](commands/targets.md) | List all registered targets |
 | [`context`](commands/context.md) | See information about the currently active CLI context |
 | [`info`](commands/info.md) | See version and global configurations for the targeted UAA |
 | [`version`](commands/version.md) | Print CLI version |
@@ -24,6 +25,7 @@ Each command name below links to a page with a full description, including all a
 | [`refresh-token`](commands/refresh-token.md) | Obtain a new access token using a refresh token |
 | [`get-token-key`](commands/get-token-key.md) | View the key for validating UAA's JWT token signatures |
 | [`get-token-keys`](commands/get-token-keys.md) | View all keys the UAA has used to sign JWT tokens |
+| [`decode-token`](commands/decode-token.md) | Decode a JWT and display its claims; optionally verify signature or show human-readable timestamps |
 
 ## Managing Clients
 
