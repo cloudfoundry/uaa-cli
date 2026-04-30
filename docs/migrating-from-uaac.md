@@ -1,17 +1,25 @@
 # Migrating from uaac
 
 This guide helps users of the Ruby-based [cf-uaac](https://github.com/cloudfoundry/cf-uaac) (`uaac`) CLI transition to the Go-based `uaa` CLI.
-See the [UAA-CLI Command Reference](docs/commands.md) for the full list of `uaa` commands and their options.
+See the [UAA-CLI Command Reference](./commands.md) for the full list of `uaa` commands and their options.
 
 ## Key Differences
 
-| | uaac (Ruby) | uaa (Go) |
-|---|---|---|
-| **Command style** | Hierarchical topic/verb: `uaac token client get` | Flat VERB-NOUN with hyphens: `uaa get-client-credentials-token` |
-| **Output format** | Human-readable text | Machine-parseable JSON by default |
-| **SSL validation** | `uaac target URL --skip-ssl-validation` | `uaa target URL --skip-ssl-validation` |
-| **Identity zones** | `-z` / `--zone` global flag | `-z` / `--zone` flag on most commands |
-| **Verbose/trace** | `-t` / `--trace` for verbose debug output | `-v` / `--verbose` on all commands |
+|                    | uaac (Ruby)                                      | uaa (Go)                                                                     |
+|--------------------|--------------------------------------------------|------------------------------------------------------------------------------|
+| **Command style**  | Hierarchical topic/verb: `uaac token client get` | Flat VERB-NOUN with hyphens: `uaa get-client-credentials-token`              |
+| **Output format**  | Human-readable text                              | Defaults to Machine-parseable JSON, with some human-readable status messages |
+| **SSL validation** | `uaac target URL --skip-ssl-validation`          | `uaa target URL --skip-ssl-validation`                                       |
+| **Identity zones** | `-z` / `--zone` global flag                      | `-z` / `--zone` flag on most commands                                        |
+| **Verbose/trace**  | `-t` / `--trace` for verbose debug output        | `-v` / `--verbose` on all commands                                           |
+
+### Output Format Notes
+
+The `uaa` CLI outputs a combination of human-readable status messages and JSON data to stdout. Many commands (like `create-client`, `update-client`, etc.) print a success message followed by JSON output. For reliable machine parsing:
+
+- Extract the full JSON block starting at the first line that begins with `{` or `[` rather than using only the last line, for example: `uaa create-client myclient -s secret --authorized_grant_types client_credentials | sed -n '/^[[:space:]]*[{\[]/,$p' | jq`
+- Be aware that status messages and JSON are both written to stdout, not separated by stderr
+- Commands that only retrieve data (like `get-client`, `list-clients`) typically output only JSON
 
 ---
 
@@ -137,13 +145,13 @@ uaa add-member my-group carol
 
 ## Using `uaa curl` as a Fallback
 
-For uaac commands that have no direct equivalent, `uaa curl` provides authenticated access to any UAA API endpoint. First obtain a token, then use `curl` with the active context's credentials:
+For uaac commands that have no direct equivalent, `uaa curl` provides authenticated access to any UAA API endpoint. First obtain a token, then use `uaa curl` with the active context's credentials:
 
 ```bash
 uaa target https://uaa.example.com
 uaa get-client-credentials-token admin -s admin-secret
 
 # Example: delete a group by ID
-GROUP_ID=$(uaa get-group my-group | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+GROUP_ID=$(uaa get-group my-group | jq -r .id)
 uaa curl /Groups/$GROUP_ID -X DELETE
 ```
