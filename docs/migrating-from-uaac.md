@@ -17,7 +17,7 @@ See the [UAA-CLI Command Reference](./commands.md) for the full list of `uaa` co
 
 The `uaa` CLI outputs a combination of human-readable status messages and JSON data to stdout. Many commands (like `create-client`, `update-client`, etc.) print a success message followed by JSON output. For reliable machine parsing:
 
-- Use tools like `tail -n1` to extract only the JSON portion: `uaa create-client myclient -s secret --authorized_grant_types client_credentials | tail -n1 | jq`
+- Extract the full JSON block starting at the first line that begins with `{` or `[` rather than using only the last line, for example: `uaa create-client myclient -s secret --authorized_grant_types client_credentials | sed -n '/^[[:space:]]*[{\[]/,$p' | jq`
 - Be aware that status messages and JSON are both written to stdout, not separated by stderr
 - Commands that only retrieve data (like `get-client`, `list-clients`) typically output only JSON
 
