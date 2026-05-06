@@ -2,7 +2,6 @@ package fixtures
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 const MarcusUserResponse = `{
@@ -172,14 +171,24 @@ const PaginatedResponseTmpl = `{
 		"schemas" : [ "urn:scim:schemas:core:1.0"]
 	}`
 
-func PaginatedResponse(resources ...interface{}) string {
-	bytes, _ := json.Marshal(resources)
+// PaginatedResponseStruct represents a paginated SCIM response
+type PaginatedResponseStruct struct {
+	Resources    []interface{} `json:"resources"`
+	StartIndex   int           `json:"startIndex"`
+	ItemsPerPage int           `json:"itemsPerPage"`
+	TotalResults int           `json:"totalResults"`
+	Schemas      []string      `json:"schemas"`
+}
 
-	return fmt.Sprintf(`{
-		"resources": %v,
-		"startIndex" : 1,
-		"itemsPerPage" : 50,
-		"totalResults" : %v,
-		"schemas" : [ "urn:scim:schemas:core:1.0"]
-	}`, string(bytes), len(resources))
+func PaginatedResponse(resources ...interface{}) string {
+	response := PaginatedResponseStruct{
+		Resources:    resources,
+		StartIndex:   1,
+		ItemsPerPage: 50,
+		TotalResults: len(resources),
+		Schemas:      []string{"urn:scim:schemas:core:1.0"},
+	}
+
+	bytes, _ := json.Marshal(response)
+	return string(bytes)
 }
