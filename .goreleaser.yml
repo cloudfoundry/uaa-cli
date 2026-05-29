@@ -41,7 +41,7 @@ release:
     name: uaa-cli
   
   # You can change the name of the release.
-  name_template: "{{.ProjectName}} v{{.Version}}"
+  name_template: "UAA CLI Release {{.Version}}"
   
   # If set to auto, will mark the release as not ready for production
   # in case there is an indicator for this in the tag e.g. v1.0.0-rc1
@@ -49,10 +49,6 @@ release:
   
   # What to do with the release notes in case there the release already exists.
   mode: replace
-  
-  # Header for the release body.
-  header: |
-    ## UAA CLI Release {{ .Tag }}
 
 checksum:
   name_template: 'checksums.txt'
@@ -61,24 +57,9 @@ snapshot:
   version_template: "{{ .Branch }}-{{ .ShortCommit }}"
 
 changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
-      - '^ci:'
-      - Merge pull request
-      - Merge branch
-      - go mod tidy
-  groups:
-    - title: Features
-      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
-      order: 0
-    - title: 'Bug fixes'
-      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
-      order: 1
-    - title: Others
-      order: 999
+  # This automatically uses PRs merged since the last tag
+  # Shows clickable PR links (#123) and usernames (@user)
+  use: github-native
 
 # Uncomment if you want to publish to a package manager
 # brews:
