@@ -1,9 +1,10 @@
 name: Ship Release
+run-name: "Ship ${{ github.event.inputs.release_type }} Release"
 
 on:
   workflow_dispatch:
     inputs:
-      bump_type:
+      release_type:
         description: 'Type of version bump (major, minor, or patch)'
         required: true
         type: choice
@@ -13,87 +14,43 @@ on:
           - minor
           - patch
 
-run-name: "Ship ${{ inputs.bump_type }} Release"
-
-permissions:
-  contents: write
-  packages: write
-
 jobs:
-  versions:
-    name: Set Version and Tag
-    runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.bump_semver.outputs.version }}
-      tag: ${{ steps.bump_semver.outputs.tag }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref_name }}
-
-      - name: Get Latest Tag
-        id: get_latest_tag
-        run: |
-          version_prefix=${{ inputs.version_prefix }}
-          tag=$(git tag -l "v${version_prefix}.*" --sort=-v:refname | head -n 1)
-          tag=${tag:-v${version_prefix}.0.0}
-          echo "tag=${tag}" >> $GITHUB_OUTPUT
-          echo "🤔 *Previous tag: ${tag}*" >> $GITHUB_STEP_SUMMARY
-
-      - name: Set Version and Tag
-        id: bump_semver
-        run: |
-          set -e
-          tag="${{ steps.get_latest_tag.outputs.tag }}"
-          # Remove leading 'v'
-          version=${tag#v}
-          # Split into major, minor, and patch
-          IFS=. read -r major minor patch <<EOF
-          ${version}
-          EOF
-          # Increment version (defaults to minor)
-          case "${{ inputs.bump_type }}" in
-          patch) new_version="$major.$minor.$((patch+1))"; ;;
-          major) new_version="$((major+1)).0.0"; ;;
-          *)     new_version="$major.$((minor+1)).0"; ;;
-          esac
-          new_tag="v${new_version}"
-          echo "version=${new_version}" >> $GITHUB_OUTPUT
-          echo "tag=${new_tag}" >> $GITHUB_OUTPUT
-          echo "### 👷 Building ${new_version}" >> $GITHUB_STEP_SUMMARY
-
-      - name: Create and Push Tag
-        run: |
-          git config --global user.email "identity-uaa+ci@pivotal.io"
-          git config --global user.name "UAA Identity Bot"
-          git tag "${{ steps.bump_semver.outputs.tag }}"
-          git push origin "${{ steps.bump_semver.outputs.tag }}"
-          echo "🏷️ *Created and pushed tag: ${{ steps.bump_semver.outputs.tag }}*" >> $GITHUB_STEP_SUMMARY
-
-  releases-matrix:
+  release:
     name: Release Go Binary
     runs-on: ubuntu-latest
-    needs: versions
-    strategy:
-      matrix:
-        # build and publish in parallel: linux/386, linux/amd64, linux/arm64, windows/386, windows/amd64, darwin/amd64, darwin/arm64
-        goos: [ linux, windows, darwin ]
-        goarch: [ "386", amd64, arm64 ]
-        exclude:
-          - goarch: "386"
-            goos: darwin
-          - goarch: arm64
-            goos: windows
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: wangyoucao577/go-release-action@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          goos: ${{ matrix.goos }}
-          goarch: ${{ matrix.goarch }}
-          build_command: "make"
-          build_flags: "build VERSION=${{ needs.versions.outputs.version }}"
-          binary_name: "build/uaa"
-          ldflags: "-I."
+          fetch-depth: 0
+          
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: stable
+
+      - name: Go Version
+        run: go version
+
+      - name: Create Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go install github.com/caarlos0/svu/v3@latest
+          release_type=${{ github.event.inputs.release_type }}
+          release_type=${release_type:-patch}
+          tag=$(svu ${release_type})
+          echo "tag: $tag"
+          git tag "$tag"
+          git push --tags     
+
+      - name: GoReleaser Release
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -7,20 +7,55 @@ on:
     branches: [ "master" ]
 
 jobs:
+  go-versions:
+    name: Lookup Go versions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.versions.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: arnested/go-version-action@6343454db06c63467680c5dc1f4f382fe9fe6303
+        id: versions
 
   build:
+    name: Test
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
+    needs: go-versions
+    strategy:
+      matrix:
+        version: ${{ fromJSON(needs.go-versions.outputs.matrix) }}
     steps:
     - uses: actions/checkout@v4
 
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: stable
+        go-version: ${{ matrix.version }}
         check-latest: true
+
+    - name: Go Version
+      run: go version
 
     - name: Build
       run: go build -v ./...
 
     - name: Test
-      run: go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race
+      run: make test
+
+    - name: GoReleaser Check
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        version: '~> v2'
+        args: check
+        workdir: .
+
+    - name: GoReleaser Build
+      uses: goreleaser/goreleaser-action@v6
+      with:
+        version: '~> v2'
+        args: build --snapshot --clean --single-target --output .
+        workdir: .
