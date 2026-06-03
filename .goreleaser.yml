@@ -71,8 +71,6 @@ homebrew_casks:
      name: homebrew-tap
      branch: master
      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-     pull_request:
-       enabled: true
    # This will update the existing formula safely
    commit_author:
      name: cf-identity
@@ -83,8 +81,10 @@ homebrew_casks:
      - cask: uaa-cli
    # Hooks for post-installation
    hooks:
-     post:
-       install: |
-         if OS.mac?
-           system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/uaa"]
-         end
+    post:
+      install: |
+        if OS.mac?
+          Dir.glob("#{staged_path}/uaa*").each do |file|
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", file]
+          end
+        end
