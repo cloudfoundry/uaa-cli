@@ -16,19 +16,52 @@ See the [Command Reference](docs/commands.md) for the full list of commands and 
 - To improve the quality of help strings and error messages so that users can self-diagnose problems and unblock themselves.
 - To provide only the essential, highly used and/or required command options.
 
-### Trying out the latest code
+## Installation
+
+### Install with Go
 
 ```
-go get code.cloudfoundry.org/uaa-cli
-cd $GOPATH/src/code.cloudfoundry.org/uaa-cli
+go install code.cloudfoundry.org/uaa-cli@latest
+uaa -h
+```
+
+### Install with Homebrew
+
+Install using the Homebrew cask from the [cloudfoundry tap](https://github.com/cloudfoundry/homebrew-tap):
+
+```bash
+# Install the cask
+brew install --cask cloudfoundry/tap/uaa-cli
+```
+
+If upgrading from the old formula-based version, uninstall it first
+```bash
+brew uninstall --force uaa-cli
+```
+
+### Building from source
+
+```bash
+git clone https://github.com/cloudfoundry/uaa-cli.git
+cd uaa-cli
 make && make install
 uaa -h
 ```
-Or, install it using brew.  It's been made available as part of the [cloudfoundry tap](https://github.com/cloudfoundry/homebrew-tap)
 
-```
-brew install cloudfoundry/tap/uaa-cli
-```
+### Troubleshooting Installation
+
+If you encounter trust warnings with Homebrew, you can either:
+
+1. Trust the specific tap (recommended):
+   ```bash
+   brew trust cloudfoundry/tap
+   ```
+
+2. Or temporarily disable trust requirements:
+   ```bash
+   export HOMEBREW_NO_REQUIRE_TAP_TRUST=1
+   brew install --cask cloudfoundry/tap/uaa-cli
+   ```
 
 ## Development notes
 
