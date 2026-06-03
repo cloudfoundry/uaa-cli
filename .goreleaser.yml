@@ -61,11 +61,30 @@ changelog:
   # Shows clickable PR links (#123) and usernames (@user)
   use: github-native
 
-# Uncomment if you want to publish to a package manager
-# brews:
-#   - name: uaa-cli
-#     homepage: https://github.com/cloudfoundry/uaa-cli
-#     description: "A command line client for the CloudFoundry UAA API"
-#     repository:
-#       owner: cloudfoundry
-#       name: homebrew-tap
+homebrew_casks:
+ - name: uaa-cli
+   homepage: https://github.com/cloudfoundry/uaa-cli
+   description: "CLI for UAA written in Go"
+   license: "Apache-2.0"
+   repository:
+     owner: cloudfoundry
+     name: homebrew-tap
+     branch: master
+     token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+     pull_request:
+       enabled: true
+   # This will update the existing formula safely
+   commit_author:
+     name: cf-identity
+     email: cf-identity-eng@pivotal.io
+   commit_msg_template: "Release {{ .ProjectName }} {{ .Tag }}"
+   # Conflicts with the old formula-based version
+   conflicts:
+     - cask: uaa-cli
+   # Hooks for post-installation
+   hooks:
+     post:
+       install: |
+         if OS.mac?
+           system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/uaa"]
+         end
