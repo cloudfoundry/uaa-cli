@@ -86,7 +86,7 @@ The `uaa` CLI outputs a combination of human-readable status messages and JSON d
 | `uaac client update [id]` | [`uaa update-client CLIENT_ID ...`](commands/update-client.md) | uaac supports `--interactive` / `-i`; uaa-cli does not |
 | `uaac client delete [id]` | [`uaa delete-client CLIENT_ID`](commands/delete-client.md) | |
 | `uaac secret set [id]` | [`uaa set-client-secret CLIENT_ID -s SECRET`](commands/set-client-secret.md) | |
-| `uaac secret change` | *(no equivalent)* | Use `uaa curl /oauth/clients/CLIENT_ID/secret -X PUT -d '{"oldSecret":"OLD","secret":"NEW"}'` |
+| `uaac secret change` | [`uaa change-client-secret --old_secret OLD --secret NEW`](commands/change-client-secret.md) | Client must be authenticated with client_credentials token |
 | `uaac client jwt add [id]` | *(no equivalent)* | Use `uaa curl /oauth/clients/CLIENT_ID/clientjwt -X PUT -d '{...}'` |
 | `uaac client jwt update [id]` | *(no equivalent)* | Use `uaa curl /oauth/clients/CLIENT_ID/clientjwt -X PUT -d '{...}'` |
 | `uaac client jwt delete [id]` | *(no equivalent)* | Use `uaa curl /oauth/clients/CLIENT_ID/clientjwt -X DELETE` |

@@ -37,6 +37,7 @@ Each command name below links to a page with a full description, including all a
 | [`get-client`](commands/get-client.md) | View a client registration |
 | [`list-clients`](commands/list-clients.md) | See all clients in the targeted UAA |
 | [`set-client-secret`](commands/set-client-secret.md) | Update the secret for a client |
+| [`change-client-secret`](commands/change-client-secret.md) | Change secret for authenticated client |
 
 ## Managing Users
 
