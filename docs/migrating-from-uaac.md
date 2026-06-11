@@ -30,7 +30,7 @@ The `uaa` CLI outputs a combination of human-readable status messages and JSON d
 | uaac | uaa | Notes |
 |------|-----|-------|
 | `uaac target [uaa_url]` | [`uaa target UAA_URL`](commands/target.md) | |
-| `uaac targets` | *(no equivalent)* | |
+| `uaac targets` | [`uaa targets`](commands/targets.md) | |
 | `uaac context [name]` | [`uaa context`](commands/context.md) | |
 | `uaac contexts` | `uaa contexts` | |
 | `uaac version` | [`uaa version`](commands/version.md) | |
@@ -43,7 +43,7 @@ The `uaa` CLI outputs a combination of human-readable status messages and JSON d
 | `uaac me` | [`uaa userinfo`](commands/userinfo.md) | |
 | `uaac signing key` | [`uaa get-token-key`](commands/get-token-key.md) | uaa-cli splits this into two commands |
 | `uaac signing key` | [`uaa get-token-keys`](commands/get-token-keys.md) | Returns all signing keys |
-| `uaac prompts` | *(no equivalent)* | Use `uaa curl /info` to inspect prompts |
+| `uaac prompts` | [`uaa info`](commands/info.md) | The prompts are included in the full info response |
 | `uaac password strength [password]` | *(no equivalent)* | Use `uaa curl /password/score -X POST -d 'password=...'` |
 
 ### Tokens
@@ -57,7 +57,7 @@ The `uaa` CLI outputs a combination of human-readable status messages and JSON d
 | `uaac token refresh [refreshtoken]` | [`uaa refresh-token -s SECRET`](commands/refresh-token.md) | |
 | `uaac token get [credentials...]` | *(no equivalent)* | Use `uaa get-password-token` for password grant |
 | `uaac token sso get [client]` | *(no equivalent)* | Passcode/SSO grant not yet supported |
-| `uaac token decode [token] [tokentype]` | *(no equivalent)* | Decode manually: `uaa context --access_token \| cut -d. -f2 \| base64 -d` |
+| `uaac token decode [token] [tokentype]` | [`uaa decode-token [TOKEN]`](commands/decode-token.md) | Use `--decode-times` for human-readable timestamps |
 | `uaac token delete [contexts...]` | *(no equivalent)* | Delete `~/.uaa/config.json` to clear all contexts |
 
 ### Users
