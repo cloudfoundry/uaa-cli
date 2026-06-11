@@ -48,6 +48,7 @@ Each command name below links to a page with a full description, including all a
 | [`delete-user`](commands/delete-user.md) | Delete a user by username |
 | [`activate-user`](commands/activate-user.md) | Activate a user by username |
 | [`deactivate-user`](commands/deactivate-user.md) | Deactivate a user by username |
+| [`unlock-user`](commands/unlock-user.md) | Unlock a user account by username |
 
 ## Managing Groups
 
