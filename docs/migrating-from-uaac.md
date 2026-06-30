@@ -72,8 +72,8 @@ The `uaa` CLI outputs a combination of human-readable status messages and JSON d
 | `uaac user deactivate [name]` | [`uaa deactivate-user USERNAME`](commands/deactivate-user.md) | |
 | `uaac user update [name]` | *(no equivalent)* | Use `uaa curl /Users/USER_ID -X PUT -d '{...}'` |
 | `uaac user ids [username\|id...]` | *(no equivalent)* | Use `uaa get-user USERNAME` for individual lookups |
-| `uaac user unlock [name]` | *(no equivalent)* | Use `uaa curl /Users/USER_ID/status -X PATCH -d '{"locked":false}'` |
-| `uaac password set [name]` | *(no equivalent)* | Use `uaa curl /Users/USER_ID/password -X PUT -d '{"password":"NEW"}'` |
+| `uaac user unlock [name]` | [`uaa unlock-user USERNAME`](commands/unlock-user.md) | |
+| `uaac password set [name]` | [`uaa set-password USERNAME --password NEWPASS`](commands/set-password.md) | |
 | `uaac password change` | *(no equivalent)* | Use `uaa curl /Users/USER_ID/password -X PUT -d '{"oldPassword":"OLD","password":"NEW"}'` |
 
 ### Clients
