@@ -44,6 +44,7 @@ Each command name below links to a page with a full description, including all a
 |---------|-------------|
 | [`create-user`](commands/create-user.md) | Create a user |
 | [`get-user`](commands/get-user.md) | Look up a user by username |
+| [`update-user`](commands/update-user.md) | Update a user account |
 | [`list-users`](commands/list-users.md) | Search and list users with SCIM filters |
 | [`delete-user`](commands/delete-user.md) | Delete a user by username |
 | [`activate-user`](commands/activate-user.md) | Activate a user by username |
