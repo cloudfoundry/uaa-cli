@@ -16,7 +16,7 @@ jobs:
       matrix: ${{ steps.versions.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
-      - uses: arnested/go-version-action@43d61a4507467784d11c8e798d5cf0c6b85aaaa6
+      - uses: arnested/go-version-action@6a9d1e0bcc9db5b1693bb7b0ad37491d205f67b6
         id: versions
 
   build:
