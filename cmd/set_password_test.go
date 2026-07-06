@@ -120,6 +120,7 @@ var _ = Describe("SetPassword", func() {
 			session := runCommand("set-password", "testuser", "--password", "weak")
 
 			Eventually(session).Should(Exit(1))
+			Expect(session.Err).To(Say("Password does not meet policy requirements"))
 		})
 	})
 
@@ -155,18 +156,18 @@ var _ = Describe("SetPassword", func() {
 			Expect(session).Should(Exit(1))
 		})
 
-		It("displays help when no password provided (interactive mode skipped in tests)", func() {
+		It("fails when no password is provided and stdin is not a TTY", func() {
 			c := config.NewConfigWithServerURL(server.URL())
 			ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 			c.AddContext(ctx)
 			config.WriteConfig(c)
 
-			// In test environment, when no password is provided, the interactive prompt
-			// will fail due to inappropriate ioctl. This tests that the validation
-			// is working even though the specific error may vary in test vs. real usage.
+			// With no --password flag, the command falls back to an interactive
+			// prompt, which fails immediately in this non-TTY test environment.
 			session := runCommand("set-password", "testuser")
 
 			Eventually(session).Should(Exit(1))
+			Expect(session.Err).To(Say("Could not read password interactively. Specify the password with the --password flag instead."))
 		})
 	})
 })

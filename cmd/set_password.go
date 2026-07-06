@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"code.cloudfoundry.org/uaa-cli/cli"
@@ -16,9 +17,6 @@ func SetPasswordCmd(api *uaa.API, username, origin, attributes, password, zoneID
 	if err != nil {
 		return err
 	}
-	if user.Meta == nil {
-		return errors.New("The user did not have expected metadata version.")
-	}
 
 	err = setPasswordByID(api, user.ID, password, zoneID)
 	if err != nil {
@@ -32,20 +30,23 @@ func SetPasswordCmd(api *uaa.API, username, origin, attributes, password, zoneID
 // setPasswordByID makes a PUT request to /Users/{id}/password with {"password": "newpassword"}
 func setPasswordByID(api *uaa.API, userID, password, zoneID string) error {
 	path := fmt.Sprintf("/Users/%s/password", userID)
-	data := fmt.Sprintf(`{"password": "%s"}`, password)
+	data, err := json.Marshal(map[string]string{"password": password})
+	if err != nil {
+		return err
+	}
 
 	headers := []string{"Content-Type: application/json"}
 	if zoneID != "" {
 		headers = append(headers, fmt.Sprintf("X-Identity-Zone-Id: %s", zoneID))
 	}
 
-	_, _, status, err := api.Curl(path, "PUT", data, headers)
+	_, resBody, status, err := api.Curl(path, "PUT", string(data), headers)
 	if err != nil {
 		return err
 	}
 
 	if status >= 400 {
-		return fmt.Errorf("set password failed with status %d", status)
+		return fmt.Errorf("set password failed with status %d: %s", status, resBody)
 	}
 
 	return nil
@@ -78,7 +79,7 @@ var setPasswordCmd = &cobra.Command{
 			var err error
 			userPassword, err = secret.Get()
 			if err != nil {
-				cli.NotifyErrorsWithRetry(err, log, GetSavedConfig())
+				cli.NotifyErrorsWithRetry(errors.New("Could not read password interactively. Specify the password with the --password flag instead."), log, GetSavedConfig())
 				return
 			}
 		}
