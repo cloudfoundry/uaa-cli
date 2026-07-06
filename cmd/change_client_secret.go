@@ -33,14 +33,18 @@ func ChangeClientSecretValidation(cfg config.Config, oldSecret, newSecret string
 	return nil
 }
 
+type changeClientSecretRequest struct {
+	OldSecret string `json:"oldSecret"`
+	Secret    string `json:"secret"`
+}
+
 func ChangeClientSecretCmd(api *uaa.API, log cli.Logger, cfg config.Config, oldSecret, newSecret string) error {
 	context := cfg.GetActiveContext()
 	clientId := context.ClientId
 
-	// Prepare the request body for the secret change
-	requestBody := map[string]interface{}{
-		"oldSecret": oldSecret,
-		"secret":    newSecret,
+	requestBody := changeClientSecretRequest{
+		OldSecret: oldSecret,
+		Secret:    newSecret,
 	}
 
 	requestBodyJSON, err := json.Marshal(requestBody)
@@ -48,11 +52,11 @@ func ChangeClientSecretCmd(api *uaa.API, log cli.Logger, cfg config.Config, oldS
 		return err
 	}
 
-	// Make the API call to change the client secret
+	// api.Curl bypasses the go-uaa SDK's structured request path, so the zone
+	// header that GetAPIFromSavedTokenInContext's WithZoneID would otherwise
+	// add automatically must be set explicitly here.
 	path := fmt.Sprintf("/oauth/clients/%s/secret", clientId)
 	headers := []string{"Content-Type: application/json"}
-
-	// Add zone header if specified
 	if cfg.ZoneSubdomain != "" {
 		headers = append(headers, fmt.Sprintf("X-Identity-Zone-Id: %s", cfg.ZoneSubdomain))
 	}
