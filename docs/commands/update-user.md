@@ -14,12 +14,12 @@ uaa update-user USERNAME [flags]
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
-| `--given_name` | | | Given (first) name |
-| `--family_name` | | | Family (last) name |
-| `--emails` | | | Email addresses (flag may be specified multiple times) |
-| `--phones` | | | Phone numbers (flag may be specified multiple times) |
+| `--givenName` | | | Given (first) name |
+| `--familyName` | | | Family (last) name |
+| `--email` | | | Email address (flag may be specified multiple times) |
+| `--phone` | | | Phone number (flag may be specified multiple times) |
 | `--origin` | `-o` | | Identity provider origin to search for user (e.g. `uaa`, `ldap`) |
-| `--del_attrs` | | | Attributes to remove (e.g. `phoneNumbers`, `name`) |
+| `--delAttrs` | | | Attributes to remove (e.g. `phoneNumbers`, `name`) |
 | `--zone` | `-z` | | Identity zone subdomain in which to update the user |
 
 ## Global Flags
@@ -32,27 +32,27 @@ uaa update-user USERNAME [flags]
 
 ```bash
 # Update a user's name
-uaa update-user bob --given_name Robert --family_name Smith
+uaa update-user bob --givenName Robert --familyName Smith
 
 # Update a user's email addresses
-uaa update-user alice --emails alice@newdomain.com --emails alice.jones@work.com
+uaa update-user alice --email alice@newdomain.com --email alice.jones@work.com
 
 # Update a user from a specific origin
-uaa update-user carol --origin ldap --given_name Caroline
+uaa update-user carol --origin ldap --givenName Caroline
 
 # Remove phone numbers from a user
-uaa update-user bob --del_attrs phoneNumbers
+uaa update-user bob --delAttrs phoneNumbers
 
 # Update multiple attributes at once
 uaa update-user alice \
-    --given_name Alice \
-    --family_name Johnson \
-    --emails alice.johnson@example.com \
-    --phones 555-1234
+    --givenName Alice \
+    --familyName Johnson \
+    --email alice.johnson@example.com \
+    --phone 555-1234
 
 # Update user in a specific zone with verbose output
 uaa update-user bob \
-    --given_name Robert \
+    --givenName Robert \
     --zone my-zone \
     --verbose
 ```
@@ -60,9 +60,9 @@ uaa update-user bob \
 ## Notes
 
 - The command first retrieves the existing user, then merges the specified updates
-- At least one update flag must be specified
-- When using `--del_attrs`, be careful not to remove required attributes
-- The `--emails` attribute cannot be deleted as it may make the user unusable
+- At least one update flag (`--givenName`, `--familyName`, `--email`, `--phone`, or `--delAttrs`) must be specified
+- When using `--delAttrs`, be careful not to remove required attributes
+- The `--email` attribute cannot be deleted as it may make the user unusable
 - Use `--verbose` to see the HTTP PUT request details
 
 ## See Also
