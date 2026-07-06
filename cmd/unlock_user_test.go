@@ -28,6 +28,7 @@ var _ = Describe("UnlockUser", func() {
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef/status", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef/status", ""),
+			VerifyHeaderKV("If-Match", "10"),
 			VerifyJSON(`{"locked": false}`),
 			RespondWith(http.StatusOK, `{"locked": false}`),
 		))
@@ -46,6 +47,7 @@ var _ = Describe("UnlockUser", func() {
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef/status", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef/status", ""),
+			VerifyHeaderKV("If-Match", "10"),
 			VerifyJSON(`{"locked": false}`),
 			RespondWith(http.StatusOK, `{"locked": false}`),
 		))
@@ -64,6 +66,7 @@ var _ = Describe("UnlockUser", func() {
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef/status", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef/status", ""),
+			VerifyHeaderKV("If-Match", "10"),
 			VerifyJSON(`{"locked": false}`),
 			RespondWith(http.StatusOK, `{"locked": false}`),
 		))
@@ -83,6 +86,7 @@ var _ = Describe("UnlockUser", func() {
 		))
 		server.RouteToHandler("PATCH", "/Users/abcdef/status", CombineHandlers(
 			VerifyRequest("PATCH", "/Users/abcdef/status", ""),
+			VerifyHeaderKV("If-Match", "10"),
 			VerifyHeaderKV("X-Identity-Zone-Id", "test-zone"),
 			VerifyJSON(`{"locked": false}`),
 			RespondWith(http.StatusOK, `{"locked": false}`),
@@ -120,6 +124,7 @@ var _ = Describe("UnlockUser", func() {
 			session := runCommand("unlock-user", "woodstock@peanuts.com")
 
 			Eventually(session).Should(Exit(1))
+			Expect(session.Err).To(Say("User cannot be unlocked"))
 		})
 	})
 
