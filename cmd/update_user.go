@@ -78,12 +78,15 @@ func UpdateUserCmd(api *uaa.API, printer cli.Printer, username, familyName, give
 	return printer.Print(updatedUser)
 }
 
-func UpdateUserValidation(cfg config.Config, args []string) error {
+func UpdateUserValidation(cfg config.Config, args []string, familyName, givenName string, emails, phones, delAttrs []string) error {
 	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
 	if len(args) == 0 {
 		return errors.New("The positional argument USERNAME must be specified.")
+	}
+	if familyName == "" && givenName == "" && len(emails) == 0 && len(phones) == 0 && len(delAttrs) == 0 {
+		return errors.New("At least one of --familyName, --givenName, --email, --phone, or --delAttrs must be specified.")
 	}
 	return nil
 }
@@ -92,7 +95,7 @@ var updateUserCmd = &cobra.Command{
 	Use:   "update-user USERNAME",
 	Short: "Update a user account",
 	PreRun: func(cmd *cobra.Command, args []string) {
-		cli.NotifyValidationErrors(UpdateUserValidation(GetSavedConfig(), args), cmd, log)
+		cli.NotifyValidationErrors(UpdateUserValidation(GetSavedConfig(), args, familyName, givenName, emails, phoneNumbers, delAttrs), cmd, log)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := GetSavedConfig()
@@ -111,11 +114,11 @@ func init() {
 	updateUserCmd.Annotations = make(map[string]string)
 	updateUserCmd.Annotations[USER_CRUD_CATEGORY] = "true"
 
-	updateUserCmd.Flags().StringVarP(&familyName, "family_name", "", "", "family name")
-	updateUserCmd.Flags().StringVarP(&givenName, "given_name", "", "", "given name")
+	updateUserCmd.Flags().StringVarP(&familyName, "familyName", "", "", "family name")
+	updateUserCmd.Flags().StringVarP(&givenName, "givenName", "", "", "given name")
 	updateUserCmd.Flags().StringVarP(&origin, "origin", "o", "", "user origin")
-	updateUserCmd.Flags().StringSliceVarP(&emails, "emails", "", []string{}, "email addresses (multiple may be specified)")
-	updateUserCmd.Flags().StringSliceVarP(&phoneNumbers, "phones", "", []string{}, "phone numbers (multiple may be specified)")
-	updateUserCmd.Flags().StringSliceVarP(&delAttrs, "del_attrs", "", []string{}, "attributes to remove (phoneNumbers, name, etc.)")
+	updateUserCmd.Flags().StringSliceVarP(&emails, "email", "", []string{}, "email address (multiple may be specified)")
+	updateUserCmd.Flags().StringSliceVarP(&phoneNumbers, "phone", "", []string{}, "phone number (multiple may be specified)")
+	updateUserCmd.Flags().StringSliceVarP(&delAttrs, "delAttrs", "", []string{}, "attributes to remove (phoneNumbers, name, etc.)")
 	updateUserCmd.Flags().StringVarP(&zoneSubdomain, "zone", "z", "", "the identity zone subdomain in which to update the user")
 }

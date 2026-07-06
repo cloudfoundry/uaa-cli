@@ -1,6 +1,11 @@
 package cmd_test
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"net/http"
+
 	"code.cloudfoundry.org/uaa-cli/cli"
 	"code.cloudfoundry.org/uaa-cli/config"
 	"code.cloudfoundry.org/uaa-cli/fixtures"
@@ -10,8 +15,18 @@ import (
 	. "github.com/onsi/gomega/gbytes"
 	. "github.com/onsi/gomega/gexec"
 	. "github.com/onsi/gomega/ghttp"
-	"net/http"
 )
+
+// captureRequestBody records the raw request body into dest and restores it
+// so downstream ghttp handlers (e.g. VerifyRequest) can still read it.
+func captureRequestBody(dest *[]byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		body, err := io.ReadAll(req.Body)
+		Expect(err).NotTo(HaveOccurred())
+		*dest = body
+		req.Body = io.NopCloser(bytes.NewReader(body))
+	}
+}
 
 var _ = Describe("UpdateUser", func() {
 	BeforeEach(func() {
@@ -45,11 +60,21 @@ var _ = Describe("UpdateUser", func() {
 			Eventually(session).Should(Exit(1))
 			Expect(session.Err).To(Say("The positional argument USERNAME must be specified."))
 		})
+
+		It("requires at least one update flag", func() {
+			session := runCommand("update-user", "marcus@stoicism.com")
+
+			Eventually(session).Should(Exit(1))
+			Expect(session.Err).To(Say("At least one of --familyName, --givenName, --email, --phone, or --delAttrs must be specified."))
+			Expect(server.ReceivedRequests()).To(HaveLen(0))
+		})
 	})
 
 	Describe("UpdateUserCmd", func() {
 		Describe("Success cases", func() {
 			It("updates user with given_name only", func() {
+				var putBody []byte
+
 				// First GET to retrieve user
 				server.RouteToHandler("GET", "/Users", CombineHandlers(
 					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "marcus@stoicism.com"})),
@@ -60,6 +85,7 @@ var _ = Describe("UpdateUser", func() {
 
 				// Then PUT to update user
 				server.RouteToHandler("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", CombineHandlers(
+					captureRequestBody(&putBody),
 					RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 					VerifyHeaderKV("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"),
@@ -67,14 +93,22 @@ var _ = Describe("UpdateUser", func() {
 					VerifyHeaderKV("Content-Type", "application/json"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", "--given_name", "Bob")
+				session := runCommand("update-user", "marcus@stoicism.com", "--givenName", "Bob")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
 				Expect(session.Out).To(Say("Account for user marcus@stoicism.com successfully updated"))
+
+				var payload map[string]interface{}
+				Expect(json.Unmarshal(putBody, &payload)).To(Succeed())
+				name, ok := payload["name"].(map[string]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(name["givenName"]).To(Equal("Bob"))
 			})
 
 			It("updates user with multiple attributes", func() {
+				var putBody []byte
+
 				// First GET to retrieve user
 				server.RouteToHandler("GET", "/Users", CombineHandlers(
 					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "marcus@stoicism.com"})),
@@ -83,17 +117,25 @@ var _ = Describe("UpdateUser", func() {
 
 				// Then PUT to update user
 				server.RouteToHandler("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", CombineHandlers(
+					captureRequestBody(&putBody),
 					RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--given_name", "Bob", 
-					"--family_name", "Smith")
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--givenName", "Bob",
+					"--familyName", "Smith")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
 				Expect(session.Out).To(Say("Account for user marcus@stoicism.com successfully updated"))
+
+				var payload map[string]interface{}
+				Expect(json.Unmarshal(putBody, &payload)).To(Succeed())
+				name, ok := payload["name"].(map[string]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(name["givenName"]).To(Equal("Bob"))
+				Expect(name["familyName"]).To(Equal("Smith"))
 			})
 
 			It("updates user with origin specified", func() {
@@ -110,15 +152,17 @@ var _ = Describe("UpdateUser", func() {
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--origin", "ldap", 
-					"--given_name", "Bob")
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--origin", "ldap",
+					"--givenName", "Bob")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
 			})
 
 			It("updates user with emails", func() {
+				var putBody []byte
+
 				// First GET to retrieve user
 				server.RouteToHandler("GET", "/Users", CombineHandlers(
 					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "marcus@stoicism.com"})),
@@ -127,18 +171,29 @@ var _ = Describe("UpdateUser", func() {
 
 				// Then PUT to update user
 				server.RouteToHandler("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", CombineHandlers(
+					captureRequestBody(&putBody),
 					RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--emails", "new@email.com")
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--email", "new@email.com")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
+
+				var payload map[string]interface{}
+				Expect(json.Unmarshal(putBody, &payload)).To(Succeed())
+				emails, ok := payload["emails"].([]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(emails).To(HaveLen(1))
+				email := emails[0].(map[string]interface{})
+				Expect(email["value"]).To(Equal("new@email.com"))
 			})
 
 			It("updates user with phones", func() {
+				var putBody []byte
+
 				// First GET to retrieve user
 				server.RouteToHandler("GET", "/Users", CombineHandlers(
 					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "marcus@stoicism.com"})),
@@ -147,35 +202,55 @@ var _ = Describe("UpdateUser", func() {
 
 				// Then PUT to update user
 				server.RouteToHandler("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", CombineHandlers(
+					captureRequestBody(&putBody),
 					RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--phones", "555-1234")
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--phone", "555-1234")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
+
+				var payload map[string]interface{}
+				Expect(json.Unmarshal(putBody, &payload)).To(Succeed())
+				phones, ok := payload["phoneNumbers"].([]interface{})
+				Expect(ok).To(BeTrue())
+				Expect(phones).To(HaveLen(1))
+				phone := phones[0].(map[string]interface{})
+				Expect(phone["value"]).To(Equal("555-1234"))
 			})
 
-			It("updates user with del_attrs removing phone numbers", func() {
-				// First GET to retrieve user
+			It("updates user with delAttrs removing phone numbers", func() {
+				var putBody []byte
+
+				// First GET to retrieve user, which already has a phone number
 				server.RouteToHandler("GET", "/Users", CombineHandlers(
-					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{ID: "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", Username: "marcus@stoicism.com"})),
+					RespondWith(http.StatusOK, fixtures.PaginatedResponse(uaa.User{
+						ID:           "fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70",
+						Username:     "marcus@stoicism.com",
+						PhoneNumbers: []uaa.PhoneNumber{{Value: "555-0000"}},
+					})),
 					VerifyRequest("GET", "/Users"),
 				))
 
 				// Then PUT to update user
 				server.RouteToHandler("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70", CombineHandlers(
+					captureRequestBody(&putBody),
 					RespondWith(http.StatusOK, fixtures.MarcusUserResponse),
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--del_attrs", "phoneNumbers")
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--delAttrs", "phoneNumbers")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
+
+				var payload map[string]interface{}
+				Expect(json.Unmarshal(putBody, &payload)).To(Succeed())
+				Expect(payload["phoneNumbers"]).To(BeNil())
 			})
 
 			It("works with zone parameter", func() {
@@ -193,8 +268,8 @@ var _ = Describe("UpdateUser", func() {
 					VerifyHeaderKV("X-Identity-Zone-Id", "twilight-zone"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--given_name", "Bob", 
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--givenName", "Bob",
 					"--zone", "twilight-zone")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
@@ -214,7 +289,7 @@ var _ = Describe("UpdateUser", func() {
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", "--given_name", "Bob")
+				session := runCommand("update-user", "marcus@stoicism.com", "--givenName", "Bob")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(0))
@@ -230,7 +305,7 @@ var _ = Describe("UpdateUser", func() {
 					VerifyRequest("GET", "/Users"),
 				))
 
-				session := runCommand("update-user", "nobody", "--given_name", "Bob")
+				session := runCommand("update-user", "nobody", "--givenName", "Bob")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(1))
 				Expect(session).To(Exit(1))
@@ -249,7 +324,7 @@ var _ = Describe("UpdateUser", func() {
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", "--given_name", "Bob")
+				session := runCommand("update-user", "marcus@stoicism.com", "--givenName", "Bob")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
 				Expect(session).To(Exit(1))
@@ -270,8 +345,8 @@ var _ = Describe("UpdateUser", func() {
 					VerifyRequest("PUT", "/Users/fb5f32e1-5cb3-49e6-93df-6df9c8c8bd70"),
 				))
 
-				session := runCommand("update-user", "marcus@stoicism.com", 
-					"--given_name", "Bob", 
+				session := runCommand("update-user", "marcus@stoicism.com",
+					"--givenName", "Bob",
 					"--verbose")
 
 				Expect(server.ReceivedRequests()).To(HaveLen(2))
