@@ -19,35 +19,38 @@ func UnlockUserCmd(api *uaa.API, username, origin, attributes, zoneID string) er
 	if user.Meta == nil {
 		return errors.New("The user did not have expected metadata version.")
 	}
-	
-	err = unlockUserByID(api, user.ID, zoneID)
+
+	err = unlockUserByID(api, user.ID, user.Meta.Version, zoneID)
 	if err != nil {
 		return err
 	}
-	
+
 	log.Infof("Account for user %v successfully unlocked.", utils.Emphasize(user.Username))
 	return nil
 }
 
 // unlockUserByID makes a PATCH request to /Users/{id}/status with {"locked": false}
-func unlockUserByID(api *uaa.API, userID, zoneID string) error {
+func unlockUserByID(api *uaa.API, userID string, userMetaVersion int, zoneID string) error {
 	path := fmt.Sprintf("/Users/%s/status", userID)
 	data := `{"locked": false}`
-	
-	headers := []string{"Content-Type: application/json"}
+
+	headers := []string{
+		"Content-Type: application/json",
+		fmt.Sprintf("If-Match: %d", userMetaVersion),
+	}
 	if zoneID != "" {
 		headers = append(headers, fmt.Sprintf("X-Identity-Zone-Id: %s", zoneID))
 	}
-	
-	_, _, status, err := api.Curl(path, "PATCH", data, headers)
+
+	_, resBody, status, err := api.Curl(path, "PATCH", data, headers)
 	if err != nil {
 		return err
 	}
-	
+
 	if status >= 400 {
-		return fmt.Errorf("unlock user failed with status %d", status)
+		return fmt.Errorf("unlock user failed with status %d: %s", status, resBody)
 	}
-	
+
 	return nil
 }
 
