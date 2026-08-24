@@ -6,12 +6,13 @@ func RefreshToken() string {
   uaa target UAA_URL
   uaa get-password-token CLIENT_ID -s CLIENT_SECRET -u USERNAME -p PASSWORD
   uaa context
-  uaa refresh-token -s CLIENT_SECRET
+  uaa refresh-token [-s CLIENT_SECRET]
   uaa context # the access_token should now be updated
 
   The refresh-token command is used by authorization_code and password clients
   to obtain a new, unexpired access_token token from the UAA. Refresh tokens are
-  long-lived and should be kept confidential by clients.
+  long-lived and should be kept confidential by clients. CLIENT_SECRET may be
+  omitted (or passed as an empty string) for public clients that have none.
 
 TROUBLESHOOTING FAQ
 

@@ -5,3 +5,5 @@ uaa-cli
 uaa
 build/
 dist/
+uaa-boot.log
+uaa-boot.pid

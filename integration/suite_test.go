@@ -78,7 +78,7 @@ func waitForUAA(target string) {
 		resp, err := client.Get(target + "/login")
 		if err == nil {
 			resp.Body.Close()
-			if resp.StatusCode < 500 {
+			if resp.StatusCode >= 200 && resp.StatusCode < 400 {
 				return
 			}
 		}

@@ -68,7 +68,7 @@ func RefreshTokenValidations(cfg config.Config, clientSecret string) error {
 }
 
 var refreshTokenCmd = &cobra.Command{
-	Use:   "refresh-token -s CLIENT_SECRET",
+	Use:   "refresh-token [-s CLIENT_SECRET]",
 	Short: "Obtain an access token using the refresh_token grant type",
 	Long:  help.RefreshToken(),
 	PreRun: func(cmd *cobra.Command, args []string) {

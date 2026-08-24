@@ -11,7 +11,8 @@ var _ = Describe("clients", Ordered, func() {
 	clientID := "uaa-cli-integration-test-client"
 
 	AfterAll(func() {
-		run("get-client-credentials-token", "admin", "-s", "adminsecret")
+		// Other Describes assume an admin token is active; assert this one.
+		runOK("get-client-credentials-token", "admin", "-s", "adminsecret")
 		run("delete-client", clientID)
 	})
 

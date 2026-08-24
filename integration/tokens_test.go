@@ -12,7 +12,10 @@ var _ = Describe("tokens", func() {
 	})
 
 	AfterEach(func() {
-		run("get-client-credentials-token", "admin", "-s", "adminsecret")
+		// Other Describes assume an admin token is active; if this fails
+		// silently, later suites would run with the wrong token and fail in
+		// confusing ways, so assert it rather than best-effort it.
+		runOK("get-client-credentials-token", "admin", "-s", "adminsecret")
 	})
 
 	It("decodes the current access token", func() {

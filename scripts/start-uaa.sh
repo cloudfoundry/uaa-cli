@@ -18,7 +18,7 @@ if [ ! -d "${UAA_DIR}" ]; then
 fi
 
 echo "Building UAA bootWar from ${UAA_DIR}..."
-(cd "${UAA_DIR}" && ./gradlew bootWar)
+(cd "${UAA_DIR}" && ./gradlew --no-daemon bootWar)
 
 WAR_FILE="$(find "${UAA_DIR}" -name 'cloudfoundry-identity-uaa-*.war' -path '*/build/libs/*' | head -1)"
 if [ -z "${WAR_FILE}" ]; then
@@ -36,6 +36,9 @@ nohup java \
   -Dspring.profiles.active=hsqldb \
   -Djava.security.egd=file:/dev/./urandom \
   -jar "${WAR_FILE}" > uaa-boot.log 2>&1 &
+UAA_PID=$!
+echo "${UAA_PID}" > uaa-boot.pid
+echo "Started UAA (pid ${UAA_PID}, log: uaa-boot.log, pidfile: uaa-boot.pid)."
 
 echo "Waiting up to ${TIMEOUT_SECONDS}s for UAA to respond at ${READY_URL}..."
 elapsed=0
