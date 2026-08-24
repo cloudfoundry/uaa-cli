@@ -39,7 +39,7 @@ or expose them.
 ### IdentityProvider — no support at all (biggest gap)
 
 go-uaa has **zero** `IdentityProvider` type. UAA has a full resource here
-(`/Users/mduane/Projects/uaa/model/src/main/java/org/cloudfoundry/identity/uaa/provider/`)
+([`model/src/main/java/org/cloudfoundry/identity/uaa/provider/`](https://github.com/cloudfoundry/uaa/tree/develop/model/src/main/java/org/cloudfoundry/identity/uaa/provider))
 with LDAP/SAML/OIDC/Keystone/UAA-internal config classes, including real
 CA-cert/TLS trust fields:
 - SAML (`SamlIdentityProviderDefinition`) & OIDC/OAuth
