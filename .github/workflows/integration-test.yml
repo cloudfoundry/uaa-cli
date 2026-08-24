@@ -9,6 +9,13 @@ name: UAA integration test
 # need a real browser + local OAuth redirect callback, which isn't reliably
 # scriptable headlessly. Zone-scoped (-z/--zone) command variants are also
 # not exercised.
+#
+# Currently disabled (integration/clients_test.go): the spec that actually
+# reproduces the original list-clients/allowpublic regression is marked
+# PIt, because it will fail until cloudfoundry-community/go-uaa#175 is
+# released and go.mod is bumped to it -- there's no released go-uaa version
+# with the fix yet. Un-pend it once that lands; until then, this workflow
+# exercises everything else but not that specific regression.
 
 on:
   push:
