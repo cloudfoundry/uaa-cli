@@ -40,7 +40,7 @@ nohup java \
 echo "Waiting up to ${TIMEOUT_SECONDS}s for UAA to respond at ${READY_URL}..."
 elapsed=0
 while [ "${elapsed}" -lt "${TIMEOUT_SECONDS}" ]; do
-  if curl --silent --fail --output /dev/null "${READY_URL}"; then
+  if curl --silent --fail --max-time 5 --output /dev/null "${READY_URL}"; then
     echo "UAA is up."
     exit 0
   fi

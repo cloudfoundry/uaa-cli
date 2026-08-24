@@ -57,9 +57,10 @@ var _ = AfterSuite(func() {
 })
 
 func waitForUAA(target string) {
+	client := &http.Client{Timeout: 5 * time.Second}
 	deadline := time.Now().Add(60 * time.Second)
 	for time.Now().Before(deadline) {
-		resp, err := http.Get(target + "/login")
+		resp, err := client.Get(target + "/login")
 		if err == nil {
 			resp.Body.Close()
 			if resp.StatusCode < 500 {
@@ -97,6 +98,22 @@ func runOK(args ...string) *Session {
 func assertValidJSON(session *Session) {
 	var v interface{}
 	Expect(json.Unmarshal(session.Out.Contents(), &v)).To(Succeed(), "expected valid JSON, got: %s", string(session.Out.Contents()))
+}
+
+// groupID looks up a group's SCIM id by name, returning "" if it can't be
+// found -- used for best-effort cleanup, not assertions.
+func groupID(name string) string {
+	session := run("get-group", name)
+	if session.ExitCode() != 0 {
+		return ""
+	}
+	var group struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(session.Out.Contents(), &group); err != nil {
+		return ""
+	}
+	return group.ID
 }
 
 var _ = Describe("uaa-cli against a live UAA server", Ordered, func() {
@@ -229,6 +246,12 @@ var _ = Describe("uaa-cli against a live UAA server", Ordered, func() {
 
 		AfterAll(func() {
 			run("delete-user", memberUsername)
+			// uaa-cli has no delete-group command yet, so clean up via the raw
+			// SCIM endpoint to avoid a name collision if this suite runs again
+			// against the same (non-freshly-booted) UAA instance.
+			if id := groupID(groupName); id != "" {
+				run("curl", "-X", "DELETE", "/Groups/"+id)
+			}
 		})
 
 		It("creates a group", func() {
