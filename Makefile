@@ -27,7 +27,7 @@ format:  ## Format Go Code
 
 .PHONY: test
 test:  ## Run Ginkgo tests
-		go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race
+		go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race --skip-package=integration
 
 .PHONY: test-integration
 test-integration:  ## Run the live-UAA integration suite (requires a running UAA at $$UAA_TARGET, default http://localhost:8080/uaa)
