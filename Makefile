@@ -29,6 +29,10 @@ format:  ## Format Go Code
 test:  ## Run Ginkgo tests
 		go run github.com/onsi/ginkgo/v2/ginkgo -v -r --randomize-suites --randomize-all -race
 
+.PHONY: test-integration
+test-integration:  ## Run the live-UAA integration suite (requires a running UAA at $$UAA_TARGET, default http://localhost:8080/uaa)
+		go run github.com/onsi/ginkgo/v2/ginkgo -tags integration -v ./integration/...
+
 .PHONY: goreleaser-check
 goreleaser-check:  ## Test goreleaser configuration
 		goreleaser check

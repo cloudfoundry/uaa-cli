@@ -1,0 +1,68 @@
+name: UAA integration test
+
+# Exercises the compiled uaa-cli binary against a real UAA server (not a
+# mocked HTTP server) so that response-shape bugs -- e.g. go-uaa failing to
+# unmarshal a field UAA legitimately serializes as more than one JSON type --
+# are caught before merge instead of by a user in production.
+#
+# Known gaps (not covered here): get-authcode-token and get-implicit-token
+# need a real browser + local OAuth redirect callback, which isn't reliably
+# scriptable headlessly. Zone-scoped (-z/--zone) command variants are also
+# not exercised.
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '20 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  uaa-integration-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout uaa-cli
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Checkout cloudfoundry/uaa
+        uses: actions/checkout@v7
+        with:
+          repository: cloudfoundry/uaa
+          ref: develop
+          path: uaa
+          persist-credentials: false
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Cache Gradle
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('uaa/**/*.gradle*', 'uaa/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Start UAA
+        run: scripts/start-uaa.sh uaa
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          check-latest: true
+
+      - name: Run live UAA integration suite
+        run: make test-integration
+
+      - name: Dump UAA boot log on failure
+        if: failure()
+        run: cat uaa-boot.log || true
