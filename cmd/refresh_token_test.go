@@ -167,8 +167,12 @@ var _ = Describe("ResfrehToken", func() {
 
 	Describe("Validations", func() {
 		Describe("when called with no client_secret", func() {
-			It("displays help and does not panic", func() {
-				ctx := config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
+			// Public clients (e.g. UAA's built-in "cf" client) have no secret,
+			// so an empty/omitted client_secret must be allowed here, matching
+			// get-password-token's handling of the same case.
+			BeforeEach(func() {
+				c = config.NewConfigWithServerURL(server.URL())
+				ctx = config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ")
 				ctx.GrantType = config.PASSWORD
 				ctx.Token.RefreshToken = "refresh me"
 				ctx.ClientId = "shinyclient"
@@ -176,10 +180,26 @@ var _ = Describe("ResfrehToken", func() {
 				c.AddContext(ctx)
 				config.WriteConfig(c)
 
+				server.RouteToHandler("POST", "/oauth/token", CombineHandlers(
+					RespondWith(http.StatusOK, jwtTokenResponseJson, contentTypeJson),
+					VerifyHeaderKV("Authorization", "Basic c2hpbnljbGllbnQ6"),
+					VerifyFormKV("refresh_token", "refresh me"),
+					VerifyFormKV("grant_type", "refresh_token"),
+				))
+			})
+
+			It("succeeds with an explicitly empty client_secret", func() {
+				session := runCommand("refresh-token", "-s", "")
+
+				Eventually(session).Should(Exit(0))
+				Eventually(session).Should(Say("Access token successfully fetched and added to active context."))
+			})
+
+			It("succeeds with client_secret omitted entirely", func() {
 				session := runCommand("refresh-token")
 
-				Eventually(session).Should(Exit(1))
-				Expect(session.Err).To(Say("Missing argument `client_secret` must be specified."))
+				Eventually(session).Should(Exit(0))
+				Eventually(session).Should(Say("Access token successfully fetched and added to active context."))
 			})
 		})
 
