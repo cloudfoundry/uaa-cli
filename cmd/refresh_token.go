@@ -54,9 +54,9 @@ func RefreshTokenValidations(cfg config.Config, clientSecret string) error {
 	if err := cli.EnsureContextInConfig(cfg); err != nil {
 		return err
 	}
-	if clientSecret == "" {
-		return cli.MissingArgumentError("client_secret")
-	}
+	// client_secret is intentionally not required here: public clients (e.g.
+	// UAA's built-in "cf" client) have no secret, and get-password-token
+	// already allows an empty client_secret for the same reason.
 	if cfg.GetActiveContext().ClientId == "" {
 		return errors.New("A client_id was not found in the active context.")
 	}
