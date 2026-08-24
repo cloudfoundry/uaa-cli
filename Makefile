@@ -33,6 +33,9 @@ test:  ## Run Ginkgo tests
 test-integration:  ## Run the live-UAA integration suite (requires a running UAA at $$UAA_TARGET, default http://localhost:8080/uaa)
 		go run github.com/onsi/ginkgo/v2/ginkgo -tags integration -v ./integration/...
 
+.PHONY: test-all
+test-all: test test-integration  ## Run both the unit and live-UAA integration suites
+
 .PHONY: goreleaser-check
 goreleaser-check:  ## Test goreleaser configuration
 		goreleaser check
