@@ -39,13 +39,7 @@ var _ = Describe("users", Ordered, func() {
 		runOK("activate-user", username)
 	})
 
-	PIt("unlocks the user", func() {
-		// PATCH /Users/{userId}/status always 500s on current UAA: the
-		// updateAccountStatus handler in ScimUserEndpoints.java is missing
-		// @ResponseBody (accidentally dropped in cloudfoundry/uaa commit
-		// 6159e2f4, 2016), so Spring tries to resolve an HTML view instead
-		// of returning JSON. Reproduced against a freshly-booted UAA, not
-		// suite/state-dependent. Un-pend once fixed upstream.
+	It("unlocks the user", func() {
 		runOK("unlock-user", username)
 	})
 })

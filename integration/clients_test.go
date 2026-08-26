@@ -16,12 +16,11 @@ var _ = Describe("clients", Ordered, func() {
 		run("delete-client", clientID)
 	})
 
-	PIt("lists clients, including the legacy string-typed additionalInformation clients seeded by scripts/boot/uaa.yml", func() {
+	It("lists clients, including the legacy string-typed additionalInformation clients seeded by scripts/boot/uaa.yml", func() {
 		// login, client_federated_jwt_trust, client_with_allowpublic_and_jwks_uri_trust,
 		// and oauth_showcase_saml2_bearer are all seeded with allowpublic/autoapprove as
 		// YAML strings, which UAA stores verbatim and serializes back as JSON strings
 		// rather than booleans -- the exact shape that broke `uaa list-clients` originally.
-		// Un-pend once cloudfoundry-community/go-uaa#175 is released and go.mod is bumped.
 		session := runOK("list-clients")
 		assertValidJSON(session)
 		Expect(string(session.Out.Contents())).To(ContainSubstring("client_federated_jwt_trust"))
