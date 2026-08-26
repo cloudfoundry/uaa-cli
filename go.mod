@@ -1,9 +1,9 @@
 module code.cloudfoundry.org/uaa-cli
 
-go 1.25.0
+go 1.26.0
 
 require (
-	github.com/cloudfoundry-community/go-uaa v0.4.2
+	github.com/cloudfoundry-community/go-uaa v0.5.0
 	github.com/fatih/color v1.19.0
 	github.com/olekukonko/tablewriter v1.1.4
 	github.com/onsi/ginkgo/v2 v2.32.1
@@ -24,7 +24,7 @@ require (
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/goccy/go-json v0.10.6 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20260802141513-ef3492d7dac3 // indirect
+	github.com/google/pprof v0.0.0-20260825171938-4d453200e7d9 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-isatty v0.0.24 // indirect
