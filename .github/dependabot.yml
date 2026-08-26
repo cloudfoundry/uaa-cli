@@ -7,6 +7,10 @@ updates:
       time: "11:00"
     allow:
       - dependency-type: "all"
+    cooldown:
+      default-days: 3
+      exclude:
+        - "github.com/cloudfoundry-community/go-uaa"
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
