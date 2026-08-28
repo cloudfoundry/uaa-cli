@@ -98,6 +98,41 @@ var _ = Describe("ListClients", func() {
 		})
 	})
 
+	Describe("when a client has a legacy string-typed resource_ids field", func() {
+		// Some servers send resource_ids as a bare string rather than an array
+		// go-uaa's Client.ResourceIDs is []string, so this currently fails.
+		const ClientsListResponseWithStringResourceIds = `{
+			  "resources" : [{
+				"client_id" : "client1",
+				"resource_ids" : "none"
+			  }],
+			  "startIndex" : 1,
+			  "itemsPerPage" : 1,
+			  "totalResults" : 1,
+			  "schemas" : [ "http://cloudfoundry.org/schema/scim/oauth-clients-1.0" ]
+			}`
+
+		BeforeEach(func() {
+			c := config.NewConfigWithServerURL(server.URL())
+			c.AddContext(config.NewContextWithToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"))
+			config.WriteConfig(c)
+		})
+
+		PIt("does not fail to parse the response", func() {
+			server.RouteToHandler("GET", "/oauth/clients",
+				CombineHandlers(
+					RespondWith(http.StatusOK, ClientsListResponseWithStringResourceIds, contentTypeJson),
+				),
+			)
+
+			session := runCommand("list-clients")
+
+			outputBytes := session.Out.Contents()
+			Expect(outputBytes).To(MatchJSON(`[{ "client_id" : "client1", "resource_ids": ["none"] }]`))
+			Eventually(session).Should(Exit(0))
+		})
+	})
+
 	Describe("when no target was previously set", func() {
 		BeforeEach(func() {
 			c := config.Config{}
