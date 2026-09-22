@@ -5,9 +5,9 @@ go 1.26.0
 require (
 	github.com/cloudfoundry-community/go-uaa v0.5.0
 	github.com/fatih/color v1.19.0
-	github.com/olekukonko/tablewriter v1.1.4
-	github.com/onsi/ginkgo/v2 v2.32.2
-	github.com/onsi/gomega v1.43.0
+	github.com/olekukonko/tablewriter v1.1.5
+	github.com/onsi/ginkgo/v2 v2.33.0
+	github.com/onsi/gomega v1.43.1
 	github.com/pkg/errors v0.9.1
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/spf13/cobra v1.10.2
