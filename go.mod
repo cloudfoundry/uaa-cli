@@ -22,7 +22,7 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
-	github.com/goccy/go-json v0.11.0 // indirect
+	github.com/goccy/go-json v0.11.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/pprof v0.0.0-20260825171938-4d453200e7d9 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
