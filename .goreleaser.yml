@@ -76,9 +76,6 @@ homebrew_casks:
      name: cf-identity
      email: cf-identity-eng@pivotal.io
    commit_msg_template: "Release {{ .ProjectName }} {{ .Tag }}"
-   # Conflicts with the old formula-based version
-   conflicts:
-     - cask: uaa-cli
    # Hooks for post-installation
    hooks:
     post:
